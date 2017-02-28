@@ -332,6 +332,7 @@ func configure(viewModel: MessageListViewModelType) {
 ## Resources
 
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using RxMVVM architecture
+* [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using RxMVVM architecture
 
 ## License
 
