@@ -2,7 +2,7 @@
 
 RxMVVM is the modern and reactive architecture for RxSwift application. This repository introduces the basic concept of RxMVVM and describes how to build an application using RxMVVM.
 
-You may want to check [Resources](#resources) section first if you'd like to see the actual code.
+You may want to check [Examples](#examples) section first if you'd like to see the actual code.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ You may want to check [Resources](#resources) section first if you'd like to see
 * [Advanced Usage](#advanced-usage)
     * [Presenting next ViewController](#presenting-next-viewcontroller)
     * [Communicating between ViewModel and ViewModel](#communicating-between-viewmodel-and-viewmodel)
-* [Resources](#resources)
+* [Examples](#examples)
 * [License](#license)
 
 ## Basic Concept
@@ -332,7 +332,7 @@ func configure(viewModel: MessageListViewModelType) {
 }
 ```
 
-## Resources
+## Examples
 
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using RxMVVM architecture
 * [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using RxMVVM architecture
