@@ -155,7 +155,7 @@ RxMVVM has a special layer named *Service*. Service layer does actual business l
 
 ### Service Provider
 
-Single ViewModel can communicate with many Services. *ServiceProvider* provides the references of Services to ViewModel. ServiceProvider is created once and passed to the first ViewModel. ViewModel should pass its reference of ServiceProvider to child ViewModel.
+Single ViewModel can communicate with many Services. *ServiceProvider* provides the references of Services to ViewModel. ServiceProvider is created once in the whole application life cycle and passed to the first ViewModel. First ViewModel should pass its reference of ServiceProvider to child ViewModel.
 
 ```swift
 let serviceProvider = ServiceProvider()
