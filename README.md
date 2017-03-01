@@ -204,7 +204,10 @@ RxMVVM suggests some conventions to write clean and concise code.
     **Bad**
 
     ```swift
-    viewModel.login() // Bad: View should not know what ViewModel does (login)
+    self.loginButton.rx.tap
+      .subscribe(onNext: {
+        viewModel.login() // Bad: View should not know what ViewModel does (login)
+      })
     ```
 
     **Good**
