@@ -7,12 +7,12 @@ You may want to check [Examples](#examples) section first if you'd like to see t
 ## Table of Contents
 
 * [Basic Concept](#basic-concept)
-* [Components](#components)
+* [Layers](#layers)
     * [View](#view)
     * [ViewModel](#viewmodel)
     * [Model](#model)
     * [Service](#service)
-    * [ServiceProvider](#service-provider)
+    * [ServiceProvider](#serviceprovider)
 * [Conventions](#conventions)
 * [Advanced Usage](#advanced-usage)
     * [Presenting next ViewController](#presenting-next-viewcontroller)
@@ -22,167 +22,90 @@ You may want to check [Examples](#examples) section first if you'd like to see t
 
 ## Basic Concept
 
-RxMVVM is based on MVVM architecture. It uses RxSwift as a communication method between each layers: *View*, *ViewModel* and *Model*. For example, user interactions are delivered from View to ViewModel via `PublishSubject`. Data is exposed by properties or `Observable` properties. It depends on whether ViewModel can provide mutable property or not.
+RxMVVM is a variation of traditional MVVM architecture. It uses [RxSwift](https://github.com/ReactiveX/RxSwift) as a communication method between each layers: *View*, *ViewModel* and *Service*. For example, user interactions are delivered from the View to the ViewModel via `PublishSubject`. The ViewModel exposes output data with Observables.
 
 <p align="center">
   <img alt="view-viewmodel-model" src="https://cloud.githubusercontent.com/assets/931655/22104896/c1f7dcfa-de84-11e6-991c-02c1a126b746.png" width="600">
 </p>
 
-## Components
+## Layers
 
 ### View
 
-*View* refers to the component which displays data. In RxMVVM, a ViewController is treated as a View. A Cell is treated as a View as well.
-
-A View only defines how to map the ViewModel's data to each UI components. These bindings are usually created in `configure()` method.
-
-```swift
-func configure(viewModel: MyViewModelType) {
-  // Input
-  self.button.rx.tap
-    .bindTo(viewModel.buttonDidTap)
-    .addDisposableTo(self.disposeBag)
-  
-  // Output
-  viewModel.isButtonEnabled
-    .drive(self.button.rx.isEnabled)
-    .addDisposableTo(self.disposeBag)
-}
-```
-
-It's recommended to define `configure()` as `private` or `fileprivate` if it's called only from the initializer. For example, every ViewController takes ViewModel in the initializer so `configure()` can be called in the initializer.
-
-```swift
-class ProfileViewController {
-  init(viewModel: ProfileViewModelType) {
-    super.init(nibName: nil, bundle: nil)
-    self.configure(viewModel: viewModel)
-  }
-  
-  private func configure(viewModel: ProfileViewModelType) {
-    // ...
-  }
-}
-```
-
-On the other hand, the Cell's `configure()` method is called from outside such as `tableView(_:cellForRowAt:)`, or `configureCell` closure if you're using [RxDataSources](https://github.com/RxSwiftCommunity/RxDataSources).
-
-```swift
-func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-  let cell = tableView.dequeueReusableCell(...)
-  cell.configure(viewModel: viewModel)
-  return cell
-}
-```
-
-In order to manage Disposables, a View typically has its own DisposeBag.
-
-```swift
-class MyView: UIView {
-  let disposeBag = DisposeBag()
-}
-```
+*View* displays data. In RxMVVM, a ViewController and a Cell are treated as View. The View only defines how to deliver user inputs to the ViewModel and how to map the ViewModel's output data to each UI components. It is recommended to not have business logic in the View. Sometimes it is allowed to have business logic for transitions or animations.
 
 ### ViewModel
 
-*ViewModel* receives user input and creates output so that View can bind it to its UI components. View usually has its corresponding ViewModel. For example, `ProfileViewController` has `ProfileViewModel`. ViewController should have its ViewModel but not all View should have its ViewModel.
+*ViewModel* receives and process user inputs and creates output. The ViewModel has two types of property: *Input* and *Output*. The Input property represents the exact user input occured in the View. For example, the Input property is formed like `loginButtonDidTap` rather than `login()`. The Output property provides the primitive data so that the View can bind it to the UI components without converting values.
 
-ViewModel follows the naming convention of the corresponding View. Here are some examples:
-
-| View | ViewModel |
-|---|---|
-| ProfileViewController | ProfileViewModel |
-| CommentInputView | CommentInputViewModel |
-| ArticleCardCell | ArticleCardCellModel |
-
-ViewModel protocols have two types of property: *Input* and *Output*. This is an example ViewModel protocol. It's recommended to define ViewModel protocol before implementing it. It gives you more testability.
-
-Inputs are usually defined as `PublishSubject` so that View can bind user inputs to ViewModel. Outputs are usually defined as `Driver` which ensures every events to be subscribed on the main thread.
-
-```swift
-protocol ProfileViewModelType {
-  // Input
-  var followButtonDidTap: PublishSubject<Void> { get }
-  // Output
-  var isFollowButtonSelected: Driver<Void> { get }
-}
-```
-
-Alternatively, you can do as following if you'd like to separate inputs and outputs explicitly:
-
-```swift
-protocol ProfileViewModelInput {
-  var followButtonDidTap: PublishSubject<Void> { get }
-}
-protocol ProfileViewModelOutput {
-  var isFollowButtonSelected: Driver<Void> { get }
-}
-typealias ProfileViewModelType = ProfileViewModelInput & ProfileViewModelOutput
-```
-
-ViewModel should initialize inputs and outputs in the initializer.
-
-```swift
-class ProfileViewModel {
-  // MARK: Input
-  let followButtonDidTap = PublishSubject<Int>()
-  
-  // MARK: Output
-  let isFollowButtonSelected: Driver<Void>
-  
-  // MARK: Init
-  init(provider: ServiceProvider) {
-    self.isFollowButtonSelected = self.followButtonDidTap
-      .flatMap { (userID: Int) -> Observable<Void> in
-        return provider.userService.follow(userID: userID).map { _ in true }
-      }
-      .asDriver(onErrorJustReturn: false)
-  }
-}
-```
+ViewModel **must not** have the reference of the View instance. However, in order to provide primitive data, ViewModel knows the indirect information about which values the View needs.
 
 ### Model
 
-*Model* only represents data structure.
+*Model* only represents data structure. The Model **should not** have any business logic except serialization and deserialization.
 
 ### Service
 
-RxMVVM has a special layer named *Service*. Service layer does actual business logic such as networking. ViewModel is a middle layer which manages event streams. When ViewModel receives user input from View, ViewModel manipulates the event stream and passes it to Service. Service will make a network request, map the response to Model, then send it back to ViewModel.
+RxMVVM has a special layer named *Service*. Service layer does actual business logic such as networking. The ViewModel is a middle layer which manages event streams. When the ViewModel receives user inputs from the View, the ViewModel manipulates and compose the event streams and passes them to the Service. Then the Service makes a network request, maps the response to the Model, and send it back to the ViewModel.
 
 <p align="center">
   <img alt="service-layer" src="https://cloud.githubusercontent.com/assets/931655/22107072/5cb57fc2-de8f-11e6-8eee-07b564673a70.png" width="600">
 </p>
 
-### Service Provider
+### ServiceProvider
 
-Single ViewModel can communicate with many Services. *ServiceProvider* provides the references of Services to ViewModel. ServiceProvider is created once in the whole application life cycle and passed to the first ViewModel. First ViewModel should pass its reference of ServiceProvider to child ViewModel.
-
-```swift
-let serviceProvider = ServiceProvider()
-let firstViewModel = FirstViewModel(provider: serviceProvider)
-let firstViewController = FirstViewController(viewModel: firstViewModel)
-window.rootViewController = firstViewController
-```
-
-ServiceProvider is not complicated. Here is an example code of ServiceProvider:
-
-```swift
-protocol ServiceProviderType: class {
-  var userService: UserServiceType { get }
-  var articleService: ArticleServiceType { get }
-}
-
-final class ServiceProvider: ServiceProviderType {
-  lazy var userService: UserServiceType = UserService(provider: self)
-  lazy var articleService: ArticleServiceType = ArticleService(provider: self)
-}
-```
+A single ViewModel can communicate with many Services. *ServiceProvider* provides the references of the Services to the ViewModel. The ServiceProvider is created once in the whole application life cycle and passed to the first ViewModel. The first ViewModel should pass the same reference of the ServiceProvider instance to the child ViewModel.
 
 ## Conventions
 
 RxMVVM suggests some conventions to write clean and concise code.
 
-* View doesn't have control flow. View cannot modify the data. View only knows how to map the data.
+* You should use `PublishSubject` for Input properties and `Driver` for Output properties.
+
+    ```swift
+    protocol MyViewModelType {
+      // Input
+      var loginButtonDidTap: PublishSubject<Void> { get }
+
+      // Output
+      var isLoginButtonEnabled: Driver<Bool> { get } 
+    }
+    ```
+
+* ViewModel should have the ServiceProvider as the initializer's first argument.
+
+    ```swift
+    class MyViewModel {
+      init(provider: ServiceProviderType)
+    }
+    ```
+
+* You must create a ViewModel outside of the View. Pass the ViewModel to the initializer if the View is not reusable. Pass the ViewModel to the `configure(viewModel:)` method if the View is reusable.
+
+    **Bad**
+
+    ```swift
+    class MyViewController {
+      let viewModel = MyViewModel()
+    }
+    ```
+
+    **Good**
+
+    ```swift
+    let viewModel = MyViewModel(provider: provider)
+    let viewController = MyViewController(viewModel: viewModel)
+    ```
+
+* The ServiceProvider should be created and passed to the first-most View.
+
+    ```swift
+    let serviceProvider = ServiceProvider()
+    let firstViewModel = FirstViewModel(provider: serviceProvider)
+    window.rootViewController = FirstViewController(viewModel: firstViewModel)
+    ```
+
+* The View should not have control flow. It means that the View cannot modify the data. The View only knows how to map the data.
 
     **Bad**
 
@@ -193,37 +116,36 @@ RxMVVM suggests some conventions to write clean and concise code.
     ```
 
     **Good**
-    
+
     ```swift
     viewModel.titleLabelText
       .bindTo(self.titleLabel.rx.text)
     ```
 
-* View doesn't know what ViewModel does. View can only communicate to ViewModel about what View did.
+* The View should not know what the ViewModel does. The View can only communicate to ViewModel about what the View did.
 
     **Bad**
 
     ```swift
-    self.loginButton.rx.tap
-      .subscribe(onNext: {
-        viewModel.login() // Bad: View should not know what ViewModel does (login)
-      })
+    protocol MyViewModelType {
+      // Bad: View know what the ViewModel does (login)
+      var login: PublishSubject<Void> { get }
+    }
     ```
 
-    **Good**
-    
+    **Goods**
+
     ```swift
-    self.loginButton.rx.tap
-      .bindTo(viewModel.loginButtonDidTap) // "Hey I clicked the login button"
-
-    self.usernameInput.rx.controlEvent(.editingDidEndOnExit)
-      .bindTo(viewModel.usernameInputDidReturn) // "Hey I tapped the return on username input"
+    protocol MyViewModelType {
+      // View just say "Hey I clicked the login button"
+      var loginButtonDidTap: PublishSubject<Void> { get }
+    }
     ```
 
-* Model is hidden by ViewModel. ViewModel only exposes the minimum data so that View can render.
+* The ViewModel should hide the Model. The ViewModel only exposes the minimum data so that the View can render.
 
     **Bad**
-    
+
     ```swift
     struct ProductViewModel {
       let product: Driver<Product> // Bad: ViewModel should hide Model
@@ -231,7 +153,7 @@ RxMVVM suggests some conventions to write clean and concise code.
     ```
 
     **Good**
-    
+
     ```swift
     struct ProductViewModel {
       let productName: Driver<String>
@@ -241,9 +163,28 @@ RxMVVM suggests some conventions to write clean and concise code.
     }
     ```
 
+* You should use protocols to have loose dependency. Usually the ViewModel, Service and ServiceProvider have its corresponding protocols.
+
+    ```swift
+    protocol ServiceProviderType {
+      var userDefaultsService: UserDefaultServiceType { get }
+      var keychainService: KeychainServiceType { get }
+      var authService: AuthServiceType { get }
+      var userService: UserServiceType { get }
+    }
+    ```
+
+    ```swift
+    protocol UserServiceType {
+      func user(id: Int) -> Observable<User>
+      func updateUser(id: Int, name: String?) -> Observable<User>
+      func followUser(id: Int) -> Observable<Void>
+    }
+    ```
+
 ## Advanced Usage
 
-This chapter describes some architectural considerations.
+This chapter describes some architectural considerations for real world.
 
 ### Presenting next ViewController
 
@@ -251,41 +192,41 @@ Almost applications have more than one ViewController.  In MVC architecture, Vie
 
 In RxMVVM, `ListViewModel` creates `DetailViewModel` and passes it to `ListViewController`. Then the `ListViewController` creates `DetailViewController` with the `DetailViewModel` received from `ListViewModel`.
 
-Here is an example code of `ListViewModel`:
+* **ListViewModel**
 
-```swift
-class ListViewModel: ListViewModelType {
-  // MARK: Input
-  let detailButtonDidTap: PublishSubject<Void> = .init()
-  
-  // MARK: Output
-  let presentDetailViewModel: Observable<DetailViewModelType>
+    ```swift
+    class ListViewModel: ListViewModelType {
+      // MARK: Input
+      let detailButtonDidTap: PublishSubject<Void> = .init()
 
-  // MARK: Init
-  init(provider: ServiceProviderType) {
-    self.presentDetailViewModel = self.detailButtonDidTap
-      .map { _ -> DetailViewModelType in
-        return DetailViewModel(provider: provider)
+      // MARK: Output
+      let presentDetailViewModel: Observable<DetailViewModelType> // No Driver here
+
+      // MARK: Init
+      init(provider: ServiceProviderType) {
+        self.presentDetailViewModel = self.detailButtonDidTap
+          .map { _ -> DetailViewModelType in
+            return DetailViewModel(provider: provider)
+          }
       }
-  }
-}
-```
+    }
+    ```
 
-And `ListViewController`:
+* **ListViewController**
 
-```swift
-class ListViewController: UIViewController {
-  private func configure(viewModel: ListViewModelType) {
-    // Output
-    viewModel.detailViewModel
-      .subscribe(onNext: { viewModel in
-        let detailViewController = DetailViewController(viewModel: viewModel)
-        self.navigationController?.pushViewController(detailViewController, animated: true)
-      })
-      .addDisposableTo(self.disposeBag)
-  }
-}
-```
+    ```swift
+    class ListViewController: UIViewController {
+      private func configure(viewModel: ListViewModelType) {
+        // Output
+        viewModel.detailViewModel
+          .subscribe(onNext: { viewModel in
+            let detailViewController = DetailViewController(viewModel: viewModel)
+            self.navigationController?.pushViewController(detailViewController, animated: true)
+          })
+          .addDisposableTo(self.disposeBag)
+      }
+    }
+    ```
 
 ### Communicating between ViewModel and ViewModel
 
@@ -295,47 +236,48 @@ Sometimes ViewModel should receive data (such as user input) from the other View
   <img alt="viewmodel-viewmodel" src="https://cloud.githubusercontent.com/assets/931655/23399004/f12ee49c-fde1-11e6-95b2-1df397128c51.png" width="600">
 </p>
 
-**MessageInputView.swift**
+* **MessageInputView.swift**
 
-```swift
-extension Reactive where Base: MessageInputView {
-  var sendButtonTap: ControlEvent<String?> { ... }
-  var isSendButtonLoading: ControlEvent<String?> { ... }
-}
-```
+    ```swift
+    extension Reactive where Base: MessageInputView {
+      var sendButtonTap: ControlEvent<String?> { ... }
+      var isSendButtonLoading: ControlEvent<String?> { ... }
+    }
+    ```
 
-**MessageListViewModel.swift**
+* **MessageListViewModel.swift**
 
-```swift
-protocol MessageListViewModelType {
-  // Input
-  var messageInputViewSendButtonDidTap: PublishSubject<String?> { get }
+    ```swift
+    protocol MessageListViewModelType {
+      // Input
+      var messageInputViewSendButtonDidTap: PublishSubject<String?> { get }
 
-  // Output
-  var isMessageInputViewSendButtonLoading: Driver<Bool> { get }
-}
-```
+      // Output
+      var isMessageInputViewSendButtonLoading: Driver<Bool> { get }
+    }
+    ```
 
-**MessageListViewController.swift**
+* **MessageListViewController.swift**
 
-```swift
-func configure(viewModel: MessageListViewModelType) {
-  // Input
-  self.messageInputView.rx.sendButtonTap
-    .bindTo(viewModel.messageInputViewSendButtonDidTap)
-    .addDisposableTo(self.disposeBag)
+    ```swift
+    func configure(viewModel: MessageListViewModelType) {
+      // Input
+      self.messageInputView.rx.sendButtonTap
+        .bindTo(viewModel.messageInputViewSendButtonDidTap)
+        .addDisposableTo(self.disposeBag)
 
-  // Output
-  viewModel.isMessageInputViewSendButtonLoading
-    .drive(self.messageInputView.rx.isSendButtonLoading)
-    .addDisposableTo(self.disposeBag)
-}
-```
+      // Output
+      viewModel.isMessageInputViewSendButtonLoading
+        .drive(self.messageInputView.rx.isSendButtonLoading)
+        .addDisposableTo(self.disposeBag)
+    }
+    ```
 
 ## Examples
 
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using RxMVVM architecture
 * [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using RxMVVM architecture
+* [Dribbblr](https://github.com/devxoul/Dribbblr): Unofficial Dribbble iOS application using RxMVVM architecture
 
 ## License
 
