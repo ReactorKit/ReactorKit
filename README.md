@@ -277,7 +277,7 @@ Sometimes ViewModel should receive data (such as user input) from the other View
 
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using RxMVVM architecture
 * [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using RxMVVM architecture
-* [Dribbblr](https://github.com/devxoul/Dribbblr): Unofficial Dribbble iOS application using RxMVVM architecture
+* [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using RxMVVM architecture
 
 ## License
 
