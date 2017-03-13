@@ -4,6 +4,14 @@ RxMVVM is the modern and reactive architecture for RxSwift application. This rep
 
 You may want to check [Examples](#examples) section first if you'd like to see the actual code.
 
+---
+
+## ⚠️ Prerelease Stage
+
+This document is currently in prereleasing stage. Everything can be changed in the future.
+
+---
+
 ## Table of Contents
 
 * [Basic Concept](#basic-concept)
