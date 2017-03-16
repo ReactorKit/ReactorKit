@@ -44,7 +44,7 @@ Reactive Architecture is a variation of [Presentation Model](https://martinfowle
 
 ### ViewReactor
 
-*ViewReactor* receives and process user inputs and creates output. The ViewReactor has two types of property: *Input* and *Output*. The Input property represents the exact user input occured in the View. For example, the Input property is formed like `loginButtonDidTap` rather than `login()`. The Output property provides the primitive data so that the View can bind it to the UI components without converting values.
+*ViewReactor* is an UI independent layer which receives user inputs and creates output. The ViewReactor has two types of property: *Input* and *Output*. The Input property represents the exact user input occured in the View. The Input property is formed like `loginButtonDidTap` rather than `login()`. The Output property provides the primitive data so that the View can bind it to the UI components without converting values.
 
 ViewReactor **must not** have the reference of the View instance. However, in order to provide primitive data, ViewReactor knows the indirect information about which values the View needs.
 
