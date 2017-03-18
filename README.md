@@ -1,6 +1,6 @@
 # The Reactive Architecture
 
-The Reactive Architecture is the modern and reactive architecture for RxSwift application. This repository introduces the basic concept of Reactive Architecture and describes how to build an application using Reactive Architecture.
+The Reactive Architecture is the modern and reactive architecture for Swift application. This repository introduces the basic concept of Reactive Architecture and describes how to build an application using Reactive Architecture.
 
 You may want to check [Examples](#examples) section first if you'd like to see the actual code.
 
@@ -30,13 +30,17 @@ This document is currently in prereleasing stage. Everything can be changed in t
 
 ## Basic Concept
 
-Reactive Architecture is a variation of [Presentation Model](https://martinfowler.com/eaaDev/PresentationModel.html). It uses [RxSwift](https://github.com/ReactiveX/RxSwift) as a communication method between each layers: *View*, *ViewReactor* and *Service*. For example, user interactions are delivered from the View to the ViewReactor via PublishSubjects. The ViewReactor exposes output data with Observables.
+The Reactive Architecture is a combination of [Presentation Model](https://martinfowler.com/eaaDev/PresentationModel.html) and [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming). It uses event stream as a communication method between each layers. For example, user interactions are delivered from the View to the ViewReactor via PublishSubjects. The ViewReactor exposes the output data via Observables.
 
 <p align="center">
   <img alt="view-viewreactor-model" src="https://cloud.githubusercontent.com/assets/931655/24015671/79e29224-0acc-11e7-9e02-fade44a31ab4.png" width="600">
 </p>
 
+You can use any kind of reactive programming framework such as [RxSwift](https://github.com/ReactiveX/RxSwift) and [ReactiveSwift](https://github.com/ReactiveCocoa/ReactiveSwift).
+
 ## Layers
+
+The Reactive Architecture separates the responsibility to each layers. The View binds user inputs and output data. The ViewReactor composes and transforms the event streams. The Model represents data. And the Service performs the business logic. Since each layer is independent and self-contained, it is super easy to test.
 
 ### View
 
