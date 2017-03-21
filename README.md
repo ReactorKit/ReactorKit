@@ -8,7 +8,7 @@ You may want to check [Examples](#examples) section first if you'd like to see t
 
 ## ⚠️ Prerelease Stage
 
-This document is currently in prereleasing stage. Everything can be changed in the future.
+This document is currently in prereleasing stage. Everything can be changed in the future. Major changes can be found in the [Changelog](#changelog) section.
 
 ---
 
@@ -26,6 +26,7 @@ This document is currently in prereleasing stage. Everything can be changed in t
     * [Presenting next ViewController](#presenting-next-viewcontroller)
     * [Communicating between ViewReactor and ViewReactor](#communicating-between-viewreactor-and-viewreactor)
 * [Examples](#examples)
+* [Changelog](#changelog)
 * [License](#license)
 
 ## Basic Concept
@@ -290,6 +291,12 @@ Sometimes ViewReactor should receive data (such as user input) from the other Vi
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using Reactive Architecture
 * [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using Reactive Architecture
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using Reactive Architecture
+
+## Changelog
+
+* 2017-03-17
+    * Change the architecture name from RxMVVM to The Reactive Architecture.
+    * Every ViewModels are renamed to ViewReactors.
 
 ## License
 
