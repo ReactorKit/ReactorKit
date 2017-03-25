@@ -141,16 +141,16 @@ Reactive Architecture suggests some conventions to write clean and concise code.
 
     ```swift
     protocol MyViewReactorType {
-      // Bad: View know what the ViewReactor does (login)
+      // Bad: View knows what the ViewReactor does (login)
       var login: PublishSubject<Void> { get }
     }
     ```
 
-    **Goods**
+    **Good**
 
     ```swift
     protocol MyViewReactorType {
-      // View just say "Hey I clicked the login button"
+      // View just says "Hey I clicked the login button"
       var loginButtonDidTap: PublishSubject<Void> { get }
     }
     ```
