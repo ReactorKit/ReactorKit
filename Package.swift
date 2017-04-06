@@ -3,5 +3,8 @@
 import PackageDescription
 
 let package = Package(
-  name: "Reactor"
+  name: "Reactor",
+  dependencies: [
+    .Package(url: "https://github.com/ReactiveX/RxSwift.git", majorVersion: 3),
+  ]
 )
