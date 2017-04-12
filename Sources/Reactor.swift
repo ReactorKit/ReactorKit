@@ -9,10 +9,10 @@
 import RxSwift
 
 /// The base class of reactors.
-open class Reactor<ActionType, MutationType, StateType>: ReactorType {
-  public typealias Action = ActionType
-  public typealias Mutation = MutationType
-  public typealias State = StateType
+open class Reactor<Components: ReactorComponents>: ReactorType {
+  public typealias Action = Components.Action
+  public typealias Mutation = Components.Mutation
+  public typealias State = Components.State
 
   internal let actionSubject: PublishSubject<Action> = .init()
   open let action: AnyObserver<Action>
