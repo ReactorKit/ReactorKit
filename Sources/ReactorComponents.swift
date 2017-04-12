@@ -7,8 +7,8 @@
 //
 
 public protocol ReactorComponents {
-  associatedtype Action
-  associatedtype Mutation
+  associatedtype Action = NoAction
+  associatedtype Mutation = Action
   associatedtype State
 }
 
