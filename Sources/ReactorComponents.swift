@@ -11,3 +11,6 @@ public protocol ReactorComponents {
   associatedtype Mutation
   associatedtype State
 }
+
+public struct NoAction {}
+public struct NoMutation {}
