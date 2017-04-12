@@ -1,6 +1,6 @@
 //
 //  ViewType.swift
-//  Reactor
+//  ReactorKit
 //
 //  Created by Suyeol Jeon on 13/04/2017.
 //  Copyright © 2017 Suyeol Jeon. All rights reserved.
