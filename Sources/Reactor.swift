@@ -38,6 +38,7 @@ open class Reactor<ActionType, MutationType, StateType>: ReactorType {
         return self.reduce(state: state, mutation: mutation)
       }
       .startWith(self.initialState)
+      .retry() // ignore errors
       .shareReplay(1)
       .do(onNext: { [weak self] state in
         self?.currentState = state
