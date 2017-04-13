@@ -52,7 +52,11 @@ open class Reactor<Components: ReactorComponents>: ReactorType {
   }
 
   open func mutate(action: Action) -> Observable<Mutation> {
-    return .empty()
+    if let mutation = action as? Mutation {
+      return .just(mutation)
+    } else {
+      return .empty()
+    }
   }
 
   open func reduce(state: State, mutation: Mutation) -> State {
