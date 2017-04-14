@@ -36,10 +36,9 @@ extension View {
   public var reactor: Reactor? {
     get { return self.associatedObject(forKey: &reactorKey) }
     set {
+      guard self.reactor !== newValue else { return }
       self.setAssociatedObject(newValue, forKey: &reactorKey)
-      if self.reactor !== newValue {
-        self.disposeBag = DisposeBag()
-      }
+      self.disposeBag = DisposeBag()
       if let reactor = newValue {
         self.bind(reactor: reactor)
       }
