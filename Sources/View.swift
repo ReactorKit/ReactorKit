@@ -1,5 +1,5 @@
 //
-//  ViewType.swift
+//  View.swift
 //  ReactorKit
 //
 //  Created by Suyeol Jeon on 13/04/2017.
@@ -11,12 +11,9 @@ import Foundation
 
 import RxSwift
 
-private struct AssociatedObjectKey {
-  static let reactor = "reactor"
-}
-
-public protocol ViewType: class {
-  associatedtype Reactor: ReactorType
+public typealias _View = View
+public protocol View: class, AssociatedObjectStore {
+  associatedtype Reactor: _Reactor
 
   var disposeBag: DisposeBag { get set }
   var reactor: Reactor? { get set }
@@ -25,15 +22,19 @@ public protocol ViewType: class {
   func configure(reactor: Reactor)
 }
 
-extension ViewType {
+
+// MARK: - Associated Object Keys
+
+private var reactorKey = "reactor"
+
+
+// MARK: - Default Implementations
+
+extension View {
   public var reactor: Reactor? {
-    get {
-      let key = AssociatedObjectKey.reactor
-      return objc_getAssociatedObject(self, key) as? Reactor
-    }
+    get { return self.associatedObject(forKey: &reactorKey) }
     set {
-      let key = AssociatedObjectKey.reactor
-      objc_setAssociatedObject(self, key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+      self.setAssociatedObject(newValue, forKey: &reactorKey)
       if self.reactor !== newValue {
         self.disposeBag = DisposeBag()
       }

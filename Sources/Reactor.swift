@@ -8,26 +8,76 @@
 
 import RxSwift
 
-/// The base class of reactors.
-open class Reactor<Components: ReactorComponents>: ReactorType {
-  public typealias Action = Components.Action
-  public typealias Mutation = Components.Mutation
-  public typealias State = Components.State
+public struct NoAction {}
+public struct NoMutation {}
 
-  internal let actionSubject: PublishSubject<Action> = .init()
-  open let action: AnyObserver<Action>
+public typealias _Reactor = Reactor
+public protocol Reactor: class, AssociatedObjectStore {
+  associatedtype Action
+  associatedtype Mutation = Action
+  associatedtype State
 
-  open let initialState: State
-  open private(set) var currentState: State
-  open lazy private(set) var state: Observable<State> = self.createStateStream()
+  /// The action from the view. Bind user inputs to this subject.
+  var action: AnyObserver<Action> { get }
 
-  public init(initialState: State) {
-    self.action = self.actionSubject.asObserver()
-    self.initialState = initialState
-    self.currentState = initialState
+  /// The initial state.
+  var initialState: State { get }
+
+  /// The current state. This value is changed just after the state stream emits a new state.
+  var currentState: State { get }
+
+  /// The state stream. Use this observable to observe the state changes.
+  var state: Observable<State> { get }
+
+  /// Transforms the action. Use this function to combine with other observables. This method is
+  /// called once before the state stream is created.
+  func transform(action: Observable<Action>) -> Observable<Action>
+
+  /// Commits mutation from the action. This is the best place to perform side-effects such as
+  /// async tasks.
+  func mutate(action: Action) -> Observable<Mutation>
+
+  /// Generates a new state with the previous state and the action. It should be purely functional
+  /// so it should not perform any side-effects here. This method is called every time when the
+  /// mutation is committed.
+  func reduce(state: State, mutation: Mutation) -> State
+
+  /// Transforms the state stream. Use this function to perform side-effects such as logging. This
+  /// method is called once after the state stream is created.
+  func transform(state: Observable<State>) -> Observable<State>
+}
+
+
+// MARK: - Associated Object Keys
+
+private var actionSubjectKey = "actionSubject"
+private var actionKey = "action"
+private var currentStateKey = "currentState"
+private var stateKey = "state"
+
+
+// MARK: - Default Implementations
+
+extension Reactor {
+  internal var actionSubject: PublishSubject<Action> {
+    get { return self.associatedObject(forKey: &actionSubjectKey, default: .init()) }
+    set { self.setAssociatedObject(newValue, forKey: &actionSubjectKey) }
   }
 
-  internal func createStateStream() -> Observable<State> {
+  public var action: AnyObserver<Action> {
+    get { return self.associatedObject(forKey: &actionKey, default: self.actionSubject.asObserver()) }
+  }
+
+  public var currentState: State {
+    get { return self.associatedObject(forKey: &currentStateKey, default: self.initialState) }
+    set { self.setAssociatedObject(newValue, forKey: &currentStateKey) }
+  }
+
+  public var state: Observable<State> {
+    get { return self.associatedObject(forKey: &stateKey, default: self.createStateStream()) }
+  }
+
+  public func createStateStream() -> Observable<State> {
     let state = self.transform(action: self.actionSubject)
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let `self` = self else { return .empty() }
@@ -47,23 +97,25 @@ open class Reactor<Components: ReactorComponents>: ReactorType {
     return self.transform(state: state)
   }
 
-  open func transform(action: Observable<Action>) -> Observable<Action> {
+  public func transform(action: Observable<Action>) -> Observable<Action> {
     return action
   }
 
-  open func mutate(action: Action) -> Observable<Mutation> {
-    if let mutation = action as? Mutation {
-      return .just(mutation)
-    } else {
-      return .empty()
-    }
+  public func mutate(action: Action) -> Observable<Mutation> {
+    return .empty()
   }
 
-  open func reduce(state: State, mutation: Mutation) -> State {
+  public func reduce(state: State, mutation: Mutation) -> State {
     return state
   }
 
-  open func transform(state: Observable<State>) -> Observable<State> {
+  public func transform(state: Observable<State>) -> Observable<State> {
     return state
+  }
+}
+
+extension Reactor where Action == Mutation {
+  public func mutate(action: Action) -> Observable<Mutation> {
+    return .just(action)
   }
 }
