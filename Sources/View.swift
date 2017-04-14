@@ -18,8 +18,10 @@ public protocol View: class, AssociatedObjectStore {
   var disposeBag: DisposeBag { get set }
   var reactor: Reactor? { get set }
 
-  /// Configure View using Reactor. Don't call this method directly.
-  func configure(reactor: Reactor)
+  /// Binds View with Reactor.
+  ///
+  /// - warning: Don't call this method directly.
+  func bind(reactor: Reactor)
 }
 
 
@@ -39,7 +41,7 @@ extension View {
         self.disposeBag = DisposeBag()
       }
       if let reactor = newValue {
-        self.configure(reactor: reactor)
+        self.bind(reactor: reactor)
       }
     }
   }
