@@ -14,6 +14,7 @@ ReactorKit is currently in prereleasing stage. Everything can be changed in the 
 
 ## Table of Contents
 
+* [Installation](#installation)
 * [Basic Concept](#basic-concept)
     * [View](#view)
     * [Reactor](#reactor)
@@ -24,6 +25,20 @@ ReactorKit is currently in prereleasing stage. Everything can be changed in the 
 * [Examples](#examples)
 * [Changelog](#changelog)
 * [License](#license)
+
+## Installation
+
+* **Using [CocoaPods](https://cocoapods.org)**:
+
+    ```ruby
+    pod 'ReactorKit'
+    ```
+
+* **Using [Carthage](https://github.com/Carthage/Carthage)**:
+
+    ```
+    github "devxoul/ReactorKit" ~> 0.1
+    ```
 
 ## Basic Concept
 
@@ -125,7 +140,7 @@ func mutate(action: Action) -> Observable<Mutation> {
 }
 ```
 
-#### reduce()
+#### `reduce()`
 
 `reduce()` generates a new `State` from an old `State` and a `Mutation`. 
 
