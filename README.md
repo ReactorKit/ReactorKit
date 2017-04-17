@@ -1,91 +1,211 @@
-# The Reactive Architecture
+# ReactorKit
 
-The Reactive Architecture is the modern and reactive architecture for Swift application. This repository introduces the basic concept of Reactive Architecture and describes how to build an application using Reactive Architecture.
+ReactorKit is a framework for reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
-You may want to check [Examples](#examples) section first if you'd like to see the actual code.
+You may want to see [Examples](#examples) section first if you'd like to see the actual code.
 
 ---
 
-## ⚠️ Prerelease Stage
+## ⚠️ Prereleasing Stage
 
-This document is currently in prereleasing stage. Everything can be changed in the future. Major changes can be found in the [Changelog](#changelog) section.
+ReactorKit is currently in prereleasing stage. Everything can be changed in the future. Major changes can be found in the [Changelog](#changelog) section.
 
 ---
 
 ## Table of Contents
 
 * [Basic Concept](#basic-concept)
-* [Layers](#layers)
     * [View](#view)
-    * [ViewReactor](#viewreactor)
-    * [Model](#model)
+    * [Reactor](#reactor)
+* [Advanced](#advanced)
     * [Service](#service)
     * [ServiceProvider](#serviceprovider)
 * [Conventions](#conventions)
-* [Advanced Usage](#advanced-usage)
-    * [Presenting next ViewController](#presenting-next-viewcontroller)
-    * [Communicating between ViewReactor and ViewReactor](#communicating-between-viewreactor-and-viewreactor)
 * [Examples](#examples)
 * [Changelog](#changelog)
 * [License](#license)
 
 ## Basic Concept
 
-The Reactive Architecture is a combination of [Presentation Model](https://martinfowler.com/eaaDev/PresentationModel.html) and [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming). It uses event stream as a communication method between each layers. For example, user interactions are delivered from the View to the ViewReactor via PublishSubjects. The ViewReactor exposes the output data via Observables.
+ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming). The user actions and the view states are delivered to each layer via observable streams. These streams are unidirectional so the view can only emit actions and the reactor can only emit states.
 
 <p align="center">
-  <img alt="view-viewreactor-model" src="https://cloud.githubusercontent.com/assets/931655/24015671/79e29224-0acc-11e7-9e02-fade44a31ab4.png" width="600">
+  <img alt="flow" src="https://cloud.githubusercontent.com/assets/931655/25073432/a91c1688-2321-11e7-8f04-bf91031a09dd.png" width="600">
 </p>
-
-You can use any kind of reactive programming framework such as [RxSwift](https://github.com/ReactiveX/RxSwift) and [ReactiveSwift](https://github.com/ReactiveCocoa/ReactiveSwift).
-
-## Layers
-
-The Reactive Architecture separates the responsibility to each layers. The View binds user inputs and output data. The ViewReactor composes and transforms the event streams. The Model represents data. And the Service performs the business logic. Since each layer is independent and self-contained, it is super easy to test.
 
 ### View
 
-*View* displays data. In Reactive Architecture, a ViewController and a Cell are treated as View. The View only defines how to deliver user inputs to the ViewReactor and how to map the ViewReactor's output data to each UI components. It is recommended to not have business logic in the View. Sometimes it is allowed to have business logic for transitions or animations.
+*View* displays data. A view controller and a cell are treated as a view. The view binds user-inputs to the action stream and binds the view states to each UI components. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
 
-### ViewReactor
+To define a view, just conform a protocol named `View` to an existing class. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
 
-*ViewReactor* is an UI independent layer which receives user inputs and creates output. The ViewReactor has two types of property: *Input* and *Output*. The Input property represents the exact user input occured in the View. The Input property is formed like `loginButtonDidTap` rather than `login()`. The Output property provides the primitive data so that the View can bind it to the UI components without converting values.
+```swift
+class ProfileViewController: UIViewController, View {
+  var disposeBag = DisposeBag()
+}
 
-ViewReactor **must not** have the reference of the View instance. However, in order to provide primitive data, ViewReactor knows the indirect information about which values the View needs.
+profileViewController.reactor = UserViewReactor() // inject reactor
+```
 
-### Model
+When the `reactor` property has changed, `bind(reactor:)` gets called. Implement this method to define the bindings of an action stream and a state stream.
 
-*Model* only represents data structure. The Model **should not** have any business logic except serialization and deserialization.
+```swift
+func bind(reactor: ProfileViewReactor) {
+  // action (View -> Reactor)
+  refreshButton.rx.tap.map { Reactor.Action.refresh }
+    .bindTo(reactor.action)
+    .addDisposableTo(self.disposeBag)
+
+  // state (Reactor -> View)
+  reactor.state.map { $0.isFollowing }
+    .bindTo(followButton.rx.isSelected)
+    .addDisposableTo(self.disposeBag)
+}
+```
+
+### Reactor
+
+*Reactor* is an UI independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates every logical things to its reactor. A reactor has no dependency of a view so it can be easily tested.
+
+Conform a protocol named `Reactor` to define a reactor. This protocol requires three types: `Action`, `Mutation` and `State`. It also requies a property named `initialState`.
+
+```swift
+class ProfileViewReactor: Reactor {
+  // about what user did
+  enum Action {
+    case refreshFollowingStatus(Int)
+    case follow(Int)
+  }
+
+  // about how to manipulate the state
+  enum Mutation {
+    case setFollowing(Bool)
+  }
+
+  // about current view state
+  struct State {
+    var isFollowing: Bool = false
+  }
+
+  let initialState: State = State()
+}
+```
+
+`Action` represents an user interaction and `State` represents a view state. `Mutation` is a bridge between `Action` and `State`. A reactor converts the action stream to the state stream in two steps: `mutate()` and `reduce()`.
+
+<p align="center">
+  <img alt="flow-reactor" src="https://cloud.githubusercontent.com/assets/931655/25098066/2de21a28-23e2-11e7-8a41-d33d199dd951.png" width="800">
+</p>
+
+#### `mutate()`
+
+`mutate()` receives an `Action` and generates an `Observable<Mutation>`.
+
+```swift
+func mutate(action: Action) -> Observable<Mutation>
+```
+
+Every side effect such as async operation or API call are performed in this method.
+
+```swift
+func mutate(action: Action) -> Observable<Mutation> {
+  switch action {
+  case let .refreshFollowingStatus(userID): // receive an action
+    return UserAPI.isFollowing(userID) // create an API stream
+      .map { (isFollowing: Bool) -> Mutation in
+        return Mutation.setFollowing(isFollowing) // convert to Mutation stream
+      }
+
+  case let .follow(userID):
+    return UserAPI.follow()
+      .map { _ -> Mutation in
+        return Mutation.setFollowing(true)
+      }
+  }
+}
+```
+
+#### reduce()
+
+`reduce()` generates a new `State` from an old `State` and a `Mutation`. 
+
+```swift
+func reduce(state: State, mutation: Mutation) -> State
+```
+
+This method is a pure function. It should just return a new `State` synchronously. Don't perform any side effects in this function.
+
+```swift
+func reduce(state: State, mutation: Mutation) -> State {
+  var state = state // create a copy of old state
+  switch mutation {
+  case let .setFollowing(isFollowing):
+    state.isFollowing = isFollowing // manipulate a new state
+    return state // return a new state
+  }
+}
+```
+
+## Advanced
 
 ### Service
 
-Reactive Architecture has a special layer named *Service*. Service layer does actual business logic such as networking. The ViewReactor is a middle layer which manages event streams. When the ViewReactor receives user inputs from the View, the ViewReactor manipulates and compose the event streams and passes them to the Service. Then the Service makes a network request, maps the response to the Model, and send it back to the ViewReactor.
+ReactorKit has a special layer named *Service*. A service layer does an actual business logic. A reactor is a middle layer between a view and a service which manages event streams. When a reactor receives an user action from a view, the reactor calls the service logic. The service makes a network request and sends the response back to the reactor. Then the reactor create a mutation stream with the service response.
 
-<p align="center">
-  <img alt="service-layer" src="https://cloud.githubusercontent.com/assets/931655/24015672/7b4d8916-0acc-11e7-8f6c-0cee4a6d8f0e.png" width="600">
-</p>
+Use this snippet for base service class:
+
+```swift
+class Service {
+  unowned let provider: ServiceProviderType
+
+  init(provider: ServiceProviderType) {
+    self.provider = provider
+  }
+}
+```
+
+Here is an example of service:
+
+```swift
+protocol UserServiceType {
+  func user(id: Int) -> Observable<User>
+  func follow(id: Int) -> Observable<Void>
+}
+
+final class UserService: Service {
+  func user(id: Int) -> Observable<User> {
+    return foo()
+  }
+  
+  func follow(id: Int) -> Observable<Void> {
+    return bar()
+  }
+}
+```
 
 ### ServiceProvider
 
-A single ViewReactor can communicate with many Services. *ServiceProvider* provides the references of the Services to the ViewReactor. The ServiceProvider is created once in the whole application life cycle and passed to the first ViewReactor. The first ViewReactor should pass the same reference of the ServiceProvider instance to the child ViewReactor.
+A single reactor can communicate with many services. *ServiceProvider* provides the references of each services to the reactor. The service provider is created once in the whole application life cycle and passed to the first reactor. The first reactor should pass the same reference of the service provider instance to a child reactor.
+
+This is an example service provider:
+
+```swift
+protocol ServiceProviderType: class {
+  var userDefaultsService: UserDefaultsServiceType { get }
+  var userService: UserServiceType { get }
+}
+
+final class ServiceProvider: ServiceProviderType {
+  lazy var userDefaultsService: UserDefaultsServiceType = UserDefaultsService(provider: self)
+  lazy var userService: UserServiceType = UserService(provider: self)
+}
+```
 
 ## Conventions
 
-Reactive Architecture suggests some conventions to write clean and concise code.
+ReactorKit suggests some conventions to write clean and concise code.
 
-* You should use `PublishSubject` for Input properties and `Driver` for Output properties.
-
-    ```swift
-    protocol MyViewReactorType {
-      // Input
-      var loginButtonDidTap: PublishSubject<Void> { get }
-
-      // Output
-      var isLoginButtonEnabled: Driver<Bool> { get } 
-    }
-    ```
-
-* ViewReactor should have the ServiceProvider as the initializer's first argument.
+* A reactor should have the ServiceProvider as a first argument of an initializer.
 
     ```swift
     class MyViewReactor {
@@ -93,24 +213,26 @@ Reactive Architecture suggests some conventions to write clean and concise code.
     }
     ```
 
-* You must create a ViewReactor outside of the View. Pass the ViewReactor to the initializer if the View is not reusable. Pass the ViewReactor to the `configure(reactor:)` method if the View is reusable.
+* You must create a reactor outside of a view and pass it to the view's `reactor` property.
 
     **Bad**
 
     ```swift
-    class MyViewController {
-      let reactor = MyViewReactor()
+    class MyView: UIView, View {
+      init() {
+        self.reactor = MyViewReactor()
+      }
     }
     ```
 
     **Good**
 
     ```swift
-    let reactor = MyViewReactor(provider: provider)
-    let viewController = MyViewController(reactor: reactor)
+    let view = MyView()
+    view.reactor = MyViewReactor(provider: provider)
     ```
 
-* The ServiceProvider should be created and passed to the first-most View.
+* The ServiceProvider should be created once and passed to the first-most View.
 
     ```swift
     let serviceProvider = ServiceProvider()
@@ -118,186 +240,20 @@ Reactive Architecture suggests some conventions to write clean and concise code.
     window.rootViewController = FirstViewController(reactor: firstViewReactor)
     ```
 
-* The View should not have control flow. It means that the View cannot modify the data. The View only knows how to map the data.
-
-    **Bad**
-
-    ```swift
-    reactor.titleLabelText
-      .map { $0 + "!" } // Bad: View should not modify the data
-      .bindTo(self.titleLabel)
-    ```
-
-    **Good**
-
-    ```swift
-    reactor.titleLabelText
-      .bindTo(self.titleLabel.rx.text)
-    ```
-
-* The View should not know what the ViewReactor does. The View can only communicate to ViewReactor about what the View did.
-
-    **Bad**
-
-    ```swift
-    protocol MyViewReactorType {
-      // Bad: View knows what the ViewReactor does (login)
-      var login: PublishSubject<Void> { get }
-    }
-    ```
-
-    **Good**
-
-    ```swift
-    protocol MyViewReactorType {
-      // View just says "Hey I clicked the login button"
-      var loginButtonDidTap: PublishSubject<Void> { get }
-    }
-    ```
-
-* The ViewReactor should hide the Model. The ViewReactor only exposes the minimum data so that the View can render.
-
-    **Bad**
-
-    ```swift
-    struct ProductViewReactor {
-      let product: Driver<Product> // Bad: ViewReactor should hide Model
-    }
-    ```
-
-    **Good**
-
-    ```swift
-    struct ProductViewReactor {
-      let productName: Driver<String>
-      let formattedPrice: Driver<String>
-      let formattedOriginalPrice: Driver<String>
-      let isOriginalPriceHidden: Driver<Bool>
-    }
-    ```
-
-* You should use protocols to have loose dependency. Usually the ViewReactor, Service and ServiceProvider have its corresponding protocols.
-
-    ```swift
-    protocol ServiceProviderType {
-      var userDefaultsService: UserDefaultServiceType { get }
-      var keychainService: KeychainServiceType { get }
-      var authService: AuthServiceType { get }
-      var userService: UserServiceType { get }
-    }
-    ```
-
-    ```swift
-    protocol UserServiceType {
-      func user(id: Int) -> Observable<User>
-      func updateUser(id: Int, name: String?) -> Observable<User>
-      func followUser(id: Int) -> Observable<Void>
-    }
-    ```
-
-## Advanced Usage
-
-This chapter describes some architectural considerations for real world.
-
-### Presenting next ViewController
-
-Almost applications have more than one ViewController.  In MVC architecture, ViewController(`ListViewController`) creates next ViewController(`DetailViewController`) and just presents it. This is same in Reactive Architecture but the only difference is the creation of ViewReactor.
-
-In Reactive Architecture, `ListViewReactor` creates `DetailViewReactor` and passes it to `ListViewController`. Then the `ListViewController` creates `DetailViewController` with the `DetailViewReactor` received from `ListViewReactor`.
-
-* **ListViewReactor**
-
-    ```swift
-    class ListViewReactor: ListViewReactorType {
-      // MARK: Input
-      let detailButtonDidTap: PublishSubject<Void> = .init()
-
-      // MARK: Output
-      let presentDetailViewReactor: Observable<DetailViewReactorType> // No Driver here
-
-      // MARK: Init
-      init(provider: ServiceProviderType) {
-        self.presentDetailViewReactor = self.detailButtonDidTap
-          .map { _ -> DetailViewReactorType in
-            return DetailViewReactor(provider: provider)
-          }
-      }
-    }
-    ```
-
-* **ListViewController**
-
-    ```swift
-    class ListViewController: UIViewController {
-      private func configure(reactor: ListViewReactorType) {
-        // Output
-        reactor.detailViewReactor
-          .subscribe(onNext: { reactor in
-            let detailViewController = DetailViewController(reactor: reactor)
-            self.navigationController?.pushViewController(detailViewController, animated: true)
-          })
-          .addDisposableTo(self.disposeBag)
-      }
-    }
-    ```
-
-### Communicating between ViewReactor and ViewReactor
-
-Sometimes ViewReactor should receive data (such as user input) from the other ViewReactor. In this case, use `rx` extension to communicate between View and View. Then bind it to ViewReactor.
-    
-<p align="center">
-  <img alt="viewreactor-viewreactor" src="https://cloud.githubusercontent.com/assets/931655/24015677/7d08d8be-0acc-11e7-9fc2-78057f87cda0.png" width="600">
-</p>
-
-* **MessageInputView.swift**
-
-    ```swift
-    extension Reactive where Base: MessageInputView {
-      var sendButtonTap: ControlEvent<String?> { ... }
-      var isSendButtonLoading: ControlEvent<String?> { ... }
-    }
-    ```
-
-* **MessageListViewReactor.swift**
-
-    ```swift
-    protocol MessageListViewReactorType {
-      // Input
-      var messageInputViewSendButtonDidTap: PublishSubject<String?> { get }
-
-      // Output
-      var isMessageInputViewSendButtonLoading: Driver<Bool> { get }
-    }
-    ```
-
-* **MessageListViewController.swift**
-
-    ```swift
-    func configure(reactor: MessageListViewReactorType) {
-      // Input
-      self.messageInputView.rx.sendButtonTap
-        .bindTo(reactor.messageInputViewSendButtonDidTap)
-        .addDisposableTo(self.disposeBag)
-
-      // Output
-      reactor.isMessageInputViewSendButtonLoading
-        .drive(self.messageInputView.rx.isSendButtonLoading)
-        .addDisposableTo(self.disposeBag)
-    }
-    ```
-
 ## Examples
 
-* [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using Reactive Architecture
-* [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using Reactive Architecture
-* [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using Reactive Architecture
+* [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
+* [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using ReactorKit
+* [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit
 
 ## Changelog
 
+* 2017-04-18
+    * Change the repository name to ReactorKit.
 * 2017-03-17
     * Change the architecture name from RxMVVM to The Reactive Architecture.
     * Every ViewModels are renamed to ViewReactors.
 
 ## License
 
-[Creative Commons Attribution 4.0 International license](http://creativecommons.org/licenses/by/4.0/)
+ReactorKit is under MIT license. See the [LICENSE](LICENSE) for more info.
