@@ -14,7 +14,6 @@ ReactorKit is currently in prereleasing stage. Everything can be changed in the 
 
 ## Table of Contents
 
-* [Installation](#installation)
 * [Basic Concept](#basic-concept)
     * [View](#view)
     * [Reactor](#reactor)
@@ -23,22 +22,12 @@ ReactorKit is currently in prereleasing stage. Everything can be changed in the 
     * [ServiceProvider](#serviceprovider)
 * [Conventions](#conventions)
 * [Examples](#examples)
+* [Dependencies](#dependencies)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Contributing](#contribution)
 * [Changelog](#changelog)
 * [License](#license)
-
-## Installation
-
-* **Using [CocoaPods](https://cocoapods.org)**:
-
-    ```ruby
-    pod 'ReactorKit'
-    ```
-
-* **Using [Carthage](https://github.com/Carthage/Carthage)**:
-
-    ```
-    github "devxoul/ReactorKit" ~> 0.1
-    ```
 
 ## Basic Concept
 
@@ -260,6 +249,38 @@ ReactorKit suggests some conventions to write clean and concise code.
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
 * [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using ReactorKit
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit
+
+## Dependencies
+
+* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 3.0
+
+## Requirements
+
+* Swift 3
+* iOS 8
+* macOS 10.11
+* tvOS 9.0
+* watchOS 2.0
+
+## Installation
+
+* **Using [CocoaPods](https://cocoapods.org)**:
+
+    ```ruby
+    pod 'ReactorKit'
+    ```
+
+* **Using [Carthage](https://github.com/Carthage/Carthage)**:
+
+    ```
+    github "devxoul/ReactorKit" ~> 0.1
+    ```
+
+## Contribution
+
+Any discussions and pull requests are welcomed 💖 
+
+To contribute code, use `$ swift generate-xcodeproj` to generate Xcode project for development.
 
 ## Changelog
 
