@@ -176,7 +176,7 @@ protocol UserServiceType {
   func follow(id: Int) -> Observable<Void>
 }
 
-final class UserService: Service {
+final class UserService: UserServiceType, Service {
   func user(id: Int) -> Observable<User> {
     return foo()
   }
