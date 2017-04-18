@@ -1,5 +1,8 @@
 # ReactorKit
 
+![Swift](https://img.shields.io/badge/Swift-3.1-orange.svg)
+[![CocoaPods](http://img.shields.io/cocoapods/v/ReactorKit.svg)](https://cocoapods.org/pods/ReactorKit)
+
 ReactorKit is a framework for reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
 You may want to see [Examples](#examples) section first if you'd like to see the actual code.
@@ -247,7 +250,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 ## Examples
 
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
-* [Cleverbot](https://github.com/devxoul/Cleverbot): Cleverbot for iOS using ReactorKit
+* [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit
 
 ## Dependencies
