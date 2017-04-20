@@ -7,14 +7,6 @@ ReactorKit is a framework for reactive and unidirectional Swift application arch
 
 You may want to see [Examples](#examples) section first if you'd like to see the actual code.
 
----
-
-## ⚠️ Prereleasing Stage
-
-ReactorKit is currently in prereleasing stage. Everything can be changed in the future. Major changes can be found in the [Changelog](#changelog) section.
-
----
-
 ## Table of Contents
 
 * [Basic Concept](#basic-concept)
