@@ -14,7 +14,7 @@ doc:
 		--min-acl public \
 		--author "Suyeol Jeon" \
 		--author_url https://xoul.kr \
-		--github_url https://github.com/devxoul/ReactorKit \
+		--github_url https://github.com/ReactorKit/ReactorKit \
 		--module ReactorKit \
 		--root-url http://reactorkit.io/docs
 
