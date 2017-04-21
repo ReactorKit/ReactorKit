@@ -64,7 +64,7 @@ When the `reactor` property has changed, `bind(reactor:)` gets called. Implement
 ```swift
 func bind(reactor: ProfileViewReactor) {
   // action (View -> Reactor)
-  refreshButton.rx.tap.map { Reactor.Action.refresh }
+  refreshButton.rx.tap.withLatestFrom(.just(reactor.state.profileId)).map { Reactor.Action.refreshFollowingStatus($0.1) }
     .bindTo(reactor.action)
     .addDisposableTo(self.disposeBag)
 
@@ -129,7 +129,7 @@ func mutate(action: Action) -> Observable<Mutation> {
       }
 
   case let .follow(userID):
-    return UserAPI.follow()
+    return UserAPI.follow(userID)
       .map { _ -> Mutation in
         return Mutation.setFollowing(true)
       }
