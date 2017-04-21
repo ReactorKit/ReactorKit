@@ -2,23 +2,23 @@
 
 <p align="center">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-3.1-orange.svg">
-  <a href="https://travis-ci.org/ReactorKit/ReactorKit" target="_blank">
-    <img alt="Build Status" src="https://travis-ci.org/ReactorKit/ReactorKit.svg?branch=master">
-  </a>
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
   </a>
   <a href="https://github.com/ReactorKit/ReactorKit" target="_blank">
     <img alt="Platform" src="https://img.shields.io/cocoapods/p/ReactorKit.svg?style=flat">
   </a>
-  <a href="http://cocoadocs.org/docsets/ReactorKit/" target="_blank">
-    <img alt="CocoaDocs" src="https://github.com/ReactorKit/ReactorKit/blob/gh-pages/docs/latest/badge.svg">
+  <a href="https://travis-ci.org/ReactorKit/ReactorKit" target="_blank">
+    <img alt="Build Status" src="https://travis-ci.org/ReactorKit/ReactorKit.svg?branch=master">
+  </a>
+  <a href="http://reactorkit.io/docs/latest/" target="_blank">
+    <img alt="CocoaDocs" src="http://reactorkit.io/docs/latest/badge.svg">
   </a>
 </p>
 
 ReactorKit is a framework for reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
-You may want to see [Examples](#examples) section first if you'd like to see the actual code. Visit [API Reference](http://cocoadocs.org/docsets/ReactorKit) for code-level documentation.
+You may want to see [Examples](#examples) section first if you'd like to see the actual code. Visit [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.
 
 ## Table of Contents
 
