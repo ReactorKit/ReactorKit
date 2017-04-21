@@ -268,7 +268,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 * **Using [Carthage](https://github.com/Carthage/Carthage)**:
 
     ```
-    github "devxoul/ReactorKit" ~> 0.1
+    github "devxoul/ReactorKit" ~> 0.2
     ```
 
 ## Contribution
