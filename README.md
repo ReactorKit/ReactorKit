@@ -308,7 +308,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 
 Any discussions and pull requests are welcomed 💖 
 
-To contribute code, use `$ swift generate-xcodeproj` to generate Xcode project for development.
+To contribute code, use `$ swift package generate-xcodeproj` to generate Xcode project for development.
 
 ## Changelog
 
