@@ -37,6 +37,10 @@ public protocol Reactor: class, AssociatedObjectStore {
   /// async tasks.
   func mutate(action: Action) -> Observable<Mutation>
 
+  /// Transforms the mutation stream. Implement this method to transform or combine with other
+  /// observables. This method is called once before the state stream is created.
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation>
+
   /// Generates a new state with the previous state and the action. It should be purely functional
   /// so it should not perform any side-effects here. This method is called every time when the
   /// mutation is committed.
@@ -78,11 +82,15 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let state = self.transform(action: self.actionSubject)
+    let action = self.actionSubject.asObservable()
+    let transformedAction = self.transform(action: action)
+    let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let `self` = self else { return .empty() }
         return self.mutate(action: action)
       }
+    let transformedMutation = self.transform(mutation: mutation)
+    let state = transformedMutation
       .scan(self.initialState) { [weak self] state, mutation -> State in
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
@@ -103,6 +111,10 @@ extension Reactor {
 
   public func mutate(action: Action) -> Observable<Mutation> {
     return .empty()
+  }
+
+  public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return mutation
   }
 
   public func reduce(state: State, mutation: Mutation) -> State {
