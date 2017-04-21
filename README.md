@@ -2,8 +2,8 @@
 
 <p align="center">
   <img alt="Swift" src="https://img.shields.io/badge/Swift-3.1-orange.svg">
-  <a href="https://travis-ci.org/devxoul/ReactorKit" target="_blank">
-    <img alt="Build Status" src="https://travis-ci.org/devxoul/ReactorKit.svg?branch=master">
+  <a href="https://travis-ci.org/ReactorKit/ReactorKit" target="_blank">
+    <img alt="Build Status" src="https://travis-ci.org/ReactorKit/ReactorKit.svg?branch=master">
   </a>
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
@@ -12,7 +12,7 @@
     <img alt="Platform" src="https://img.shields.io/cocoapods/p/ReactorKit.svg?style=flat">
   </a>
   <a href="http://cocoadocs.org/docsets/ReactorKit/" target="_blank">
-    <img alt="CocoaDocs" src="https://img.shields.io/cocoapods/metrics/doc-percent/ReactorKit.svg">
+    <img alt="CocoaDocs" src="https://github.com/ReactorKit/ReactorKit/blob/gh-pages/docs/latest/badge.svg">
   </a>
 </p>
 
@@ -301,7 +301,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 * **Using [Carthage](https://github.com/Carthage/Carthage)**:
 
     ```
-    github "devxoul/ReactorKit" ~> 0.2
+    github "ReactorKit/ReactorKit" ~> 0.2
     ```
 
 ## Contribution
