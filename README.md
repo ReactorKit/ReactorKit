@@ -145,6 +145,26 @@ func reduce(state: State, mutation: Mutation) -> State {
 }
 ```
 
+#### `transform()`
+
+`transform()` transforms each streams. There are three `transform()` functions:
+
+```swift
+func transform(action: Observable<Action>) -> Observable<Action>
+func transform(mutation: Observable<Mutation>) -> Observable<Mutation>
+func transform(state: Observable<State>) -> Observable<State>
+```
+
+Implement these methods to transform and combine with other observable streams. For example, `transform(mutation:)` is the best place for combining a global event stream to a mutation stream.
+
+These methods can be also used for debugging purpose:
+
+```swift
+func transform(action: Observable<Action>) -> Observable<Action> {
+  return action.debug("action") // Use RxSwift's debug() operator
+}
+```
+
 ## Advanced
 
 ### Service
