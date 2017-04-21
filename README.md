@@ -23,6 +23,7 @@ You may want to see [Examples](#examples) section first if you'd like to see the
 ## Table of Contents
 
 * [Basic Concept](#basic-concept)
+    * [Design Goal](#design-goal)
     * [View](#view)
     * [Reactor](#reactor)
 * [Advanced](#advanced)
@@ -44,6 +45,12 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 <p align="center">
   <img alt="flow" src="https://cloud.githubusercontent.com/assets/931655/25073432/a91c1688-2321-11e7-8f04-bf91031a09dd.png" width="600">
 </p>
+
+### Design Goal
+
+* **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors.
+* **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partically to a specific view. You don't need to rewrite everything to use ReactorKit on your existing project.
+* **Less Typing**: ReactorKit focuses on avoiding complicated code for simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale them up.
 
 ### View
 
@@ -308,7 +315,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 
 Any discussions and pull requests are welcomed 💖 
 
-To contribute code, use `$ swift generate-xcodeproj` to generate Xcode project for development.
+To contribute code, use `$ swift package generate-xcodeproj` to generate Xcode project for development.
 
 ## Changelog
 
