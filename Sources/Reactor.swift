@@ -12,7 +12,7 @@ public struct NoAction {}
 public struct NoMutation {}
 
 public typealias _Reactor = Reactor
-public protocol Reactor: class, AssociatedObjectStore {
+public protocol Reactor: AssociatedObjectStore {
   associatedtype Action
   associatedtype Mutation = Action
   associatedtype State
@@ -54,6 +54,7 @@ public protocol Reactor: class, AssociatedObjectStore {
 
 // MARK: - Associated Object Keys
 
+
 private var actionSubjectKey = "actionSubject"
 private var actionKey = "action"
 private var currentStateKey = "currentState"
@@ -64,21 +65,21 @@ private var stateKey = "state"
 
 extension Reactor {
   internal var actionSubject: PublishSubject<Action> {
-    get { return self.associatedObject(forKey: &actionSubjectKey, default: .init()) }
-    set { self.setAssociatedObject(newValue, forKey: &actionSubjectKey) }
+    get { return self.associatedObject(forKey: .action, default: .init()) }
+    set { self.setAssociatedObject(newValue, forKey: .actionSubject) }
   }
 
   public var action: AnyObserver<Action> {
-    get { return self.associatedObject(forKey: &actionKey, default: self.actionSubject.asObserver()) }
+    get { return self.associatedObject(forKey: .action, default: self.actionSubject.asObserver()) }
   }
 
   public var currentState: State {
-    get { return self.associatedObject(forKey: &currentStateKey, default: self.initialState) }
-    set { self.setAssociatedObject(newValue, forKey: &currentStateKey) }
+    get { return self.associatedObject(forKey: .currentState, default: self.initialState) }
+    set { self.setAssociatedObject(newValue, forKey: .currentState) }
   }
 
   public var state: Observable<State> {
-    get { return self.associatedObject(forKey: &stateKey, default: self.createStateStream()) }
+    get { return self.associatedObject(forKey: .state, default: self.createStateStream()) }
   }
 
   public func createStateStream() -> Observable<State> {
