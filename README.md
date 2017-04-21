@@ -182,7 +182,7 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 
 ### Service
 
-ReactorKit has a special layer named *Service*. A service layer does an actual business logic. A reactor is a middle layer between a view and a service which manages event streams. When a reactor receives an user action from a view, the reactor calls the service logic. The service makes a network request and sends the response back to the reactor. Then the reactor create a mutation stream with the service response.
+ReactorKit has a special layer named *Service*. A service layer does the actual business logic. A reactor is a middle layer between a view and a service which manages event streams. When a reactor receives an user action from a view, the reactor calls the service logic. The service makes a network request and sends the response back to the reactor. Then the reactor create a mutation stream with the service response.
 
 Use this snippet for base service class:
 
