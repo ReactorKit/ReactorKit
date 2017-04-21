@@ -22,7 +22,8 @@ internal enum AssociatedObjectKey : String {
 let map = NSMapTable<AnyObject, NSMutableDictionary>.strongToStrongObjects()
 
 extension AssociatedObjectStore {
-   func associatedObject<T>(forKey key: AssociatedObjectKey) -> T? {
+
+    func associatedObject<T>(forKey key: AssociatedObjectKey) -> T? {
         let container = map.object(forKey: self as AnyObject)
         return container?.object(forKey: key.rawValue) as? T
     }
@@ -39,7 +40,6 @@ extension AssociatedObjectStore {
         return self.associatedObject(forKey: key, default: handler())
     }
 
-    
     func setAssociatedObject<T>(_ object: T?, forKey key: AssociatedObjectKey) {
         let container: NSMutableDictionary
         switch map.object(forKey: self as AnyObject) {
@@ -57,31 +57,8 @@ extension AssociatedObjectStore {
 
     func removeAssociatedObject(forKey key: AssociatedObjectKey) {
         let removal:Any? = nil
-        
         self.setAssociatedObject(removal, forKey: key)
     }
 
-
-
-//  func associatedObject<T>(forKey key: UnsafeRawPointer) -> T? {
-//    return objc_getAssociatedObject(self, key) as? T
-//  }
-//
-//  func associatedObject<T>(forKey key: UnsafeRawPointer, default: () -> T) -> T {
-//    return self.associatedObject(forKey: key, default: `default`())
-//  }
-//
-//  func associatedObject<T>(forKey key: UnsafeRawPointer, default: @autoclosure () -> T) -> T {
-//    if let object: T = self.associatedObject(forKey: key) {
-//      return object
-//    }
-//    let object = `default`()
-//    self.setAssociatedObject(object, forKey: key)
-//    return object
-//  }
-//
-//  func setAssociatedObject<T>(_ object: T?, forKey key: UnsafeRawPointer) {
-//    objc_setAssociatedObject(self, key, object, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-//  }
 }
 
