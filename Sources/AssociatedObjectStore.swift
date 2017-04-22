@@ -49,9 +49,7 @@ extension AssociatedObjectStore {
             container = NSMutableDictionary()
             map.setObject(container, forKey: self)
         }
-        if let object = object {
-            container.setObject(object, forKey: key.rawValue as NSCopying)
-        }
+        if let object = object { container.setObject(object, forKey: key.rawValue as NSCopying) }
         else { container.removeObject(forKey: key.rawValue)}
     }
 
