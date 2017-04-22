@@ -25,19 +25,15 @@ public protocol View: class, AssociatedObjectStore {
 }
 
 
-// MARK: - Associated Object Keys
-
-private var reactorKey = "reactor"
-
 
 // MARK: - Default Implementations
 
 extension View {
   public var reactor: Reactor? {
-    get { return self.associatedObject(forKey: &reactorKey) }
+    get { return self.associatedObject(forKey: .reactor) }
     set {
       guard self.reactor !== newValue else { return }
-      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      self.setAssociatedObject(newValue, forKey: .reactor)
       self.disposeBag = DisposeBag()
       if let reactor = newValue {
         self.bind(reactor: reactor)
