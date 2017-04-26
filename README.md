@@ -11,6 +11,9 @@
   <a href="https://travis-ci.org/ReactorKit/ReactorKit" target="_blank">
     <img alt="Build Status" src="https://travis-ci.org/ReactorKit/ReactorKit.svg?branch=master">
   </a>
+  <a href="https://codecov.io/gh/ReactorKit/ReactorKit/" target="_blank">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/ReactorKit/ReactorKit.svg">
+  </a>
   <a href="http://reactorkit.io/docs/latest/" target="_blank">
     <img alt="CocoaDocs" src="http://reactorkit.io/docs/latest/badge.svg">
   </a>
