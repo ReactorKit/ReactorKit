@@ -2,10 +2,16 @@
   "autoPin": true,
   "pins": [
     {
+      "package": "RxExpect",
+      "reason": null,
+      "repositoryURL": "https://github.com/devxoul/RxExpect.git",
+      "version": "0.5.3"
+    },
+    {
       "package": "RxSwift",
       "reason": null,
-      "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
-      "version": "3.3.1"
+      "repositoryURL": "https://github.com/devxoul/RxSwift.git",
+      "version": "3.4.1"
     }
   ],
   "version": 1
