@@ -98,11 +98,11 @@ extension Reactor {
       .startWith(self.initialState)
       .retry() // ignore errors
       .shareReplay(1)
+      .observeOn(MainScheduler.instance)
+    return self.transform(state: state)
       .do(onNext: { [weak self] state in
         self?.currentState = state
       })
-      .observeOn(MainScheduler.instance)
-    return self.transform(state: state)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
