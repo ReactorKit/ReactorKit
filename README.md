@@ -38,6 +38,7 @@ You may want to see [Examples](#examples) section first if you'd like to see the
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Contributing](#contribution)
+* [Community](#community)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -329,6 +330,10 @@ Any discussions and pull requests are welcomed 💖
     ```console
     $ swift test
     ```
+
+## Community
+
+Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)!
 
 ## Changelog
 
