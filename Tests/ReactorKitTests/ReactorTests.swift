@@ -67,6 +67,19 @@ final class ReactorTests: XCTestCase {
         }
     }
   }
+
+  func testCancel() {
+    RxExpect { test in
+      let reactor = CounterReactor(scheduler: test.scheduler)
+      test.input(reactor.action, [
+        next(1, .start),
+        next(5, .stop),
+      ])
+      test.assert(reactor.state)
+        .filterNext()
+        .equal([0, 1, 2, 3])
+    }
+  }
 }
 
 struct TestError: Error {
@@ -110,5 +123,39 @@ private final class TestReactor: Reactor {
   // 5. ["action", "transformedAction", "mutation", "transformedMutation"] + ["transformedState"]
   func transform(state: Observable<State>) -> Observable<State> {
     return state.map { $0 + ["transformedState"] }
+  }
+}
+
+
+private final class CounterReactor: Reactor {
+  enum Action {
+    case start
+    case stop
+  }
+  typealias Mutation = Int
+  typealias State = Int
+
+  private let scheduler: SchedulerType
+  let initialState = 0
+
+  init(scheduler: SchedulerType) {
+    self.scheduler = scheduler
+  }
+
+  func mutate(action: Action) -> Observable<Mutation> {
+    switch action {
+    case .start:
+      let stopAction = self.action.filter { $0 == .stop }
+      return Observable<Int>.interval(1, scheduler: self.scheduler)
+        .map { _ in 1 }
+        .takeUntil(stopAction)
+
+    case .stop:
+      return .empty()
+    }
+  }
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    return state + mutation
   }
 }
