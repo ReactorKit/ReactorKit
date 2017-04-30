@@ -18,7 +18,7 @@ public protocol Reactor: class, AssociatedObjectStore {
   associatedtype State
 
   /// The action from the view. Bind user inputs to this subject.
-  var action: AnyObserver<Action> { get }
+  var action: PublishSubject<Action> { get }
 
   /// The initial state.
   var initialState: State { get }
@@ -54,7 +54,6 @@ public protocol Reactor: class, AssociatedObjectStore {
 
 // MARK: - Associated Object Keys
 
-private var actionSubjectKey = "actionSubject"
 private var actionKey = "action"
 private var currentStateKey = "currentState"
 private var stateKey = "state"
@@ -63,13 +62,9 @@ private var stateKey = "state"
 // MARK: - Default Implementations
 
 extension Reactor {
-  internal var actionSubject: PublishSubject<Action> {
-    get { return self.associatedObject(forKey: &actionSubjectKey, default: .init()) }
-    set { self.setAssociatedObject(newValue, forKey: &actionSubjectKey) }
-  }
-
-  public var action: AnyObserver<Action> {
-    get { return self.associatedObject(forKey: &actionKey, default: self.actionSubject.asObserver()) }
+  public var action: PublishSubject<Action> {
+    get { return self.associatedObject(forKey: &actionKey, default: .init()) }
+    set { self.setAssociatedObject(newValue, forKey: &actionKey) }
   }
 
   public var currentState: State {
@@ -82,7 +77,7 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self.actionSubject.asObservable()
+    let action = self.action.asObservable()
     let transformedAction = self.transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
