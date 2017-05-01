@@ -12,6 +12,7 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
+// Conform to the protocol `View` then the property `self.reactor` will be available.
 final class CounterViewController: UIViewController, View {
   @IBOutlet var decreaseButton: UIButton!
   @IBOutlet var increaseButton: UIButton!
@@ -20,7 +21,7 @@ final class CounterViewController: UIViewController, View {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    reactor = CounterViewReactor() // this makes `bind(reactor:)` gets called
+    self.reactor = CounterViewReactor() // this makes `bind(reactor:)` gets called
   }
 
   // Called when the new value is assigned to `self.reactor`
@@ -69,9 +70,9 @@ final class CounterViewReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .increase:
-      return Observable.just(Mutation.increaseValue)
+      return Observable.just(Mutation.increaseValue) // Action.increase -> Mutation.increaseValue
     case .decrease:
-      return Observable.just(Mutation.decreaseValue)
+      return Observable.just(Mutation.decreaseValue) // Action.decrease -> Mutation.decreaseValue
     }
   }
 
