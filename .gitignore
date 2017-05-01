@@ -4,4 +4,5 @@ docs/
 /.build
 /Packages
 /*.xcodeproj
+Pods/
 Carthage/

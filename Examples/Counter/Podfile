@@ -1,0 +1,9 @@
+platform :ios, '9.0'
+
+target 'Counter' do
+  use_frameworks!
+
+  pod 'ReactorKit', :path => '../../'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+end
