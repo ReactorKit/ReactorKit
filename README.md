@@ -285,6 +285,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 
 ## Examples
 
+* [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
 * [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit
