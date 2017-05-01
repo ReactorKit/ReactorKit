@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  CounterViewController.swift
 //  Counter
 //
 //  Created by Suyeol Jeon on 02/05/2017.
