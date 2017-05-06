@@ -57,6 +57,7 @@ public protocol Reactor: class, AssociatedObjectStore {
 private var actionKey = "action"
 private var currentStateKey = "currentState"
 private var stateKey = "state"
+private var disposeBagKey = "disposeBag"
 
 
 // MARK: - Default Implementations
@@ -74,6 +75,11 @@ extension Reactor {
 
   public var state: Observable<State> {
     get { return self.associatedObject(forKey: &stateKey, default: self.createStateStream()) }
+  }
+
+  private var disposeBag: DisposeBag {
+    get { return self.associatedObject(forKey: &disposeBagKey, default: DisposeBag()) }
+    set { self.setAssociatedObject(newValue, forKey: &disposeBagKey) }
   }
 
   public func createStateStream() -> Observable<State> {
@@ -98,6 +104,16 @@ extension Reactor {
       .do(onNext: { [weak self] state in
         self?.currentState = state
       })
+  }
+
+  /// Use a state stream as a hot observable. Call this method to evaluate state changes before the
+  /// view bindings are performed. Technically this method subscribes the state stream immediately
+  /// and will dispose when the reactor is deallocated.
+  ///
+  /// - note: State stream is cold observable by defaut so values are not evaluated until the state
+  ///         is subscribed. This method will change the state stream behavior to hot observable.
+  public func autosubscribe() {
+    self.state.subscribe().disposed(by: self.disposeBag)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
