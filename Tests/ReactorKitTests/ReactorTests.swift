@@ -20,13 +20,19 @@ final class ReactorTests: XCTestCase {
     }
   }
 
-  func testCurrentState() {
-    let disposeBag = DisposeBag()
+  func testCurrentState_autosubscribe() {
     let reactor = TestReactor()
     XCTAssertEqual(reactor.currentState, [])
-    reactor.state.subscribe().disposed(by: disposeBag)
+    reactor.autosubscribe()
     reactor.action.onNext(["action"])
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
+  }
+
+  func testCurrentState_noSubscribe() {
+    let reactor = TestReactor()
+    XCTAssertEqual(reactor.currentState, [])
+    reactor.action.onNext(["action"])
+    XCTAssertEqual(reactor.currentState, [])
   }
 
   func testStreamNotContainsError() {
