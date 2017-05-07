@@ -29,21 +29,19 @@ final class ReactorTests: XCTestCase {
       disposable.dispose()
       test.assert(reactor.state) // last element should be '2'
         .filterNext()
-        .equal([0, 2]) // TODO: make initial state(0) not appeared in second subscription
+        .equal([2])
     }
   }
 
-  func testCurrentState_autosubscribe() {
+  func testCurrentState() {
     let reactor = TestReactor()
-    XCTAssertEqual(reactor.currentState, [])
-    reactor.autosubscribe()
+    _ = reactor.state
     reactor.action.onNext(["action"])
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
   }
 
-  func testCurrentState_noSubscribe() {
+  func testCurrentState_noState() {
     let reactor = TestReactor()
-    XCTAssertEqual(reactor.currentState, [])
     reactor.action.onNext(["action"])
     XCTAssertEqual(reactor.currentState, [])
   }

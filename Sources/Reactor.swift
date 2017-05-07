@@ -96,13 +96,15 @@ extension Reactor {
         return self.reduce(state: state, mutation: mutation)
       }
       .retry() // ignore errors
-      .shareReplay(1)
       .startWith(self.initialState)
       .observeOn(MainScheduler.instance)
-    return self.transform(state: state)
+    let transformedState = self.transform(state: state)
       .do(onNext: { [weak self] state in
         self?.currentState = state
       })
+      .replay(1)
+    transformedState.connect().addDisposableTo(self.disposeBag)
+    return transformedState
   }
 
   /// Use a state stream as a hot observable. Call this method to evaluate state changes before the
