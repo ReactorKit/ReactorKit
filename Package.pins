@@ -5,13 +5,13 @@
       "package": "RxExpect",
       "reason": null,
       "repositoryURL": "https://github.com/devxoul/RxExpect.git",
-      "version": "0.5.5"
+      "version": "0.5.6"
     },
     {
       "package": "RxSwift",
       "reason": null,
       "repositoryURL": "https://github.com/devxoul/RxSwift.git",
-      "version": "3.4.1"
+      "version": "3.4.2"
     }
   ],
   "version": 1
