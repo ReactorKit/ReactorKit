@@ -63,12 +63,12 @@ private var disposeBagKey = "disposeBag"
 // MARK: - Default Implementations
 
 extension Reactor {
-  public var action: PublishSubject<Action> {
+  public private(set) var action: PublishSubject<Action> {
     get { return self.associatedObject(forKey: &actionKey, default: .init()) }
     set { self.setAssociatedObject(newValue, forKey: &actionKey) }
   }
 
-  public var currentState: State {
+  public private(set) var currentState: State {
     get { return self.associatedObject(forKey: &currentStateKey, default: self.initialState) }
     set { self.setAssociatedObject(newValue, forKey: &currentStateKey) }
   }
