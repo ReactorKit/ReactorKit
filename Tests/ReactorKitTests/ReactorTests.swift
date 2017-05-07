@@ -20,6 +20,19 @@ final class ReactorTests: XCTestCase {
     }
   }
 
+  func testStateReplayCurrentState() {
+    RxExpect { test in
+      let reactor = CounterReactor()
+      let disposable = reactor.state.subscribe() // state: 0
+      reactor.action.onNext() // state: 1
+      reactor.action.onNext() // state: 2
+      disposable.dispose()
+      test.assert(reactor.state) // last element should be '2'
+        .filterNext()
+        .equal([0, 2]) // TODO: make initial state(0) not appeared in second subscription
+    }
+  }
+
   func testCurrentState_autosubscribe() {
     let reactor = TestReactor()
     XCTAssertEqual(reactor.currentState, [])
@@ -163,5 +176,16 @@ private final class StopwatchReactor: Reactor {
 
   func reduce(state: State, mutation: Mutation) -> State {
     return state + mutation
+  }
+}
+
+private final class CounterReactor: Reactor {
+  typealias Action = Void
+  typealias Mutation = Void
+  typealias State = Int
+  let initialState = 0
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    return state + 1
   }
 }
