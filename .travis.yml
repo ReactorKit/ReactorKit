@@ -19,7 +19,7 @@ install:
 
 before_script:
   - set -o pipefail
-  - swift package generate-xcodeproj
+  - TEST=1 swift package generate-xcodeproj
 
 script:
   - xcodebuild clean build test
