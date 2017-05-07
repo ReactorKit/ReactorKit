@@ -76,7 +76,7 @@ final class ReactorTests: XCTestCase {
 
   func testCancel() {
     RxExpect { test in
-      let reactor = CounterReactor(scheduler: test.scheduler)
+      let reactor = StopwatchReactor(scheduler: test.scheduler)
       test.input(reactor.action, [
         next(1, .start),
         next(5, .stop),
@@ -133,7 +133,7 @@ private final class TestReactor: Reactor {
 }
 
 
-private final class CounterReactor: Reactor {
+private final class StopwatchReactor: Reactor {
   enum Action {
     case start
     case stop
