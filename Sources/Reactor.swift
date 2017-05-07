@@ -107,16 +107,6 @@ extension Reactor {
     return transformedState
   }
 
-  /// Use a state stream as a hot observable. Call this method to evaluate state changes before the
-  /// view bindings are performed. Technically this method subscribes the state stream immediately
-  /// and will dispose when the reactor is deallocated.
-  ///
-  /// - note: State stream is cold observable by defaut so values are not evaluated until the state
-  ///         is subscribed. This method will change the state stream behavior to hot observable.
-  public func autosubscribe() {
-    self.state.subscribe().disposed(by: self.disposeBag)
-  }
-
   public func transform(action: Observable<Action>) -> Observable<Action> {
     return action
   }
