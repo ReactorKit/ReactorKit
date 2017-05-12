@@ -31,7 +31,6 @@ You may want to see [Examples](#examples) section first if you'd like to see the
     * [Reactor](#reactor)
 * [Advanced](#advanced)
     * [Service](#service)
-    * [ServiceProvider](#serviceprovider)
 * [Conventions](#conventions)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
@@ -195,18 +194,6 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 
 ReactorKit has a special layer named *Service*. A service layer does the actual business logic. A reactor is a middle layer between a view and a service which manages event streams. When a reactor receives an user action from a view, the reactor calls the service logic. The service makes a network request and sends the response back to the reactor. Then the reactor create a mutation stream with the service response.
 
-Use this snippet for base service class:
-
-```swift
-class Service {
-  unowned let provider: ServiceProviderType
-
-  init(provider: ServiceProviderType) {
-    self.provider = provider
-  }
-}
-```
-
 Here is an example of service:
 
 ```swift
@@ -223,24 +210,6 @@ final class UserService: Service, UserServiceType {
   func follow(id: Int) -> Observable<Void> {
     return bar()
   }
-}
-```
-
-### ServiceProvider
-
-A single reactor can communicate with many services. *ServiceProvider* provides the references of each services to the reactor. The service provider is created once in the whole application life cycle and passed to the first reactor. The first reactor should pass the same reference of the service provider instance to a child reactor.
-
-This is an example service provider:
-
-```swift
-protocol ServiceProviderType: class {
-  var userDefaultsService: UserDefaultsServiceType { get }
-  var userService: UserServiceType { get }
-}
-
-final class ServiceProvider: ServiceProviderType {
-  lazy var userDefaultsService: UserDefaultsServiceType = UserDefaultsService(provider: self)
-  lazy var userService: UserServiceType = UserService(provider: self)
 }
 ```
 
