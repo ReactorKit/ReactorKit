@@ -8,9 +8,15 @@
 
 import UIKit
 
-class GitHubSearchViewController: UIViewController {
+import ReactorKit
+import RxCocoa
+import RxSwift
+
+class GitHubSearchViewController: UIViewController, View {
   @IBOutlet var searchBar: UISearchBar!
   @IBOutlet var tableView: UITableView!
+
+  var disposeBag = DisposeBag()
 
   override func viewDidLoad() {
     super.viewDidLoad()
