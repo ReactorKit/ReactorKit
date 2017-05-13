@@ -87,7 +87,7 @@ extension Reactor {
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let `self` = self else { return .empty() }
-        return self.mutate(action: action)
+        return self.mutate(action: action).catchError { _ in .empty() }
       }
     let transformedMutation = self.transform(mutation: mutation)
     let state = transformedMutation
