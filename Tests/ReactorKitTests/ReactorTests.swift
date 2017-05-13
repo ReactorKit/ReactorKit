@@ -91,10 +91,23 @@ final class ReactorTests: XCTestCase {
       test.input(reactor.action, [
         next(1, .start),
         next(5, .stop),
+        next(6, .start),
+        next(9, .stop),
       ])
       test.assert(reactor.state)
         .filterNext()
-        .equal([0, 1, 2, 3])
+        .equal([
+          0, // 0
+             // 1 (start)
+          1, // 2
+          2, // 3
+          3, // 4
+             // 5 (stop)
+             // 6 (start)
+          4, // 7
+          5, // 8
+             // 9 (stop)
+        ])
     }
   }
 }
