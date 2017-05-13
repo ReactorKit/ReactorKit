@@ -46,40 +46,59 @@ final class ReactorTests: XCTestCase {
     XCTAssertEqual(reactor.currentState, [])
   }
 
-  func testStreamNotContainsError() {
+  func testStreamIgnoresError() {
     RxExpect { test in
       let reactor = CounterReactor()
-      test.input(reactor.action, [
+      let action1 = test.scheduler.createHotObservable([
         next(100),
         next(200),
         error(300, TestError()),
+        next(400),
       ])
+      let action2 = test.scheduler.createHotObservable([
+        error(300, TestError()),
+        next(500),
+        next(600),
+      ])
+      action1.subscribe(reactor.action).disposed(by: test.disposeBag)
+      action2.subscribe(reactor.action).disposed(by: test.disposeBag)
       test.assert(reactor.state)
         .equal([
           next(0, 0),
           next(100, 1),
           next(200, 2),
-          completed(300),
+          next(400, 3),
+          next(500, 4),
+          next(600, 5),
         ])
     }
   }
 
-  func testStreamNotContainsCompleted() {
+  func testStreamIgnoresCompleted() {
     RxExpect { test in
-      let reactor = TestReactor()
-      reactor.shouldCompleteOnMutate = true
-      test.input(reactor.action, [
-        next(100, ["action"]),
+      let reactor = CounterReactor()
+      let action1 = test.scheduler.createHotObservable([
+        next(100),
+        next(200),
+        completed(300),
+        next(400),
       ])
+      let action2 = test.scheduler.createHotObservable([
+        completed(300),
+        next(500),
+        next(600),
+      ])
+      action1.subscribe(reactor.action).disposed(by: test.disposeBag)
+      action2.subscribe(reactor.action).disposed(by: test.disposeBag)
       test.assert(reactor.state)
-        .not()
-        .contains { event in
-          if case .completed = event.value {
-            return true
-          } else {
-            return false
-          }
-        }
+        .equal([
+          next(0, 0),
+          next(100, 1),
+          next(200, 2),
+          next(400, 3),
+          next(500, 4),
+          next(600, 5),
+        ])
     }
   }
 
@@ -119,8 +138,6 @@ private final class TestReactor: Reactor {
   typealias State = [String]
 
   let initialState = State()
-  var shouldEmitErrorOnMutate = false
-  var shouldCompleteOnMutate = false
 
   // 1. ["action"] + ["transformedAction"]
   func transform(action: Observable<Action>) -> Observable<Action> {
@@ -129,13 +146,7 @@ private final class TestReactor: Reactor {
 
   // 2. ["action", "transformedAction"] + ["mutation"]
   func mutate(action: Action) -> Observable<Mutation> {
-    if self.shouldEmitErrorOnMutate {
-      return .error(TestError())
-    } else if self.shouldCompleteOnMutate {
-      return .empty()
-    } else {
-      return .just(action + ["mutation"])
-    }
+    return .just(action + ["mutation"])
   }
 
   // 3. ["action", "transformedAction", "mutation"] + ["transformedMutation"]
