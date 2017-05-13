@@ -7,6 +7,7 @@
 //
 
 import ReactorKit
+import RxCocoa
 import RxSwift
 
 final class GitHubSearchViewReactor: Reactor {
@@ -105,6 +106,12 @@ final class GitHubSearchViewReactor: Reactor {
         let nextPage = repos.isEmpty ? nil : page + 1
         return (repos, nextPage)
       }
+      .do(onError: { error in
+        if case let .some(.httpRequestFailed(response, _)) = error as? RxCocoaURLError, response.statusCode == 403 {
+          print("⚠️ GitHub API rate limit exceeded. Wait for 60 seconds and try again.")
+        }
+      })
+      .catchErrorJustReturn(emptyResult)
   }
 
   private func isUpdateQueryAction(_ action: Action) -> Bool {
