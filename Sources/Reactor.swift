@@ -18,7 +18,7 @@ public protocol Reactor: class, AssociatedObjectStore {
   associatedtype State
 
   /// The action from the view. Bind user inputs to this subject.
-  var action: PublishSubject<Action> { get }
+  var action: ActionSubject<Action> { get }
 
   /// The initial state.
   var initialState: State { get }
@@ -63,7 +63,7 @@ private var disposeBagKey = "disposeBag"
 // MARK: - Default Implementations
 
 extension Reactor {
-  public var action: PublishSubject<Action> {
+  public var action: ActionSubject<Action> {
     return self.associatedObject(forKey: &actionKey, default: .init())
   }
 
