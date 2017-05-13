@@ -46,7 +46,7 @@ final class ReactorTests: XCTestCase {
     XCTAssertEqual(reactor.currentState, [])
   }
 
-  func testStreamIgnoresError() {
+  func testStreamIgnoresErrorFromAction() {
     RxExpect { test in
       let reactor = CounterReactor()
       let action1 = test.scheduler.createHotObservable([
@@ -74,7 +74,23 @@ final class ReactorTests: XCTestCase {
     }
   }
 
-  func testStreamIgnoresCompleted() {
+  func testStreamIgnoresErrorFromMutate() {
+    RxExpect { test in
+      let reactor = CounterReactor()
+      reactor.stateForTriggerError = 2
+      test.input(reactor.action, [
+        next(100),
+        next(200),
+        next(300), // error will be emit on this mutate
+        next(400),
+        next(500),
+      ])
+      test.assert(reactor.state)
+        .equal([0, 1, 2, 3, 4, 5])
+    }
+  }
+
+  func testStreamIgnoresCompletedFromAction() {
     RxExpect { test in
       let reactor = CounterReactor()
       let action1 = test.scheduler.createHotObservable([
@@ -99,6 +115,22 @@ final class ReactorTests: XCTestCase {
           next(500, 4),
           next(600, 5),
         ])
+    }
+  }
+
+  func testStreamIgnoresCompletedFromMutate() {
+    RxExpect { test in
+      let reactor = CounterReactor()
+      reactor.stateForTriggerCompleted = 2
+      test.input(reactor.action, [
+        next(100),
+        next(200),
+        next(300), // completed will be emit on this mutate
+        next(400),
+        next(500),
+      ])
+      test.assert(reactor.state)
+        .equal([0, 1, 2, 3, 4, 5])
     }
   }
 
@@ -204,6 +236,19 @@ private final class CounterReactor: Reactor {
   typealias Mutation = Void
   typealias State = Int
   let initialState = 0
+
+  var stateForTriggerError: State?
+  var stateForTriggerCompleted: State?
+
+  func mutate(action: Void) -> Observable<Void> {
+    if self.currentState == self.stateForTriggerError {
+      return Observable.concat(.just(action), .error(TestError()))
+    } else if self.currentState == self.stateForTriggerCompleted {
+      return Observable.concat(.just(action), .empty())
+    } else {
+      return .just(action)
+    }
+  }
 
   func reduce(state: State, mutation: Mutation) -> State {
     return state + 1
