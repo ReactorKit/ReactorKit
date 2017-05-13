@@ -95,7 +95,7 @@ extension Reactor {
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
       }
-      .retry() // ignore errors
+      .catchError { _ in .empty() }
       .startWith(self.initialState)
       .observeOn(MainScheduler.instance)
     let transformedState = self.transform(state: state)
