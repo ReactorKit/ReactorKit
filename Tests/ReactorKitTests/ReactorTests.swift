@@ -48,21 +48,19 @@ final class ReactorTests: XCTestCase {
 
   func testStreamNotContainsError() {
     RxExpect { test in
-      let reactor = TestReactor()
-      reactor.shouldEmitErrorOnMutate = true
+      let reactor = CounterReactor()
       test.input(reactor.action, [
-        next(100, ["action"]),
+        next(100),
+        next(200),
+        error(300, TestError()),
       ])
       test.assert(reactor.state)
-        .not()
-        .since(100)
-        .contains { event in
-          if case .error = event.value {
-            return true
-          } else {
-            return false
-          }
-        }
+        .equal([
+          next(0, 0),
+          next(100, 1),
+          next(200, 2),
+          completed(300),
+        ])
     }
   }
 
