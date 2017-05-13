@@ -6,6 +6,7 @@
 //  Copyright © 2017 Suyeol Jeon. All rights reserved.
 //
 
+import SafariServices
 import UIKit
 
 import ReactorKit
@@ -51,6 +52,18 @@ class GitHubSearchViewController: UIViewController, View {
       .bind(to: tableView.rx.items(cellIdentifier: "cell")) { indexPath, repo, cell in
         cell.textLabel?.text = repo
       }
+      .disposed(by: disposeBag)
+
+    // View
+    tableView.rx.itemSelected
+      .subscribe(onNext: { [weak self, weak reactor] indexPath in
+        guard let `self` = self else { return }
+        self.tableView.deselectRow(at: indexPath, animated: false)
+        guard let repo = reactor?.currentState.repos[indexPath.row] else { return }
+        guard let url = URL(string: "https://github.com/\(repo)") else { return }
+        let viewController = SFSafariViewController(url: url)
+        self.present(viewController, animated: true, completion: nil)
+      })
       .disposed(by: disposeBag)
   }
 }
