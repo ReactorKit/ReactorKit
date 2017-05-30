@@ -8,6 +8,7 @@ env:
     - IOS_SDK="iphonesimulator10.3"
     - MACOS_SDK="macosx10.12"
     - TVOS_SDK="appletvsimulator10.2"
+    - FRAMEWORK="ReactorKit"
   matrix:
     - SDK="$IOS_SDK"      DESTINATION="platform=iOS Simulator,name=iPhone 7,OS=10.3"
     - SDK="$MACOS_SDK"    DESTINATION="arch=x86_64"
@@ -33,3 +34,19 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -J 'ReactorKit'
+
+before_deploy:
+  - swift package generate-xcodeproj
+  - carthage bootstrap
+  - carthage build --no-skip-current
+  - carthage archive ReactorKit
+
+deploy:
+  provider: releases
+  api_key:
+    secure: iQLQ+53ce6rCfnwps+Q2Leq4wgkystcN9wk+3vtnkMFFW/n2myuZQF5lzBkFGI9YUJDwPl+unjT80Fkr6sxHk63DZw6hhqRFf2AlDtO20goa32WRR0MfCnL7CfxWnIywfXN4F9LaJQkghtihmeGng5USzur7CGpfdR9oXQ+JgGLl9HjhXpoRVkDNFBZ72AL+/q9ZjV5ZXHjTkaW5yAMsHo21SM8nfiOuCNTtmmybDp9FVeMAHvWCLXakKCLGBG3B6p73UhMQQXlvWARPAhi2ux+VMqcyydUG1DYilkSNAc+a4v8twWx750Lte0hAy/E17ZoxsZhhf0qPrYgUWlgKN7G4qeU95YOSmiWuhOqyZsb3pUyV0uBqaYpUMqK+C0UIRuzv1EOluZ+ysNUqKkQv7ogVyfCPfxhwxSwbpPpM66we7cpFZPz5Tt6r2mqa5CURsLNll3d1kzJNHq96IjfjTRceEkMA6SC2avJe3ASx+vEIlshuldyANVxpZ9aGt64KyuDpZA0Fjh41jSVWT4dAJ0zXXPMHHZLwH3JDq3AK/r5GlRbrIp+yM1r0JSXTxnjKQ8g5NACRrHiW6u/tu4nc/r/r1TLzO5dMHS9TGs4ql6qvmukqODfQxBU9gaGqqa9TVAKSKL12ZNOg9JvT4cpH+HKtwSRmb2PE7k4jGP2Pu1A=
+  file: "$FRAMEWORK.framework.zip"
+  skip_cleanup: true
+  on:
+    repo: ReactorKit/ReactorKit
+    tags: true
