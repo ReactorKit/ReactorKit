@@ -294,7 +294,7 @@ Any discussions and pull requests are welcomed 💖
 * To development:
 
     ```console
-    $ swift package generate-xcodeproj
+    $ TEST=1 swift package generate-xcodeproj
     ```
 
 * To test:
