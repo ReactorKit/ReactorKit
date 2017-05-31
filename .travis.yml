@@ -37,6 +37,7 @@ after_success:
 
 before_deploy:
   - swift package generate-xcodeproj
+  - ruby ./scripts/remove_rxcocoaruntime.rb
   - carthage bootstrap
   - carthage build --no-skip-current
   - carthage archive ReactorKit
