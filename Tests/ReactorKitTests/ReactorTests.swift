@@ -7,7 +7,7 @@ import RxTest
 final class ReactorTests: XCTestCase {
   func testEachMethodsAreInvoked() {
     RxExpect { test in
-      let reactor = TestReactor()
+      let reactor = test.retain(TestReactor())
       test.input(reactor.action, [
         next(100, ["action"]),
       ])
@@ -22,7 +22,7 @@ final class ReactorTests: XCTestCase {
 
   func testStateReplayCurrentState() {
     RxExpect { test in
-      let reactor = CounterReactor()
+      let reactor = test.retain(CounterReactor())
       let disposable = reactor.state.subscribe() // state: 0
       reactor.action.onNext() // state: 1
       reactor.action.onNext() // state: 2
@@ -48,7 +48,7 @@ final class ReactorTests: XCTestCase {
 
   func testStreamIgnoresErrorFromAction() {
     RxExpect { test in
-      let reactor = CounterReactor()
+      let reactor = test.retain(CounterReactor())
       let action1 = test.scheduler.createHotObservable([
         next(100),
         next(200),
@@ -76,7 +76,7 @@ final class ReactorTests: XCTestCase {
 
   func testStreamIgnoresErrorFromMutate() {
     RxExpect { test in
-      let reactor = CounterReactor()
+      let reactor = test.retain(CounterReactor())
       reactor.stateForTriggerError = 2
       test.input(reactor.action, [
         next(100),
@@ -92,7 +92,7 @@ final class ReactorTests: XCTestCase {
 
   func testStreamIgnoresCompletedFromAction() {
     RxExpect { test in
-      let reactor = CounterReactor()
+      let reactor = test.retain(CounterReactor())
       let action1 = test.scheduler.createHotObservable([
         next(100),
         next(200),
@@ -120,7 +120,7 @@ final class ReactorTests: XCTestCase {
 
   func testStreamIgnoresCompletedFromMutate() {
     RxExpect { test in
-      let reactor = CounterReactor()
+      let reactor = test.retain(CounterReactor())
       reactor.stateForTriggerCompleted = 2
       test.input(reactor.action, [
         next(100),
@@ -136,7 +136,7 @@ final class ReactorTests: XCTestCase {
 
   func testCancel() {
     RxExpect { test in
-      let reactor = StopwatchReactor(scheduler: test.scheduler)
+      let reactor = test.retain(StopwatchReactor(scheduler: test.scheduler))
       test.input(reactor.action, [
         next(1, .start),
         next(5, .stop),
