@@ -10,7 +10,7 @@ var dependencies: [Package.Dependency] = [
 let isTest = ProcessInfo.processInfo.environment["TEST"] == "1"
 if isTest {
   dependencies.append(
-    .Package(url: "https://github.com/devxoul/RxExpect.git", majorVersion: 0, minor: 5)
+    .Package(url: "https://github.com/devxoul/RxExpect.git", majorVersion: 0)
   )
 }
 
