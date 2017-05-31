@@ -39,10 +39,10 @@ public final class ActionSubject<Element>: ObservableType, ObserverType, Subject
     self.observers[key] = observer.on
     self.lock.unlock()
 
-    return Disposables.create {
-      self.lock.lock()
-      self.observers.removeValue(forKey: key)
-      self.lock.unlock()
+    return Disposables.create { [weak self] in
+      self?.lock.lock()
+      self?.observers.removeValue(forKey: key)
+      self?.lock.unlock()
     }
   }
 
