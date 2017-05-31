@@ -51,3 +51,4 @@ deploy:
   on:
     repo: ReactorKit/ReactorKit
     tags: true
+    condition: $SDK = $IOS_SDK
