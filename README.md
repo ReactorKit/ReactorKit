@@ -19,9 +19,9 @@
   </a>
 </p>
 
-ReactorKit is a framework for reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
+ReactorKit is a framework for a reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
-You may want to see [Examples](#examples) section first if you'd like to see the actual code. Visit [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.
+You may want to see the [Examples](#examples) section first if you'd like to see the actual code. Visit the [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.
 
 ## Table of Contents
 
@@ -43,7 +43,7 @@ You may want to see [Examples](#examples) section first if you'd like to see the
 
 ## Basic Concept
 
-ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming). The user actions and the view states are delivered to each layer via observable streams. These streams are unidirectional so the view can only emit actions and the reactor can only emit states.
+ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming). The user actions and the view states are delivered to each layer via observable streams. These streams are unidirectional: the view can only emit actions and the reactor can only emit states.
 
 <p align="center">
   <img alt="flow" src="https://cloud.githubusercontent.com/assets/931655/25073432/a91c1688-2321-11e7-8f04-bf91031a09dd.png" width="600">
@@ -52,14 +52,14 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 ### Design Goal
 
 * **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors.
-* **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partically to a specific view. You don't need to rewrite everything to use ReactorKit on your existing project.
-* **Less Typing**: ReactorKit focuses on avoiding complicated code for simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale them up.
+* **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partially, for one or more specific views. You don't need to rewrite everything to use ReactorKit on your existing project.
+* **Less Typing**: ReactorKit focuses on avoiding complicated code for a simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale up.
 
 ### View
 
-*View* displays data. A view controller and a cell are treated as a view. The view binds user-inputs to the action stream and binds the view states to each UI components. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
+A *View* displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
 
-To define a view, just conform a protocol named `View` to an existing class. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
+To define a view, just have an existing class conform a protocol named `View`. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
 
 ```swift
 class ProfileViewController: UIViewController, View {
@@ -87,24 +87,24 @@ func bind(reactor: ProfileViewReactor) {
 
 ### Reactor
 
-*Reactor* is an UI independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates every logical things to its reactor. A reactor has no dependency of a view so it can be easily tested.
+A *Reactor* is an UI-independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily tested.
 
-Conform a protocol named `Reactor` to define a reactor. This protocol requires three types: `Action`, `Mutation` and `State`. It also requies a property named `initialState`.
+Conform to the `Reactor` protocol to define a reactor. This protocol requires three types to be defined: `Action`, `Mutation` and `State`. It also requires a property named `initialState`.
 
 ```swift
 class ProfileViewReactor: Reactor {
-  // about what user did
+  // represent user actions
   enum Action {
     case refreshFollowingStatus(Int)
     case follow(Int)
   }
 
-  // about how to manipulate the state
+  // represent state changes
   enum Mutation {
     case setFollowing(Bool)
   }
 
-  // about current view state
+  // represents the current view state
   struct State {
     var isFollowing: Bool = false
   }
@@ -113,7 +113,7 @@ class ProfileViewReactor: Reactor {
 }
 ```
 
-`Action` represents an user interaction and `State` represents a view state. `Mutation` is a bridge between `Action` and `State`. A reactor converts the action stream to the state stream in two steps: `mutate()` and `reduce()`.
+An `Action` represents a user interaction and `State` represents a view state. `Mutation` is a bridge between `Action` and `State`. A reactor converts the action stream to the state stream in two steps: `mutate()` and `reduce()`.
 
 <p align="center">
   <img alt="flow-reactor" src="https://cloud.githubusercontent.com/assets/931655/25098066/2de21a28-23e2-11e7-8a41-d33d199dd951.png" width="800">
@@ -127,7 +127,7 @@ class ProfileViewReactor: Reactor {
 func mutate(action: Action) -> Observable<Mutation>
 ```
 
-Every side effect such as async operation or API call are performed in this method.
+Every side effect, such as an async operation or API call, is performed in this method.
 
 ```swift
 func mutate(action: Action) -> Observable<Mutation> {
@@ -149,7 +149,7 @@ func mutate(action: Action) -> Observable<Mutation> {
 
 #### `reduce()`
 
-`reduce()` generates a new `State` from an old `State` and a `Mutation`. 
+`reduce()` generates a new `State` from a previous `State` and a `Mutation`. 
 
 ```swift
 func reduce(state: State, mutation: Mutation) -> State
@@ -159,18 +159,18 @@ This method is a pure function. It should just return a new `State` synchronousl
 
 ```swift
 func reduce(state: State, mutation: Mutation) -> State {
-  var state = state // create a copy of old state
+  var state = state // create a copy of the old state
   switch mutation {
   case let .setFollowing(isFollowing):
-    state.isFollowing = isFollowing // manipulate a new state
-    return state // return a new state
+    state.isFollowing = isFollowing // manipulate the state, creating a new state
+    return state // return the new state
   }
 }
 ```
 
 #### `transform()`
 
-`transform()` transforms each streams. There are three `transform()` functions:
+`transform()` transforms each stream. There are three `transform()` functions:
 
 ```swift
 func transform(action: Observable<Action>) -> Observable<Action>
@@ -180,7 +180,7 @@ func transform(state: Observable<State>) -> Observable<State>
 
 Implement these methods to transform and combine with other observable streams. For example, `transform(mutation:)` is the best place for combining a global event stream to a mutation stream.
 
-These methods can be also used for debugging purpose:
+These methods can be also used for debugging purposes:
 
 ```swift
 func transform(action: Observable<Action>) -> Observable<Action> {
@@ -217,7 +217,7 @@ final class UserService: Service, UserServiceType {
 
 ReactorKit suggests some conventions to write clean and concise code.
 
-* A reactor should have the ServiceProvider as a first argument of an initializer.
+* A reactor should have the ServiceProvider as the first argument of its initializer.
 
     ```swift
     class MyViewReactor {
@@ -225,7 +225,7 @@ ReactorKit suggests some conventions to write clean and concise code.
     }
     ```
 
-* You must create a reactor outside of a view and pass it to the view's `reactor` property.
+* You must create a reactor outside of the view and pass it to the view's `reactor` property.
 
     **Bad**
 
@@ -255,7 +255,7 @@ ReactorKit suggests some conventions to write clean and concise code.
 ## Examples
 
 * [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit
-* [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides GitHub repository search
+* [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides a GitHub repository search
 * [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
 * [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
