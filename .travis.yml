@@ -36,12 +36,13 @@ after_success:
   - bash <(curl -s https://codecov.io/bash) -J 'ReactorKit'
 
 before_deploy:
+  - ruby ./scripts/carthage_helper.rb prepare_xcconfig
   - swift package generate-xcodeproj
-  - ruby ./scripts/remove_rxcocoaruntime.rb
+  - ruby ./scripts/carthage_helper.rb remove_rxcocoaruntime
   - carthage bootstrap
   - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage build --no-skip-current
-  - ruby ./scripts/modify_info.rb
+  - ruby ./scripts/carthage_helper.rb modify_info
   - carthage archive ReactorKit
 
 deploy:
