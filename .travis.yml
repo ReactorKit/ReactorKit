@@ -39,6 +39,7 @@ before_deploy:
   - swift package generate-xcodeproj
   - ruby ./scripts/remove_rxcocoaruntime.rb
   - carthage bootstrap
+  - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage build --no-skip-current
   - carthage archive ReactorKit
 
