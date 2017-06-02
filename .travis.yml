@@ -41,6 +41,7 @@ before_deploy:
   - carthage bootstrap
   - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage build --no-skip-current
+  - ruby ./scripts/modify_info.rb
   - carthage archive ReactorKit
 
 deploy:
