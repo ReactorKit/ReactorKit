@@ -12,9 +12,19 @@ public struct NoAction {}
 public struct NoMutation {}
 
 public typealias _Reactor = Reactor
+
+/// A Reactor is an UI-independent layer which manages the state of a view. The foremost role of a
+/// reactor is to separate control flow from a view. Every view has its corresponding reactor and
+/// delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily
+/// tested.
 public protocol Reactor: class, AssociatedObjectStore {
+  /// An action represents user actions.
   associatedtype Action
+
+  /// A mutation represents state changes.
   associatedtype Mutation = Action
+
+  /// A State represents the current state of a view.
   associatedtype State
 
   /// The action from the view. Bind user inputs to this subject.
