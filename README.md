@@ -31,6 +31,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     * [Reactor](#reactor)
 * [Advanced](#advanced)
     * [Service](#service)
+    * [Global States](#global-states)
 * [Conventions](#conventions)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
@@ -178,7 +179,7 @@ func transform(mutation: Observable<Mutation>) -> Observable<Mutation>
 func transform(state: Observable<State>) -> Observable<State>
 ```
 
-Implement these methods to transform and combine with other observable streams. For example, `transform(mutation:)` is the best place for combining a global event stream to a mutation stream.
+Implement these methods to transform and combine with other observable streams. For example, `transform(mutation:)` is the best place for combining a global event stream to a mutation stream. See the [Global States](#global-states) section for details.
 
 These methods can be also used for debugging purposes:
 
@@ -212,6 +213,21 @@ final class UserService: Service, UserServiceType {
   }
 }
 ```
+
+### Global States
+
+Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `Variable`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
+
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `var currentUser: Variable<User>` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+
+
+```swift
+func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+  return Observable.merge(mutation, currentUser.map(Mutation.setUser))
+}
+```
+
+Then the mutation will be emitted each time the view sends an action to a reactor and the `currentUser` is changed.
 
 ## Conventions
 
