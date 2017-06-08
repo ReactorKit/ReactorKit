@@ -88,7 +88,6 @@ extension Reactor {
 
   private var disposeBag: DisposeBag {
     get { return self.associatedObject(forKey: &disposeBagKey, default: DisposeBag()) }
-    set { self.setAssociatedObject(newValue, forKey: &disposeBagKey) }
   }
 
   public func createStateStream() -> Observable<State> {
