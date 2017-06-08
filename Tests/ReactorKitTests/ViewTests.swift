@@ -19,6 +19,22 @@ final class ViewTests: XCTestCase {
     let newHashValue = ObjectIdentifier(view.disposeBag).hashValue
     XCTAssertNotEqual(oldHashValue, newHashValue)
   }
+
+  func testReactor_assign() {
+    let reactor = TestReactor()
+    let view = TestView()
+    view.reactor = reactor
+    XCTAssertNotNil(view.reactor)
+    XCTAssertTrue(view.reactor === reactor)
+  }
+
+  func testReactor_assignNil() {
+    let reactor = TestReactor()
+    let view = TestView()
+    view.reactor = reactor
+    view.reactor = nil
+    XCTAssertNil(view.reactor)
+  }
 }
 
 private final class TestView: View {
