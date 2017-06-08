@@ -10,7 +10,7 @@ env:
     - TVOS_SDK="appletvsimulator10.2"
     - FRAMEWORK="ReactorKit"
   matrix:
-    - SDK="$IOS_SDK"      DESTINATION="platform=iOS Simulator,name=iPhone 7,OS=10.3"
+    - SDK="$IOS_SDK"      DESTINATION="platform=iOS Simulator,name=iPhone 7,OS=10.3.1"
     - SDK="$MACOS_SDK"    DESTINATION="arch=x86_64"
     - SDK="$TVOS_SDK"     DESTINATION="OS=10.2,name=Apple TV 1080p"
 
