@@ -76,13 +76,13 @@ When the `reactor` property has changed, `bind(reactor:)` gets called. Implement
 func bind(reactor: ProfileViewReactor) {
   // action (View -> Reactor)
   refreshButton.rx.tap.map { Reactor.Action.refresh }
-    .bindTo(reactor.action)
-    .addDisposableTo(self.disposeBag)
+    .bind(to: reactor.action)
+    .disposed(by: self.disposeBag)
 
   // state (Reactor -> View)
   reactor.state.map { $0.isFollowing }
-    .bindTo(followButton.rx.isSelected)
-    .addDisposableTo(self.disposeBag)
+    .bind(to: followButton.rx.isSelected)
+    .disposed(by: self.disposeBag)
 }
 ```
 
