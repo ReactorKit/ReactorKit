@@ -16,10 +16,6 @@ extension AssociatedObjectStore {
     return objc_getAssociatedObject(self, key) as? T
   }
 
-  func associatedObject<T>(forKey key: UnsafeRawPointer, default: () -> T) -> T {
-    return self.associatedObject(forKey: key, default: `default`())
-  }
-
   func associatedObject<T>(forKey key: UnsafeRawPointer, default: @autoclosure () -> T) -> T {
     if let object: T = self.associatedObject(forKey: key) {
       return object
