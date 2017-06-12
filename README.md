@@ -32,6 +32,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
 * [Advanced](#advanced)
     * [Service](#service)
     * [Global States](#global-states)
+    * [View Communication](#view-communication)
 * [Conventions](#conventions)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
@@ -218,16 +219,45 @@ final class UserService: Service, UserServiceType {
 
 Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `Variable`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
 
-There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `var currentUser: Variable<User>` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `Variable` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
 
 ```swift
+var currentUser: Variable<User> // global state
+
 func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
   return Observable.merge(mutation, currentUser.map(Mutation.setUser))
 }
 ```
 
 Then the mutation will be emitted each time the view sends an action to a reactor and the `currentUser` is changed.
+
+### View Communication
+
+You must be familiar with callback closures or delegate patterns for communicating between multiple views. ReactorKit recommends you to use [reactive extensions](https://github.com/ReactiveX/RxSwift/blob/master/RxSwift/Reactive.swift) for it. The most common example of `ControlEvent` is `UIButton.rx.tap`. The key concept is to treat your custom views as UIButton or UILabel.
+
+<p align="center">
+  <img alt="view-view" src="https://user-images.githubusercontent.com/931655/27026854-2c38b3ba-4f9a-11e7-9b91-21380f38d970.png" width="600">
+</p>
+
+Let's assume that we have a `ChatViewController` which displays messages. The `ChatViewController` owns a `MessageInputView`. When an user taps the send button on the `MessageInputView`, the text will be sent to the `ChatViewController` and `ChatViewController` will bind in to the reactor's action. This is an example `MessageInputView`'s reactive extension:
+
+```swift
+extension Reactive where Base: MessageInputView {
+  var sendButtonTap: ControlEvent<String> {
+    let source = base.sendButton.rx.tap.withLatestFrom(...)
+    return ControlEvent(events: source)
+  }
+}
+```
+
+You can use that extension in the `ChatViewController`. For example:
+
+```swift
+messageInputView.rx.sendButtonTap
+  .map(Reactor.Action.send)
+  .bind(to: reactor.action)
+```
 
 ## Conventions
 
