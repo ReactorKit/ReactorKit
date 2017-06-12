@@ -237,7 +237,7 @@ Then the mutation will be emitted each time the view sends an action to a reacto
 You must be familiar with callback closures or delegate patterns for communicating between multiple views. ReactorKit recommends you to use [reactive extensions](https://github.com/ReactiveX/RxSwift/blob/master/RxSwift/Reactive.swift) for it. The most common example of `ControlEvent` is `UIButton.rx.tap`. The key concept is to treat your custom views as UIButton or UILabel.
 
 <p align="center">
-  <img alt="view-view" src="https://user-images.githubusercontent.com/931655/27026854-2c38b3ba-4f9a-11e7-9b91-21380f38d970.png" width="600">
+  <img alt="view-view" src="https://user-images.githubusercontent.com/931655/27027799-aca3ed96-4f9d-11e7-947c-a9f762b4433a.png" width="600">
 </p>
 
 Let's assume that we have a `ChatViewController` which displays messages. The `ChatViewController` owns a `MessageInputView`. When an user taps the send button on the `MessageInputView`, the text will be sent to the `ChatViewController` and `ChatViewController` will bind in to the reactor's action. This is an example `MessageInputView`'s reactive extension:
