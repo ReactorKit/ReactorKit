@@ -263,15 +263,14 @@ messageInputView.rx.sendButtonTap
 
 ReactorKit suggests some conventions to write clean and concise code.
 
-* A reactor should have the ServiceProvider as the first argument of its initializer.
+* You must create a reactor outside of the view and pass it to the view's `reactor` property.
+
+    **Good**
 
     ```swift
-    class MyViewReactor {
-      init(provider: ServiceProviderType)
-    }
+    let view = MyView()
+    view.reactor = MyViewReactor(provider: provider)
     ```
-
-* You must create a reactor outside of the view and pass it to the view's `reactor` property.
 
     **Bad**
 
@@ -281,21 +280,6 @@ ReactorKit suggests some conventions to write clean and concise code.
         self.reactor = MyViewReactor()
       }
     }
-    ```
-
-    **Good**
-
-    ```swift
-    let view = MyView()
-    view.reactor = MyViewReactor(provider: provider)
-    ```
-
-* The ServiceProvider should be created once and passed to the first-most View.
-
-    ```swift
-    let serviceProvider = ServiceProvider()
-    let firstViewReactor = FirstViewReactor(provider: serviceProvider)
-    window.rootViewController = FirstViewController(reactor: firstViewReactor)
     ```
 
 ## Examples
