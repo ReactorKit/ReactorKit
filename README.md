@@ -347,4 +347,4 @@ Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Sl
 
 ## License
 
-ReactorKit is under MIT license. See the [LICENSE](LICENSE) for more info.
+ReactorKit is under MIT license. See the [LICENSE](https://github.com/ReactorKit/ReactorKit/blob/master/LICENSE) for more info.
