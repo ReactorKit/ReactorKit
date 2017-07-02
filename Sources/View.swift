@@ -9,6 +9,14 @@
 #if !os(Linux)
 import Foundation
 
+#if os(iOS) || os(tvOS)
+import UIKit
+private typealias OSViewController = UIViewController
+#elseif os(OSX)
+import AppKit
+private typealias OSViewController = NSViewController
+#endif
+
 import RxSwift
 
 public typealias _View = View
@@ -58,13 +66,21 @@ private var reactorKey = "reactor"
 extension View {
   public var reactor: Reactor? {
     get { return self.associatedObject(forKey: &reactorKey) }
-    set {
-      self.setAssociatedObject(newValue, forKey: &reactorKey)
-      self.disposeBag = DisposeBag()
-      if let reactor = newValue {
-        self.bind(reactor: reactor)
-      }
+    set { self.setReactor(newValue) }
+  }
+
+  fileprivate func setReactor(_ reactor: Reactor?) {
+    self.setAssociatedObject(reactor, forKey: &reactorKey)
+    self.disposeBag = DisposeBag()
+    if let reactor = reactor {
+      self.loadViewIfNeeded()
+      self.bind(reactor: reactor)
     }
+  }
+
+  fileprivate func loadViewIfNeeded() {
+    guard let viewController = self as? OSViewController, !viewController.isViewLoaded else { return }
+    _ = viewController.view
   }
 }
 #endif
