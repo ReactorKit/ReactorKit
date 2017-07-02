@@ -2,6 +2,17 @@ import XCTest
 import ReactorKit
 import RxSwift
 
+#if os(iOS) || os(tvOS)
+import UIKit
+private typealias OSViewController = UIViewController
+private typealias OSView = UIView
+#elseif os(OSX)
+import AppKit
+private typealias OSViewController = NSViewController
+private typealias OSView = NSView
+#endif
+
+#if !os(Linux)
 final class ViewTests: XCTestCase {
   func testBindIsInvoked_differentReactor() {
     let view = TestView()
@@ -35,6 +46,63 @@ final class ViewTests: XCTestCase {
     view.reactor = nil
     XCTAssertNil(view.reactor)
   }
+
+  func testViewController_alreadyHasView() {
+    let viewController = TestViewController()
+    _ = viewController.view
+    viewController.reactor = TestReactor()
+    XCTAssertEqual(viewController.isViewLoaded, true)
+    XCTAssertEqual(viewController.bindInvokeCount, 1)
+  }
+
+  func testDeferBinding() {
+    let viewController = TestViewController()
+    viewController.reactor = TestReactor()
+    XCTAssertEqual(viewController.bindInvokeCount, 0) // view is not loaded yet; skip binding
+    _ = viewController.view // makes `loadView()` get called
+
+    let expectation = self.expectation(description: "bindInvokeCountExpectation")
+    DispatchQueue.main.async(execute: expectation.fulfill)
+    self.waitForExpectations(timeout: 0.5) { error in
+      XCTAssertNil(error)
+      XCTAssertEqual(viewController.bindInvokeCount, 1)
+    }
+  }
+
+  func testDeferBinding_deinitWhileDeferred() {
+    weak var weakView: TestViewController?
+    weak var weakReactor: TestReactor?
+    _ = {
+      let viewController = TestViewController()
+      let reactor = TestReactor()
+      weakView = viewController
+      weakReactor = reactor
+      viewController.reactor = reactor // this will start waiting for view
+      XCTAssertNotNil(weakView)
+      XCTAssertNotNil(weakReactor)
+    }() // viewController is deallocated while waiting (before the view is loaded)
+    XCTAssertNil(weakView)
+    XCTAssertNil(weakReactor)
+  }
+
+  func testDeferBinding_changeReactorWhileDeferred() {
+    let viewController = TestViewController()
+    viewController.reactor = TestReactor()
+    XCTAssertEqual(viewController.bindInvokeCount, 0)
+    viewController.reactor = TestReactor() // assign a new reactor
+    XCTAssertEqual(viewController.bindInvokeCount, 0)
+    _ = viewController.view // makes `loadView()` get called
+    XCTAssertEqual(viewController.bindInvokeCount, 0)
+
+    let expectation = self.expectation(description: "bindInvokeCountExpectation")
+    DispatchQueue.main.async(execute: expectation.fulfill)
+    self.waitForExpectations(timeout: 0.5) { error in
+      XCTAssertNil(error)
+      XCTAssertEqual(viewController.bindInvokeCount, 1)
+      viewController.reactor = TestReactor() // assign a new reactor after view is loaded
+      XCTAssertEqual(viewController.bindInvokeCount, 2)
+    }
+  }
 }
 
 private final class TestView: View {
@@ -46,8 +114,22 @@ private final class TestView: View {
   }
 }
 
+private final class TestViewController: OSViewController, View {
+  var disposeBag = DisposeBag()
+  var bindInvokeCount = 0
+
+  override func loadView() {
+    self.view = OSView()
+  }
+
+  func bind(reactor: TestReactor) {
+    self.bindInvokeCount += 1
+  }
+}
+
 private final class TestReactor: Reactor {
   typealias Action = NoAction
   struct State {}
   let initialState = State()
 }
+#endif
