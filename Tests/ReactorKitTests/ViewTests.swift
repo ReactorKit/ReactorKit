@@ -2,6 +2,17 @@ import XCTest
 import ReactorKit
 import RxSwift
 
+#if os(iOS) || os(tvOS)
+import UIKit
+private typealias OSViewController = UIViewController
+private typealias OSView = UIView
+#elseif os(OSX)
+import AppKit
+private typealias OSViewController = NSViewController
+private typealias OSView = NSView
+#endif
+
+#if !os(Linux)
 final class ViewTests: XCTestCase {
   func testBindIsInvoked_differentReactor() {
     let view = TestView()
@@ -35,6 +46,14 @@ final class ViewTests: XCTestCase {
     view.reactor = nil
     XCTAssertNil(view.reactor)
   }
+
+  func testViewControllerIsViewLoaded() {
+    let viewController = TestViewController()
+    XCTAssertEqual(viewController.isViewLoaded, false)
+    viewController.reactor = TestReactor()
+    XCTAssertEqual(viewController.isViewLoaded, true)
+    XCTAssertEqual(viewController.bindInvokeCount, 1)
+  }
 }
 
 private final class TestView: View {
@@ -46,8 +65,22 @@ private final class TestView: View {
   }
 }
 
+private final class TestViewController: OSViewController, View {
+  var disposeBag = DisposeBag()
+  var bindInvokeCount = 0
+
+  override func loadView() {
+    self.view = OSView()
+  }
+
+  func bind(reactor: TestReactor) {
+    self.bindInvokeCount += 1
+  }
+}
+
 private final class TestReactor: Reactor {
   typealias Action = NoAction
   struct State {}
   let initialState = State()
 }
+#endif
