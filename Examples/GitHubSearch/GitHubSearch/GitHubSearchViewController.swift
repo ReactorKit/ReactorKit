@@ -23,10 +23,6 @@ class GitHubSearchViewController: UIViewController, View {
     super.viewDidLoad()
     tableView.contentInset.top = 44 // search bar height
     tableView.scrollIndicatorInsets.top = tableView.contentInset.top
-
-    // If you're using Storyboard, it's recommended to set a reactor after the view is loaded.
-    // `bind(reactor:)` gets called each time the reactor is assigned.
-    self.reactor = GitHubSearchViewReactor()
   }
 
   func bind(reactor: GitHubSearchViewReactor) {

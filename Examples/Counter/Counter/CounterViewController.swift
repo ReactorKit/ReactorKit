@@ -19,11 +19,6 @@ final class CounterViewController: UIViewController, View {
   @IBOutlet var valueLabel: UILabel!
   var disposeBag = DisposeBag()
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    self.reactor = CounterViewReactor() // this makes `bind(reactor:)` gets called
-  }
-
   // Called when the new value is assigned to `self.reactor`
   func bind(reactor: CounterViewReactor) {
     // Action
