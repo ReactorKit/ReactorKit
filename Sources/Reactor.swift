@@ -68,25 +68,34 @@ private var actionKey = "action"
 private var currentStateKey = "currentState"
 private var stateKey = "state"
 private var disposeBagKey = "disposeBag"
+private var stubKey = "stub"
 
 
 // MARK: - Default Implementations
 
 extension Reactor {
   public var action: ActionSubject<Action> {
-    return self.associatedObject(forKey: &actionKey, default: .init())
+    if self.stub.isEnabled {
+      return self.stub.action
+    } else {
+      return self.associatedObject(forKey: &actionKey, default: .init())
+    }
   }
 
-  public private(set) var currentState: State {
+  public internal(set) var currentState: State {
     get { return self.associatedObject(forKey: &currentStateKey, default: self.initialState) }
     set { self.setAssociatedObject(newValue, forKey: &currentStateKey) }
   }
 
   public var state: Observable<State> {
-    get { return self.associatedObject(forKey: &stateKey, default: self.createStateStream()) }
+    if self.stub.isEnabled {
+      return self.stub.state.asObservable()
+    } else {
+      return self.associatedObject(forKey: &stateKey, default: self.createStateStream())
+    }
   }
 
-  private var disposeBag: DisposeBag {
+  fileprivate var disposeBag: DisposeBag {
     get { return self.associatedObject(forKey: &disposeBagKey, default: DisposeBag()) }
   }
 
@@ -140,5 +149,17 @@ extension Reactor {
 extension Reactor where Action == Mutation {
   public func mutate(action: Action) -> Observable<Mutation> {
     return .just(action)
+  }
+}
+
+
+// MARK: - Stub
+
+extension Reactor {
+  public var stub: Stub<Self> {
+    return self.associatedObject(
+      forKey: &stubKey,
+      default: .init(reactor: self, disposeBag: self.disposeBag)
+    )
   }
 }
