@@ -90,7 +90,11 @@ extension View {
   }
 
   fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
-    return (self as? OSViewController)?.isViewLoaded == false
+    #if !os(watchOS)
+      return (self as? OSViewController)?.isViewLoaded == false
+    #else
+      return false
+    #endif
   }
 }
 #endif
