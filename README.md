@@ -33,6 +33,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     * [Service](#service)
     * [Global States](#global-states)
     * [View Communication](#view-communication)
+    * [Testing](#testing)
 * [Conventions](#conventions)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
@@ -53,7 +54,7 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 
 ### Design Goal
 
-* **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors.
+* **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors and test view bindings. See [Testing](#testing) section for details.
 * **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partially, for one or more specific views. You don't need to rewrite everything to use ReactorKit on your existing project.
 * **Less Typing**: ReactorKit focuses on avoiding complicated code for a simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale up.
 
@@ -257,6 +258,100 @@ You can use that extension in the `ChatViewController`. For example:
 messageInputView.rx.sendButtonTap
   .map(Reactor.Action.send)
   .bind(to: reactor.action)
+```
+
+### Testing
+
+ReactorKit has a built-in functionality for a testing. You'll be able to easily test both a view and a reactor with a following instruction.
+
+#### What to test
+
+First of all, you have to decide what to test. There are two things to test: a view and a reactor.
+
+* View
+    * Action: is a proper action sent to a reactor with a given user interaction?
+    * State: is a view property set properly with a following state?
+* Reactor
+    * State: is a state changed properly with an action?
+
+#### View testing
+
+A view can be tested with a *stub* reactor. A reactor has a property `stub` which can log actions and force change states. If a reactor's stub is enabled, both `mutate()` and `reduce()` are not executed. A stub has these properties:
+
+```swift
+var isEnabled: Bool { get set }
+var state: Variable<Reactor.State> { get }
+var action: ActionSubject<Reactor.Action> { get }
+var actions: [Reactor.Action] { get } // recorded actions
+```
+
+Here are some example test cases:
+
+```swift
+func testAction_refresh() {
+  // 1. prepare a stub reactor
+  let reactor = MyReactor()
+  reactor.stub.isEnabled = true
+
+  // 2. prepare a view with a stub reactor
+  let view = MyView()
+  view.reactor = reactor
+
+  // 3. send an user interaction programatically
+  view.refreshControl.sendActions(for: .valueChanged)
+
+  // 4. assert actions
+  XCTAssertEqual(reactor.stub.actions.last, .refresh)
+}
+
+func testState_isLoading() {
+  // 1. prepare a stub reactor
+  let reactor = MyReactor()
+  reactor.stub.isEnabled = true
+
+  // 2. prepare a view with a stub reactor
+  let view = MyView()
+  view.reactor = reactor
+
+  // 3. set a stub state
+  reactor.stub.state.value = MyReactor.State(isLoading: true)
+
+  // 4. assert view properties
+  XCTAssertEqual(view.activityIndicator.isAnimating, true)
+}
+```
+
+#### Reactor testing
+
+A reactor can be tested independently.
+
+```swift
+func testIsBookmarked() {
+  let reactor = MyReactor()
+  reactor.action.onNext(.toggleBookmarked)
+  XCTAssertEqual(reactor.currentState.isBookmarked, true)
+  reactor.action.onNext(.toggleBookmarked)
+  XCTAssertEqual(reactor.currentState.isBookmarked, false)
+}
+```
+
+Sometimes a state is changed more than one time for a single action. For example, a `.refresh` action sets `state.isLoading` to `true` at first and sets to `false` after the refreshing. In this case it's difficult to test `state.isLoading` with `currentState` so you might need to use [RxTest](https://github.com/ReactiveX/RxSwift) or [RxExpect](https://github.com/devxoul/RxExpect). Here is an example test case using RxExpect:
+
+```swift
+func testIsLoading() {
+  RxExpect("it should change isLoading") { test in
+    let reactor = test.retain(MyReactor())
+    test.input(reactor.action, [
+      next(100, .refresh) // send .refresh at 100 scheduler time
+    ])
+    test.assert(reactor.state.map { $0.isLoading })
+      .since(100) // values since 100 scheduler time
+      .assert([
+        true,  // just after .refresh
+        false, // after refreshing
+      ])
+  }
+}
 ```
 
 ## Conventions
