@@ -159,6 +159,42 @@ final class ReactorTests: XCTestCase {
         ])
     }
   }
+
+  func testStub_actionAndStateMemoryAddress() {
+    let reactor = TestReactor()
+    reactor.stub.isEnabled = true
+    XCTAssertTrue(reactor.action === reactor.stub.action)
+    XCTAssertTrue(reactor.state === reactor.stub.state.asObservable())
+  }
+
+  func testStub_actions() {
+    let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
+    reactor.stub.isEnabled = true
+    reactor.action.onNext(.start)
+    reactor.action.onNext(.start)
+    reactor.action.onNext(.stop)
+    XCTAssertEqual(reactor.stub.actions, [.start, .start, .stop])
+  }
+
+  func testStub_state() {
+    let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
+    reactor.stub.isEnabled = true
+    reactor.stub.state.value = 0
+    XCTAssertEqual(reactor.currentState, 0)
+    reactor.stub.state.value = 1
+    XCTAssertEqual(reactor.currentState, 1)
+    reactor.stub.state.value = -10
+    XCTAssertEqual(reactor.currentState, -10)
+    reactor.stub.state.value = 30
+    XCTAssertEqual(reactor.currentState, 30)
+  }
+
+  func testStub_ignoreAction() {
+    let reactor = TestReactor()
+    reactor.stub.isEnabled = true
+    reactor.action.onNext(["A"])
+    XCTAssertEqual(reactor.currentState, [])
+  }
 }
 
 struct TestError: Error {
