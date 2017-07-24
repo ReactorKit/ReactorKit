@@ -19,12 +19,16 @@ private typealias OSViewController = NSViewController
 
 import RxSwift
 
+public protocol _ObjcCompatibleView {
+  func performBinding()
+}
+
 public typealias _View = View
 
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
 /// logic in a view layer. A view just defines how to map the action stream and the state stream.
-public protocol View: class, AssociatedObjectStore {
+public protocol View: class, _ObjcCompatibleView, AssociatedObjectStore {
   associatedtype Reactor: _Reactor
 
   /// A dispose bag. It is disposed each time the `reactor` is assigned.
@@ -59,6 +63,7 @@ public protocol View: class, AssociatedObjectStore {
 // MARK: - Associated Object Keys
 
 private var reactorKey = "reactor"
+private var isReactorBindedKey = "isReactorBinded"
 
 
 // MARK: - Default Implementations
@@ -69,24 +74,24 @@ extension View {
     set { self.setReactor(newValue) }
   }
 
-  fileprivate func setReactor(_ reactor: Reactor?) {
-    self.setAssociatedObject(reactor, forKey: &reactorKey)
-    self.disposeBag = DisposeBag()
-    if let reactor = reactor {
-      self.performBinding(reactor: reactor)
-    }
+  fileprivate var isReactorBinded: Bool {
+    get { return self.associatedObject(forKey: &isReactorBindedKey, default: false) }
+    set { self.setAssociatedObject(newValue, forKey: &isReactorBindedKey) }
   }
 
-  fileprivate func performBinding(reactor: Reactor) {
-    guard self.reactor === reactor else { return }
-    if self.shouldDeferBinding(reactor: reactor) {
-      DispatchQueue.main.async { [weak self, weak reactor] in
-        guard let `self` = self, let reactor = reactor else { return }
-        self.performBinding(reactor: reactor)
-      }
-    } else {
-      self.bind(reactor: reactor)
-    }
+  fileprivate func setReactor(_ reactor: Reactor?) {
+    self.setAssociatedObject(reactor, forKey: &reactorKey)
+    self.isReactorBinded = false
+    self.disposeBag = DisposeBag()
+    self.performBinding()
+  }
+
+  public func performBinding() {
+    guard let reactor = self.reactor else { return }
+    guard !self.isReactorBinded else { return }
+    guard !self.shouldDeferBinding(reactor: reactor) else { return }
+    self.bind(reactor: reactor)
+    self.isReactorBinded = true
   }
 
   fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
@@ -97,4 +102,12 @@ extension View {
     #endif
   }
 }
+
+#if !os(watchOS)
+extension OSViewController {
+  @objc func _reactorkit_performBinding() {
+    (self as? _ObjcCompatibleView)?.performBinding()
+  }
+}
+#endif
 #endif
