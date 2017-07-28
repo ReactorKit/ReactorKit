@@ -195,6 +195,25 @@ final class ReactorTests: XCTestCase {
     reactor.action.onNext(["A"])
     XCTAssertEqual(reactor.currentState, [])
   }
+
+  /// A test for #30
+  func testGenericSubclassing() {
+    class ParentReactor<T>: Reactor {
+      enum Action {}
+      typealias Mutation = Void
+      typealias State = Void
+      let initialState: State = State()
+    }
+
+    class ChildReactor: ParentReactor<String> {
+    }
+
+    let reactor = ChildReactor()
+    let address1 = ObjectIdentifier(reactor.action).hashValue
+    _ = reactor.state
+    let address2 = ObjectIdentifier(reactor.action).hashValue
+    XCTAssertEqual(address1, address2)
+  }
 }
 
 struct TestError: Error {
