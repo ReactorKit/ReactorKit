@@ -91,14 +91,14 @@ def modify_info
   plist_set(watchos_info, "CFBundleVersion", version) if watchos_version
 end
 
-def remove_rxcocoaruntime
+def remove_framework(target_name, framework_name)
   project = Xcodeproj::Project.open("#{PACKAGE_NAME}.xcodeproj") or return
-  target = project.targets.find { |t| t.name == PACKAGE_NAME } or return
+  target = project.targets.find { |t| t.name == target_name } or return
   phase = target.build_phases.find { |p|
     p.kind_of?(Xcodeproj::Project::Object::PBXFrameworksBuildPhase) 
   } or return
   file = phase.files_references.find { |f|
-    f.path == "RxCocoaRuntime.framework"
+    f.path == framework_name
   } or return
   phase.remove_file_reference(file)
   project.save
@@ -111,6 +111,11 @@ when "prepare_xcconfig"
 when "modify_info"
   modify_info()
 
-when "remove_rxcocoaruntime"
-  remove_rxcocoaruntime()
+when "remove_unnecessary_frameworks"
+  remove_framework(PACKAGE_NAME, "RxBlocking.framework")
+  remove_framework(PACKAGE_NAME, "RxCocoa.framework")
+  remove_framework(PACKAGE_NAME, "RxCocoaRuntime.framework")
+  remove_framework("ReactorKitRuntime", "RxBlocking.framework")
+  remove_framework("ReactorKitRuntime", "RxCocoa.framework")
+  remove_framework("ReactorKitRuntime", "RxCocoaRuntime.framework")
 end
