@@ -61,7 +61,7 @@ before_deploy:
   - carthage bootstrap
   - carthage build --no-skip-current
   - ruby ./scripts/carthage_helper.rb modify_info
-  - carthage archive ReactorKit
+  - carthage archive ReactorKit ReactorKitRuntime
 
 deploy:
   provider: releases
