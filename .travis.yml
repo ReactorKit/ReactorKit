@@ -59,7 +59,7 @@ before_deploy:
   - ruby ./scripts/carthage_helper.rb remove_rxcocoaruntime
   - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage bootstrap
-  - carthage build --no-skip-current
+  - carthage build --no-skip-current --verbose | xcpretty -c
   - ruby ./scripts/carthage_helper.rb modify_info
   - carthage archive ReactorKit ReactorKitRuntime
 
