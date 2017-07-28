@@ -74,12 +74,17 @@ private var stubKey = "stub"
 // MARK: - Default Implementations
 
 extension Reactor {
-  public var action: ActionSubject<Action> {
+  private var _action: ActionSubject<Action> {
     if self.stub.isEnabled {
       return self.stub.action
     } else {
       return self.associatedObject(forKey: &actionKey, default: .init())
     }
+  }
+  public var action: ActionSubject<Action> {
+    // It seems that Swift has a bug in associated object when subclassing a generic class. This is
+    // a temporary solution to bypass the bug. See #30 for details.
+    return self._action
   }
 
   public internal(set) var currentState: State {
@@ -100,7 +105,7 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self.action.asObservable()
+    let action = self._action.asObservable()
     let transformedAction = self.transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
