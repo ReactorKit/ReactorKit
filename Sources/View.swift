@@ -7,19 +7,7 @@
 //
 
 #if !os(Linux)
-import Foundation
-
-#if os(iOS) || os(tvOS)
-import UIKit
-private typealias OSViewController = UIViewController
-#elseif os(OSX)
-import AppKit
-private typealias OSViewController = NSViewController
-#endif
-
 import RxSwift
-
-public typealias _View = View
 
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
@@ -73,28 +61,8 @@ extension View {
     self.setAssociatedObject(reactor, forKey: &reactorKey)
     self.disposeBag = DisposeBag()
     if let reactor = reactor {
-      self.performBinding(reactor: reactor)
-    }
-  }
-
-  fileprivate func performBinding(reactor: Reactor) {
-    guard self.reactor === reactor else { return }
-    if self.shouldDeferBinding(reactor: reactor) {
-      DispatchQueue.main.async { [weak self, weak reactor] in
-        guard let `self` = self, let reactor = reactor else { return }
-        self.performBinding(reactor: reactor)
-      }
-    } else {
       self.bind(reactor: reactor)
     }
-  }
-
-  fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
-    #if !os(watchOS)
-      return (self as? OSViewController)?.isViewLoaded == false
-    #else
-      return false
-    #endif
   }
 }
 #endif
