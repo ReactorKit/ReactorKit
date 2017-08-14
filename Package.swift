@@ -16,16 +16,5 @@ if isTest {
 
 let package = Package(
   name: "ReactorKit",
-  targets: [
-    Target(
-      name: "ReactorKit",
-      dependencies: [
-        .Target(name: "ReactorKitRuntime")
-      ]
-    ),
-    Target(
-      name: "ReactorKitRuntime"
-    ),
-  ],
   dependencies: dependencies
 )
