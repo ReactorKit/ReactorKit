@@ -54,14 +54,37 @@ private var reactorKey = "reactor"
 extension View {
   public var reactor: Reactor? {
     get { return self.associatedObject(forKey: &reactorKey) }
-    set { self.setReactor(newValue) }
+    set {
+      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      self.disposeBag = DisposeBag()
+      if let reactor = newValue {
+        self.bind(reactor: reactor)
+      }
+    }
+  }
+}
+
+public protocol StoryboardView: View, AssociatedObjectStore {
+  /// Makes `bind(reactor:)` get called. Nothing happens if the `reactor` is not set.
+  func bindReactor(file: StaticString, line: Int)
+}
+
+extension StoryboardView {
+  public var reactor: Reactor? {
+    get { return self.associatedObject(forKey: &reactorKey) }
+    set {
+      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      self.disposeBag = DisposeBag()
+    }
   }
 
-  fileprivate func setReactor(_ reactor: Reactor?) {
-    self.setAssociatedObject(reactor, forKey: &reactorKey)
-    self.disposeBag = DisposeBag()
-    if let reactor = reactor {
+  public func bindReactor(file: StaticString = #file, line: Int = #line) {
+    if let reactor = self.reactor {
       self.bind(reactor: reactor)
+    } else {
+      #if DEBUG
+      print("⚠️ \(file):\(line): warning: bindReactor() is called but a reactor is not set.")
+      #endif
     }
   }
 }
