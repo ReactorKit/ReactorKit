@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.author           = { "Suyeol Jeon" => "devxoul@gmail.com" }
   s.source           = { :git => "https://github.com/ReactorKit/ReactorKit.git",
                          :tag => s.version.to_s }
-  s.source_files = "Sources/**/*.{swift,h,m}"
+  s.source_files = "Sources/*.swift"
   s.frameworks   = "Foundation"
   s.dependency "RxSwift", ">= 3.0.0"
 
