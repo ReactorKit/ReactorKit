@@ -13,7 +13,7 @@ import RxCocoa
 import RxSwift
 
 // Conform to the protocol `View` then the property `self.reactor` will be available.
-final class CounterViewController: UIViewController, View {
+final class CounterViewController: UIViewController, StoryboardView {
   @IBOutlet var decreaseButton: UIButton!
   @IBOutlet var increaseButton: UIButton!
   @IBOutlet var valueLabel: UILabel!
