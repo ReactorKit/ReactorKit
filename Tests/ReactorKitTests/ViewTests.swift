@@ -60,13 +60,7 @@ final class ViewTests: XCTestCase {
     viewController.reactor = TestReactor()
     XCTAssertEqual(viewController.bindInvokeCount, 0) // view is not loaded yet; skip binding
     _ = viewController.view // makes `loadView()` get called
-
-    let expectation = self.expectation(description: "bindInvokeCountExpectation")
-    DispatchQueue.main.async(execute: expectation.fulfill)
-    self.waitForExpectations(timeout: 0.5) { error in
-      XCTAssertNil(error)
-      XCTAssertEqual(viewController.bindInvokeCount, 1)
-    }
+    XCTAssertEqual(viewController.bindInvokeCount, 1)
   }
 
   func testDeferBinding_deinitWhileDeferred() {
@@ -92,16 +86,16 @@ final class ViewTests: XCTestCase {
     viewController.reactor = TestReactor() // assign a new reactor
     XCTAssertEqual(viewController.bindInvokeCount, 0)
     _ = viewController.view // makes `loadView()` get called
-    XCTAssertEqual(viewController.bindInvokeCount, 0)
+    XCTAssertEqual(viewController.bindInvokeCount, 1)
+    viewController.reactor = TestReactor() // assign a new reactor after view is loaded
+    XCTAssertEqual(viewController.bindInvokeCount, 2)
+  }
 
-    let expectation = self.expectation(description: "bindInvokeCountExpectation")
-    DispatchQueue.main.async(execute: expectation.fulfill)
-    self.waitForExpectations(timeout: 0.5) { error in
-      XCTAssertNil(error)
-      XCTAssertEqual(viewController.bindInvokeCount, 1)
-      viewController.reactor = TestReactor() // assign a new reactor after view is loaded
-      XCTAssertEqual(viewController.bindInvokeCount, 2)
-    }
+  func testSwizzlingOriginalMethodInvoked() {
+    let viewController = TestViewController()
+    XCTAssertEqual(viewController.isLoadViewInvoked, false)
+    _ = viewController.view
+    XCTAssertEqual(viewController.isLoadViewInvoked, true)
   }
 }
 
@@ -114,12 +108,14 @@ private final class TestView: View {
   }
 }
 
-private final class TestViewController: OSViewController, View {
+private final class TestViewController: OSViewController, StoryboardView {
   var disposeBag = DisposeBag()
+  var isLoadViewInvoked = false
   var bindInvokeCount = 0
 
   override func loadView() {
     self.view = OSView()
+    self.isLoadViewInvoked = true
   }
 
   func bind(reactor: TestReactor) {
