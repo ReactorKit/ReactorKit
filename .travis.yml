@@ -50,7 +50,7 @@ script:
 
 after_success:
   - if [ $TEST == 1 ]; then
-      bash <(curl -s https://codecov.io/bash) -J 'ReactorKit';
+      bash <(curl -s https://codecov.io/bash) -J 'ReactorKit' -X xcodeplist;
     fi
 
 before_deploy:
