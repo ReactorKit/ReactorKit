@@ -13,7 +13,7 @@ import ReactorKit
 import RxCocoa
 import RxSwift
 
-class GitHubSearchViewController: UIViewController, View {
+class GitHubSearchViewController: UIViewController, StoryboardView {
   @IBOutlet var searchBar: UISearchBar!
   @IBOutlet var tableView: UITableView!
 
