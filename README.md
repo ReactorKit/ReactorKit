@@ -88,6 +88,21 @@ func bind(reactor: ProfileViewReactor) {
 }
 ```
 
+#### Storyboard Support
+
+Use `StoryboardView` protocol if you're using a storyboard to initialize view controllers. Everything is same but the only difference is that the `StoryboardView` performs a binding after the view is loaded.
+
+```swift
+let viewController = MyViewController()
+viewController.reactor = MyViewReactor() // will not executes `bind(reactor:)` immediately
+
+class MyViewController: UIViewController, StoryboardView {
+  func bind(reactor: MyViewReactor) {
+    // this is called after the view is loaded (viewDidLoad)
+  }
+}
+```
+
 ### Reactor
 
 A *Reactor* is an UI-independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily tested.
