@@ -7,19 +7,7 @@
 //
 
 #if !os(Linux)
-import Foundation
-
-#if os(iOS) || os(tvOS)
-import UIKit
-private typealias OSViewController = UIViewController
-#elseif os(OSX)
-import AppKit
-private typealias OSViewController = NSViewController
-#endif
-
 import RxSwift
-
-public typealias _View = View
 
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
@@ -66,35 +54,38 @@ private var reactorKey = "reactor"
 extension View {
   public var reactor: Reactor? {
     get { return self.associatedObject(forKey: &reactorKey) }
-    set { self.setReactor(newValue) }
-  }
-
-  fileprivate func setReactor(_ reactor: Reactor?) {
-    self.setAssociatedObject(reactor, forKey: &reactorKey)
-    self.disposeBag = DisposeBag()
-    if let reactor = reactor {
-      self.performBinding(reactor: reactor)
-    }
-  }
-
-  fileprivate func performBinding(reactor: Reactor) {
-    guard self.reactor === reactor else { return }
-    if self.shouldDeferBinding(reactor: reactor) {
-      DispatchQueue.main.async { [weak self, weak reactor] in
-        guard let `self` = self, let reactor = reactor else { return }
-        self.performBinding(reactor: reactor)
+    set {
+      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      self.disposeBag = DisposeBag()
+      if let reactor = newValue {
+        self.bind(reactor: reactor)
       }
-    } else {
-      self.bind(reactor: reactor)
+    }
+  }
+}
+
+public protocol StoryboardView: View, AssociatedObjectStore {
+  /// Makes `bind(reactor:)` get called. Nothing happens if the `reactor` is not set.
+  func bindReactor(file: StaticString, line: Int)
+}
+
+extension StoryboardView {
+  public var reactor: Reactor? {
+    get { return self.associatedObject(forKey: &reactorKey) }
+    set {
+      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      self.disposeBag = DisposeBag()
     }
   }
 
-  fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
-    #if !os(watchOS)
-      return (self as? OSViewController)?.isViewLoaded == false
-    #else
-      return false
-    #endif
+  public func bindReactor(file: StaticString = #file, line: Int = #line) {
+    if let reactor = self.reactor {
+      self.bind(reactor: reactor)
+    } else {
+      #if DEBUG
+      print("⚠️ \(file):\(line): warning: bindReactor() is called but a reactor is not set.")
+      #endif
+    }
   }
 }
 #endif
