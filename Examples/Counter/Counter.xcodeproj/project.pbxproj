@@ -12,6 +12,7 @@
 		034F94C91EB789F400CB9EF1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 034F94C71EB789F400CB9EF1 /* Main.storyboard */; };
 		034F94CB1EB789F400CB9EF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 034F94CA1EB789F400CB9EF1 /* Assets.xcassets */; };
 		034F94CE1EB789F400CB9EF1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 034F94CC1EB789F400CB9EF1 /* LaunchScreen.storyboard */; };
+		035053421F61C325008E8863 /* CounterViewReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035053411F61C325008E8863 /* CounterViewReactor.swift */; };
 		C7B7B142B9573A9634155076 /* Pods_Counter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1422AD7F80D485095F3E79B9 /* Pods_Counter.framework */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,7 @@
 		034F94CA1EB789F400CB9EF1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		034F94CD1EB789F400CB9EF1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		034F94CF1EB789F400CB9EF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		035053411F61C325008E8863 /* CounterViewReactor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CounterViewReactor.swift; sourceTree = "<group>"; };
 		10AF28E88C9AF649F5AE13BF /* Pods-Counter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Counter.release.xcconfig"; path = "Pods/Target Support Files/Pods-Counter/Pods-Counter.release.xcconfig"; sourceTree = "<group>"; };
 		1422AD7F80D485095F3E79B9 /* Pods_Counter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Counter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		61F7F1C8A689E3044090AE40 /* Pods-Counter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Counter.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Counter/Pods-Counter.debug.xcconfig"; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 			children = (
 				034F94C31EB789F400CB9EF1 /* AppDelegate.swift */,
 				034F94C51EB789F400CB9EF1 /* CounterViewController.swift */,
+				035053411F61C325008E8863 /* CounterViewReactor.swift */,
 				034F94C71EB789F400CB9EF1 /* Main.storyboard */,
 				034F94CA1EB789F400CB9EF1 /* Assets.xcassets */,
 				034F94CC1EB789F400CB9EF1 /* LaunchScreen.storyboard */,
@@ -221,6 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				035053421F61C325008E8863 /* CounterViewReactor.swift in Sources */,
 				034F94C61EB789F400CB9EF1 /* CounterViewController.swift in Sources */,
 				034F94C41EB789F400CB9EF1 /* AppDelegate.swift in Sources */,
 			);
