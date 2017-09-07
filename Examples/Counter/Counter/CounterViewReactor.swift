@@ -16,36 +16,60 @@ final class CounterViewReactor: Reactor {
     case decrease
   }
 
-  // Mutate is a state manipulator
+  // Mutate is a state manipulator which is not exposed to a view
   enum Mutation {
     case increaseValue
     case decreaseValue
+    case setLoading(Bool)
   }
 
   // State is a current view state
   struct State {
     var value: Int
+    var isLoading: Bool
   }
 
-  let initialState = State(value: 0) // start from 0
+  let initialState: State
+
+  init() {
+    self.initialState = State(
+      value: 0, // start from 0
+      isLoading: false
+    )
+  }
 
   // Action -> Mutation
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .increase:
-      return Observable.just(Mutation.increaseValue) // Action.increase -> Mutation.increaseValue
+      return Observable.concat([
+        Observable.just(Mutation.setLoading(true)),
+        Observable.just(Mutation.increaseValue).delay(0.5, scheduler: MainScheduler.instance),
+        Observable.just(Mutation.setLoading(false)),
+      ])
+
     case .decrease:
-      return Observable.just(Mutation.decreaseValue) // Action.decrease -> Mutation.decreaseValue
+      return Observable.concat([
+        Observable.just(Mutation.setLoading(true)),
+        Observable.just(Mutation.decreaseValue).delay(0.5, scheduler: MainScheduler.instance),
+        Observable.just(Mutation.setLoading(false)),
+      ])
     }
   }
 
   // Mutation -> State
   func reduce(state: State, mutation: Mutation) -> State {
+    var state = state
     switch mutation {
     case .increaseValue:
-      return State(value: state.value + 1)
+      state.value += 1
+
     case .decreaseValue:
-      return State(value: state.value - 1)
+      state.value -= 1
+
+    case let .setLoading(isLoading):
+      state.isLoading = isLoading
     }
+    return state
   }
 }

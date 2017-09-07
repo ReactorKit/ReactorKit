@@ -17,6 +17,7 @@ final class CounterViewController: UIViewController, StoryboardView {
   @IBOutlet var decreaseButton: UIButton!
   @IBOutlet var increaseButton: UIButton!
   @IBOutlet var valueLabel: UILabel!
+  @IBOutlet var activityIndicatorView: UIActivityIndicatorView!
   var disposeBag = DisposeBag()
 
   // Called when the new value is assigned to `self.reactor`
@@ -33,10 +34,15 @@ final class CounterViewController: UIViewController, StoryboardView {
       .disposed(by: disposeBag)
 
     // State
-    reactor.state                    // State(value: 10)
-      .map { $0.value }              // 10
+    reactor.state.map { $0.value }   // 10
+      .distinctUntilChanged()
       .map { "\($0)" }               // "10"
       .bind(to: valueLabel.rx.text)  // Bind to valueLabel
+      .disposed(by: disposeBag)
+
+    reactor.state.map { $0.isLoading }
+      .distinctUntilChanged()
+      .bind(to: activityIndicatorView.rx.isAnimating)
       .disposed(by: disposeBag)
   }
 }

@@ -2,7 +2,7 @@
 
 Counter application is the most simple and the basic example of ReactorKit.
 
-![counter](https://cloud.githubusercontent.com/assets/931655/25584276/47df107c-2ed0-11e7-9ca3-4d1407259e2d.png)
+![counter](https://user-images.githubusercontent.com/931655/30179038-0ba51cdc-93d9-11e7-95e4-9fb3000c6c3f.png)
 
 To run the project, use:
 
