@@ -41,6 +41,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
 * [Installation](#installation)
 * [Contributing](#contribution)
 * [Community](#community)
+* [Who's using ReactorKit](#whos-using-reactorkit)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -446,6 +447,15 @@ Any discussions and pull requests are welcomed 💖
 ## Community
 
 Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)!
+
+## Who's using ReactorKit
+
+<p align="center">
+  <a href="https://www.stylesha.re" target="_blank"><img height="48" vspace="20" hspace="20" alt="StyleShare" src="https://user-images.githubusercontent.com/931655/30255218-e16fedfe-966f-11e7-973d-7d8d1726d7f6.png"></a>
+  <a href="http://www.kakaocorp.com" target="_blank"><img height="36" vspace="32" hspace="20" alt="Kakao" src="https://user-images.githubusercontent.com/931655/30324656-cbea148a-97fc-11e7-9101-ba38d50f08f4.png"></a>
+</p>
+
+> Are you using ReactorKit? Please [let me know](mailto:devxoul+reactorkit@gmail.com)!
 
 ## Changelog
 
