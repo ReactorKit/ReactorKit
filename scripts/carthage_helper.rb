@@ -62,7 +62,7 @@ end
 
 def modify_info
   def plistbuddy(info, command)
-    return "PlistBuddy -c \"#{command}\" #{info}"
+    return "/usr/libexec/PlistBuddy -c \"#{command}\" #{info}"
   end
 
   def plist_set(info, key, value)
