@@ -18,14 +18,15 @@ final class ActionSubjectTests: XCTestCase {
   }
 
   func testEmitNexts() {
-    RxExpect { test in
-      let subject = ActionSubject<Int>()
-      test.input(subject, [
-        next(100, 1),
-        next(200, 2),
-        next(300, 3),
-      ])
-      test.assert(subject).equal([
+    let test = RxExpect()
+    let subject = ActionSubject<Int>()
+    test.input(subject, [
+      next(100, 1),
+      next(200, 2),
+      next(300, 3),
+    ])
+    test.assert(subject) { events in
+      XCTAssertEqual(events, [
         next(100, 1),
         next(200, 2),
         next(300, 3),
@@ -34,14 +35,15 @@ final class ActionSubjectTests: XCTestCase {
   }
 
   func testIgnoreError() {
-    RxExpect { test in
-      let subject = ActionSubject<Int>()
-      test.input(subject, [
-        next(100, 1),
-        error(200, TestError()),
-        next(300, 3),
-      ])
-      test.assert(subject).equal([
+    let test = RxExpect()
+    let subject = ActionSubject<Int>()
+    test.input(subject, [
+      next(100, 1),
+      error(200, TestError()),
+      next(300, 3),
+    ])
+    test.assert(subject) { events in
+      XCTAssertEqual(events, [
         next(100, 1),
         next(300, 3),
       ])
@@ -49,14 +51,15 @@ final class ActionSubjectTests: XCTestCase {
   }
 
   func testIgnoreCompleted() {
-    RxExpect { test in
-      let subject = ActionSubject<Int>()
-      test.input(subject, [
-        next(100, 1),
-        completed(200),
-        next(300, 3),
-      ])
-      test.assert(subject).equal([
+    let test = RxExpect()
+    let subject = ActionSubject<Int>()
+    test.input(subject, [
+      next(100, 1),
+      completed(200),
+      next(300, 3),
+    ])
+    test.assert(subject) { events in
+      XCTAssertEqual(events, [
         next(100, 1),
         next(300, 3),
       ])
