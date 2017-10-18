@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
                          :tag => s.version.to_s }
   s.source_files = "Sources/**/*.{swift,h,m}"
   s.frameworks   = "Foundation"
-  s.dependency "RxSwift", ">= 3.0.0"
+  s.dependency "RxSwift", ">= 4.0.0"
 
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.11"
