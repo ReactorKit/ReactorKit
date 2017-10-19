@@ -126,7 +126,7 @@ extension Reactor {
         self?.currentState = state
       })
       .replay(1)
-    transformedState.connect().addDisposableTo(self.disposeBag)
+    transformedState.connect().disposed(by: self.disposeBag)
     return transformedState
   }
 
