@@ -13,7 +13,7 @@ public protocol _ObjCStoryboardView {
   func performBinding()
 }
 
-public protocol StoryboardView: View, AssociatedObjectStore, _ObjCStoryboardView {
+public protocol StoryboardView: View, _ObjCStoryboardView {
 }
 
 extension StoryboardView {

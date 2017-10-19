@@ -1,31 +1,19 @@
-// swift-tools-version:3.1
+// swift-tools-version:4.0
 
-import Foundation
 import PackageDescription
-
-var dependencies: [Package.Dependency] = [
-  .Package(url: "https://github.com/ReactiveX/RxSwift.git", majorVersion: 3),
-]
-
-let isTest = ProcessInfo.processInfo.environment["TEST"] == "1"
-if isTest {
-  dependencies.append(
-    .Package(url: "https://github.com/devxoul/RxExpect.git", majorVersion: 0)
-  )
-}
 
 let package = Package(
   name: "ReactorKit",
-  targets: [
-    Target(
-      name: "ReactorKit",
-      dependencies: [
-        .Target(name: "ReactorKitRuntime")
-      ]
-    ),
-    Target(
-      name: "ReactorKitRuntime"
-    ),
+  products: [
+    .library(name: "ReactorKit", targets: ["ReactorKit"]),
   ],
-  dependencies: dependencies
+  dependencies: [
+    .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "4.0.0")),
+    .package(url: "https://github.com/devxoul/RxExpect.git", .upToNextMajor(from: "1.0.0"))
+  ],
+  targets: [
+    .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift"]),
+    .target(name: "ReactorKitRuntime", dependencies: []),
+    .testTarget(name: "ReactorKitTests", dependencies: ["ReactorKit", "RxExpect"]),
+  ]
 )
