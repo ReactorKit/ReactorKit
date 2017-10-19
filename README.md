@@ -404,11 +404,11 @@ ReactorKit suggests some conventions to write clean and concise code.
 
 ## Dependencies
 
-* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 3.0
+* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 4.0
 
 ## Requirements
 
-* Swift 3
+* Swift 4
 * iOS 8
 * macOS 10.11
 * tvOS 9.0
