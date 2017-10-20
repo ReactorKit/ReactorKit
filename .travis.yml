@@ -38,6 +38,7 @@ after_success:
 before_deploy:
   - ruby ./scripts/carthage_helper.rb prepare_xcconfig
   - swift package generate-xcodeproj --xcconfig-overrides Config.xcconfig
+  - ruby ./scripts/carthage_helper.rb configure_scheme
   - ruby ./scripts/carthage_helper.rb remove_unnecessary_frameworks
   - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage bootstrap

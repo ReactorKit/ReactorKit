@@ -91,6 +91,19 @@ def modify_info
   plist_set(watchos_info, "CFBundleVersion", version) if watchos_version
 end
 
+def configure_scheme()
+  scheme = Xcodeproj::XCScheme.new("ReactorKit.xcodeproj/xcshareddata/xcschemes/ReactorKit-Package.xcscheme")
+  action = Xcodeproj::XCScheme::BuildAction.new
+  for entry in scheme.build_action.entries
+    name = entry.buildable_references[0].xml_element.attributes['BlueprintName']
+    if ["ReactorKit", "ReactorKitRuntime"].include? name
+      action.add_entry(entry)
+    end
+  end
+  scheme.build_action = action
+  scheme.save!
+end
+
 def remove_framework(target_name, framework_name)
   project = Xcodeproj::Project.open("#{PACKAGE_NAME}.xcodeproj") or return
   target = project.targets.find { |t| t.name == target_name } or return
@@ -110,6 +123,9 @@ when "prepare_xcconfig"
 
 when "modify_info"
   modify_info()
+
+when "configure_scheme"
+  configure_scheme()
 
 when "remove_unnecessary_frameworks"
   remove_framework(PACKAGE_NAME, "RxBlocking.framework")
