@@ -53,8 +53,7 @@ before_deploy:
 
 deploy:
   provider: releases
-  api_key:
-    secure: iQLQ+53ce6rCfnwps+Q2Leq4wgkystcN9wk+3vtnkMFFW/n2myuZQF5lzBkFGI9YUJDwPl+unjT80Fkr6sxHk63DZw6hhqRFf2AlDtO20goa32WRR0MfCnL7CfxWnIywfXN4F9LaJQkghtihmeGng5USzur7CGpfdR9oXQ+JgGLl9HjhXpoRVkDNFBZ72AL+/q9ZjV5ZXHjTkaW5yAMsHo21SM8nfiOuCNTtmmybDp9FVeMAHvWCLXakKCLGBG3B6p73UhMQQXlvWARPAhi2ux+VMqcyydUG1DYilkSNAc+a4v8twWx750Lte0hAy/E17ZoxsZhhf0qPrYgUWlgKN7G4qeU95YOSmiWuhOqyZsb3pUyV0uBqaYpUMqK+C0UIRuzv1EOluZ+ysNUqKkQv7ogVyfCPfxhwxSwbpPpM66we7cpFZPz5Tt6r2mqa5CURsLNll3d1kzJNHq96IjfjTRceEkMA6SC2avJe3ASx+vEIlshuldyANVxpZ9aGt64KyuDpZA0Fjh41jSVWT4dAJ0zXXPMHHZLwH3JDq3AK/r5GlRbrIp+yM1r0JSXTxnjKQ8g5NACRrHiW6u/tu4nc/r/r1TLzO5dMHS9TGs4ql6qvmukqODfQxBU9gaGqqa9TVAKSKL12ZNOg9JvT4cpH+HKtwSRmb2PE7k4jGP2Pu1A=
+  api_key: $GITHUB_ACCESS_TOKEN
   file: "$FRAMEWORK.framework.zip"
   skip_cleanup: true
   on:
