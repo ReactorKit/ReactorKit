@@ -17,6 +17,7 @@ env:
 install:
   - eval "$(curl -sL https://gist.githubusercontent.com/kylef/5c0475ff02b7c7671d2a/raw/9f442512a46d7a2af7b850d65a7e9bd31edfb09b/swiftenv-install.sh)"
   - swift --version
+  - bundle install
 
 before_script:
   - set -o pipefail
@@ -36,14 +37,18 @@ after_success:
   - bash <(curl -s https://codecov.io/bash) -X xcodeplist -J 'ReactorKit';
 
 before_deploy:
-  - ruby ./scripts/carthage_helper.rb prepare_xcconfig
-  - swift package generate-xcodeproj --xcconfig-overrides Config.xcconfig
-  - ruby ./scripts/carthage_helper.rb configure_scheme
-  - ruby ./scripts/carthage_helper.rb remove_unnecessary_frameworks
-  - rm -r Examples  # https://github.com/Carthage/Carthage/issues/1974
+  - bundle exec swiftproj generate-xcconfig --podspec ReactorKit.podspec
+  - bundle exec swiftproj generate-xcodeproj --xcconfig-overrides Config.xcconfig
+  - bundle exec swiftproj configure-scheme --project ReactorKit.xcodeproj --scheme ReactorKit-Package --buildable-targets ReactorKit,ReactorKitRuntime
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxBlocking.framework
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxCocoa.framework
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxCocoaRuntime.framework
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxBlocking.framework
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxCocoa.framework
+  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxCocoaRuntime.framework
+  - rm -rf Examples  # https://github.com/Carthage/Carthage/issues/1974
   - carthage bootstrap
   - carthage build --no-skip-current --verbose | xcpretty -c
-  - ruby ./scripts/carthage_helper.rb modify_info
   - carthage archive ReactorKit ReactorKitRuntime
 
 deploy:
