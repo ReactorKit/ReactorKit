@@ -79,6 +79,9 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
     sqlite3 (1.3.13)
+    swiftproj (0.1.0)
+      colored2 (>= 3.0)
+      xcodeproj (>= 1.5)
     thread_safe (0.3.6)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
@@ -96,6 +99,7 @@ PLATFORMS
 DEPENDENCIES
   cocoapods
   jazzy
+  swiftproj
 
 BUNDLED WITH
    1.15.3
