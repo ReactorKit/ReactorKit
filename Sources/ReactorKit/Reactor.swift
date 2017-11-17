@@ -82,9 +82,11 @@ extension Reactor {
     }
   }
   public var action: ActionSubject<Action> {
+    // Creates a state stream automatically
+    _ = self._state
+
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
-    _ = self.state
     return self._action
   }
 
@@ -93,12 +95,17 @@ extension Reactor {
     set { self.setAssociatedObject(newValue, forKey: &currentStateKey) }
   }
 
-  public var state: Observable<State> {
+  private var _state: Observable<State> {
     if self.stub.isEnabled {
       return self.stub.state.asObservable()
     } else {
       return self.associatedObject(forKey: &stateKey, default: self.createStateStream())
     }
+  }
+  public var state: Observable<State> {
+    // It seems that Swift has a bug in associated object when subclassing a generic class. This is
+    // a temporary solution to bypass the bug. See #30 for details.
+    return self._state
   }
 
   fileprivate var disposeBag: DisposeBag {
