@@ -37,7 +37,7 @@ final class ReactorTests: XCTestCase {
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
   }
 
-  func testCurrentState_noState() {
+  func testCurrentState_stateIsCreatedWhenAccessAction() {
     let reactor = TestReactor()
     reactor.action.onNext(["action"])
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
