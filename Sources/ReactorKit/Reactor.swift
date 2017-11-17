@@ -84,6 +84,7 @@ extension Reactor {
   public var action: ActionSubject<Action> {
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
+    _ = self.state
     return self._action
   }
 

@@ -40,7 +40,7 @@ final class ReactorTests: XCTestCase {
   func testCurrentState_noState() {
     let reactor = TestReactor()
     reactor.action.onNext(["action"])
-    XCTAssertEqual(reactor.currentState, [])
+    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
   }
 
   func testStreamIgnoresErrorFromAction() {
