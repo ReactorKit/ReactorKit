@@ -67,6 +67,7 @@ public protocol Reactor: class, AssociatedObjectStore {
 private var actionKey = "action"
 private var currentStateKey = "currentState"
 private var stateKey = "state"
+private var stateDidCreateKey = "stateDidCreate"
 private var disposeBagKey = "disposeBag"
 private var stubKey = "stub"
 
@@ -99,13 +100,25 @@ extension Reactor {
     if self.stub.isEnabled {
       return self.stub.state.asObservable()
     } else {
-      return self.associatedObject(forKey: &stateKey, default: self.createStateStream())
+      if let state: Observable<State> = self.associatedObject(forKey: &stateKey) {
+        return state
+      }
+      let state = self.createStateStream()
+      self.setAssociatedObject(state, forKey: &stateKey)
+      self.stateDidCreate.onNext(Void())
+      self.stateDidCreate.onCompleted()
+      return state
     }
   }
   public var state: Observable<State> {
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
     return self._state
+  }
+
+  private var stateDidCreate: PublishSubject<Void> {
+    get { return self.associatedObject(forKey: &stateDidCreateKey, default: .init()) }
+    set { self.setAssociatedObject(newValue, forKey: &stateDidCreateKey) }
   }
 
   fileprivate var disposeBag: DisposeBag {
@@ -162,6 +175,51 @@ extension Reactor {
 extension Reactor where Action == Mutation {
   public func mutate(action: Action) -> Observable<Mutation> {
     return .just(action)
+  }
+}
+
+
+extension Reactor {
+  public func plugin<PluginReactor>(
+    keyPath: KeyPath<State, PluginReactor?>,
+    mutation mutationFactory: @escaping (PluginReactor) -> Mutation
+  ) -> Observable<Mutation> where PluginReactor: Reactor {
+    return self.stateDidCreate.flatMapLatest { [weak self] () -> Observable<Mutation> in
+      guard let `self` = self else { return .empty() }
+      return self.state.flatMapLatest { state -> Observable<Mutation> in
+        guard let pluginReactor = state[keyPath: keyPath] else { return .empty() }
+        let pluginStates = Observable.merge(pluginReactor.state.skip(1))
+        return pluginStates.map { _ in mutationFactory(pluginReactor) }
+      }
+    }
+  }
+
+  public func plugin<PluginReactor>(
+    keyPath: KeyPath<State, [PluginReactor]>,
+    mutation mutationFactory: @escaping ([PluginReactor]) -> Mutation
+  ) -> Observable<Mutation> where PluginReactor: Reactor {
+    return self.stateDidCreate.flatMapLatest { [weak self] () -> Observable<Mutation> in
+      guard let `self` = self else { return .empty() }
+      return self.state.flatMapLatest { state -> Observable<Mutation> in
+        let pluginReactors = state[keyPath: keyPath]
+        let pluginStates = Observable.merge(pluginReactors.map { $0.state.skip(1) })
+        return pluginStates.map { _ in mutationFactory(pluginReactors) }
+      }
+    }
+  }
+
+  public func plugin<PluginReactor>(
+    keyPath: KeyPath<State, [PluginReactor]?>,
+    mutation mutationFactory: @escaping ([PluginReactor]) -> Mutation
+  ) -> Observable<Mutation> where PluginReactor: Reactor {
+    return self.stateDidCreate.flatMapLatest { [weak self] () -> Observable<Mutation> in
+      guard let `self` = self else { return .empty() }
+      return self.state.flatMapLatest { state -> Observable<Mutation> in
+        guard let pluginReactors = state[keyPath: keyPath] else { return .empty() }
+        let pluginStates = Observable.merge(pluginReactors.map { $0.state.skip(1) })
+        return pluginStates.map { _ in mutationFactory(pluginReactors) }
+      }
+    }
   }
 }
 
