@@ -451,9 +451,10 @@ Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Sl
 ## Who's using ReactorKit
 
 <p align="center">
-  <a href="https://www.stylesha.re" target="_blank"><img height="48" vspace="20" hspace="20" alt="StyleShare" src="https://user-images.githubusercontent.com/931655/30255218-e16fedfe-966f-11e7-973d-7d8d1726d7f6.png"></a>
-  <a href="http://www.kakaocorp.com" target="_blank"><img height="36" vspace="32" hspace="20" alt="Kakao" src="https://user-images.githubusercontent.com/931655/30324656-cbea148a-97fc-11e7-9101-ba38d50f08f4.png"></a>
-  <a href="http://getdoctalk.com" target="_blank"><img height="48" vspace="24" hspace="20" alt="DocTalk" src="https://user-images.githubusercontent.com/931655/30633896-503d142c-9e28-11e7-8e67-69c2822efe77.png"></a>
+  <a href="https://www.stylesha.re" target="_blank"><img height="48" vspace="20" hspace="15" alt="StyleShare" src="https://user-images.githubusercontent.com/931655/30255218-e16fedfe-966f-11e7-973d-7d8d1726d7f6.png"></a>
+  <a href="http://www.kakaocorp.com" target="_blank"><img height="36" vspace="20" hspace="15" alt="Kakao" src="https://user-images.githubusercontent.com/931655/30324656-cbea148a-97fc-11e7-9101-ba38d50f08f4.png"></a>
+  <a href="http://getdoctalk.com" target="_blank"><img height="48" vspace="24" hspace="15" alt="DocTalk" src="https://user-images.githubusercontent.com/931655/30633896-503d142c-9e28-11e7-8e67-69c2822efe77.png"></a>
+  <a href="https://www.wantedly.com" target="_blank"><img height="33" vspace="0" hspace="15" alt="Wantedly" src="https://user-images.githubusercontent.com/2222333/36962929-c448de2a-2094-11e8-9c45-d300890a1a97.png"></a>
 </p>
 
 > Are you using ReactorKit? Please [let me know](mailto:devxoul+reactorkit@gmail.com)!
