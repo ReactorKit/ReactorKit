@@ -1,4 +1,5 @@
 import RxSwift
+import RxCocoa
 
 public class Stub<Reactor: _Reactor> {
   private unowned var reactor: Reactor
@@ -6,14 +7,14 @@ public class Stub<Reactor: _Reactor> {
 
   public var isEnabled: Bool = false
 
-  public let state: Variable<Reactor.State>
+  public let state: BehaviorRelay<Reactor.State>
   public let action: ActionSubject<Reactor.Action>
   public private(set) var actions: [Reactor.Action] = []
 
   public init(reactor: Reactor, disposeBag: DisposeBag) {
     self.reactor = reactor
     self.disposeBag = disposeBag
-    self.state = .init(reactor.initialState)
+    self.state = .init(value: reactor.initialState)
     self.state.asObservable()
       .subscribe(onNext: { [weak reactor] state in
         reactor?.currentState = state
