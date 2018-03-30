@@ -234,13 +234,13 @@ final class UserService: Service, UserServiceType {
 
 ### Global States
 
-Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `Variable`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
+Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `BehaviorRelay`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
 
-There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `Variable` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorRelay` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
 
 ```swift
-var currentUser: Variable<User> // global state
+var currentUser: BehaviorRelay<User> // global state
 
 func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
   return Observable.merge(mutation, currentUser.map(Mutation.setUser))
@@ -296,7 +296,7 @@ A view can be tested with a *stub* reactor. A reactor has a property `stub` whic
 
 ```swift
 var isEnabled: Bool { get set }
-var state: Variable<Reactor.State> { get }
+var state: BehaviorRelay<Reactor.State> { get }
 var action: ActionSubject<Reactor.Action> { get }
 var actions: [Reactor.Action] { get } // recorded actions
 ```
