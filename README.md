@@ -416,17 +416,13 @@ ReactorKit suggests some conventions to write clean and concise code.
 
 ## Installation
 
-* **Using [CocoaPods](https://cocoapods.org)**:
+ReactorKit officially supports CocoaPods only.
 
-    ```ruby
-    pod 'ReactorKit'
-    ```
+**Podfile**
 
-* **Using [Carthage](https://github.com/Carthage/Carthage)**:
-
-    ```
-    github "ReactorKit/ReactorKit"
-    ```
+```ruby
+pod 'ReactorKit'
+```
 
 ## Contribution
 
