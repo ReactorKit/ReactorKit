@@ -35,7 +35,6 @@ For an overview of ReactorKit's features and the reasoning behind its creation, 
     * [Global States](#global-states)
     * [View Communication](#view-communication)
     * [Testing](#testing)
-* [Conventions](#conventions)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
 * [Requirements](#requirements)
@@ -347,29 +346,6 @@ func testIsLoading() {
   }
 }
 ```
-
-## Conventions
-
-ReactorKit suggests some conventions to write clean and concise code.
-
-* You must create a reactor outside of the view and pass it to the view's `reactor` property.
-
-    **Good**
-
-    ```swift
-    let view = MyView()
-    view.reactor = MyViewReactor(provider: provider)
-    ```
-
-    **Bad**
-
-    ```swift
-    class MyView: UIView, View {
-      init() {
-        self.reactor = MyViewReactor()
-      }
-    }
-    ```
 
 ## Examples
 
