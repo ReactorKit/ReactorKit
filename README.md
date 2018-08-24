@@ -32,7 +32,6 @@ For an overview of ReactorKit's features and the reasoning behind its creation, 
     * [View](#view)
     * [Reactor](#reactor)
 * [Advanced](#advanced)
-    * [Service](#service)
     * [Global States](#global-states)
     * [View Communication](#view-communication)
     * [Testing](#testing)
@@ -210,29 +209,6 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 ```
 
 ## Advanced
-
-### Service
-
-ReactorKit has a special layer named *Service*. A service layer does the actual business logic. A reactor is a middle layer between a view and a service which manages event streams. When a reactor receives an user action from a view, the reactor calls the service logic. The service makes a network request and sends the response back to the reactor. Then the reactor create a mutation stream with the service response.
-
-Here is an example of service:
-
-```swift
-protocol UserServiceType {
-  func user(id: Int) -> Observable<User>
-  func follow(id: Int) -> Observable<Void>
-}
-
-final class UserService: Service, UserServiceType {
-  func user(id: Int) -> Observable<User> {
-    return foo()
-  }
-  
-  func follow(id: Int) -> Observable<Void> {
-    return bar()
-  }
-}
-```
 
 ### Global States
 
