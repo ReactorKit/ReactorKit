@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Kind</key>
+	<string>Xcode.IDEFoundation.TextSubstitutionFileTemplateKind</string>
+	<key>Description</key>
+	<string>An empty ReactorKit Files.</string>
+	<key>Summary</key>
+	<string>An empty ReactorKit Files.</string>
+	<key>SortOrder</key>
+	<string>30</string>
+	<key>AllowedTypes</key>
+	<array>
+		<string>public.swift-source</string>
+	</array>
+	<key>DefaultCompletionName</key>
+	<string>File</string>
+	<key>ReactorViewTemplate</key>
+	<string>___FILEBASENAME___ReactorView.swift</string>
+	<key>ReactorViewTemplate</key>
+	<string>___FILEBASENAME___ViewController.swift</string>
+</dict>
+</plist>
