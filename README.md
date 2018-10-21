@@ -211,13 +211,13 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 
 ### Global States
 
-Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `StateRelay`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
+Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `BehaviorSubject`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
 
-There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `StateRelay` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorSubject` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
 
 ```swift
-var currentUser: StateRelay<User> // global state
+var currentUser: BehaviorSubject<User> // global state
 
 func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
   return Observable.merge(mutation, currentUser.map(Mutation.setUser))
