@@ -412,8 +412,14 @@ Any discussions and pull requests are welcomed 💖
 
 ## Community
 
+### Join
+
 * **English**: Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)
 * **Korean**: Join [#reactorkit](https://swiftkorea.slack.com/messages/C568YM2RF/) on [Swift Korea Slack](http://slack.swiftkorea.org/)
+
+### Community Projects
+
+* [ReactorKit-Template](https://github.com/gre4ixin/ReactorKit-Template)
 
 ## Who's using ReactorKit
 
