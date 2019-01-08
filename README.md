@@ -431,7 +431,9 @@ Any discussions and pull requests are welcomed 💖
   <br><br>
   <a href="http://getdoctalk.com"><img align="center" height="48" alt="DocTalk" hspace="15" src="https://user-images.githubusercontent.com/931655/30633896-503d142c-9e28-11e7-8e67-69c2822efe77.png"></a>
   <a href="https://www.constantcontact.com"><img align="center" height="44" alt="Constant Contact" hspace="15" src="https://user-images.githubusercontent.com/931655/43634090-2cb30c7e-9746-11e8-8e18-e4fcf87a08cc.png"></a>
-  <a href="https://www.kt.com"><img align="center" height="42" alt="Wantedly" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
+  <a href="https://www.kt.com"><img align="center" height="42" alt="KT" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
+  <br><br>
+  <a href="https://hyperconnect.com/"><img align="center" height="48" alt="Hyperconnect" hspace="15" src="https://user-images.githubusercontent.com/931655/50819891-aa89d200-136e-11e9-8b19-780e64e54b2a.png"></a>
   <br><br>
 </p>
 
