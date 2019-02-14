@@ -1,7 +1,7 @@
 <img alt="ReactorKit" src="https://cloud.githubusercontent.com/assets/931655/25277625/6aa05998-26da-11e7-9b85-e48bec938a6e.png" style="max-width: 100%">
 
 <p align="center">
-  <img alt="Swift" src="https://img.shields.io/badge/Swift-4.1-orange.svg">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-4.2-orange.svg">
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
   </a>
@@ -21,7 +21,7 @@
 
 ReactorKit is a framework for a reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
-You may want to see the [Examples](#examples) section first if you'd like to see the actual code. Visit the [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.  
+You may want to see the [Examples](#examples) section first if you'd like to see the actual code. Visit the [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.
 
 For an overview of ReactorKit's features and the reasoning behind its creation, you may also check the slides from this introductory presentation over at [SlideShare](https://www.slideshare.net/devxoul/hello-reactorkit).
 
@@ -168,7 +168,7 @@ func mutate(action: Action) -> Observable<Mutation> {
 
 #### `reduce()`
 
-`reduce()` generates a new `State` from a previous `State` and a `Mutation`. 
+`reduce()` generates a new `State` from a previous `State` and a `Mutation`.
 
 ```swift
 func reduce(state: State, mutation: Mutation) -> State
@@ -211,13 +211,13 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 
 ### Global States
 
-Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `Variable`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
+Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `BehaviorSubject`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
 
-There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `Variable` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorSubject` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
 
 ```swift
-var currentUser: Variable<User> // global state
+var currentUser: BehaviorSubject<User> // global state
 
 func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
   return Observable.merge(mutation, currentUser.map(Mutation.setUser))
@@ -273,7 +273,7 @@ A view can be tested with a *stub* reactor. A reactor has a property `stub` whic
 
 ```swift
 var isEnabled: Bool { get set }
-var state: Variable<Reactor.State> { get }
+var state: StateRelay<Reactor.State> { get }
 var action: ActionSubject<Reactor.Action> { get }
 var actions: [Reactor.Action] { get } // recorded actions
 ```
@@ -356,6 +356,7 @@ func testIsLoading() {
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
 * [Passcode](https://github.com/cruisediary/Passcode): Passcode for iOS RxSwift, ReactorKit and IGListKit example
 * [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
+* [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
 
 ## Dependencies
 
@@ -379,9 +380,24 @@ ReactorKit officially supports CocoaPods only.
 pod 'ReactorKit'
 ```
 
+ReactorKit does not officially support Carthage.
+
+**Cartfile**
+
+```ruby
+github 'ReactorKit/ReactorKit'
+```
+
+Most Carthage installation issues can be resolved with the following:
+```sh
+carthage update 2>/dev/null
+(cd Carthage/Checkouts/ReactorKit && swift package generate-xcodeproj)
+carthage build
+```
+
 ## Contribution
 
-Any discussions and pull requests are welcomed 💖 
+Any discussions and pull requests are welcomed 💖
 
 * To development:
 
@@ -397,8 +413,14 @@ Any discussions and pull requests are welcomed 💖
 
 ## Community
 
+### Join
+
 * **English**: Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)
 * **Korean**: Join [#reactorkit](https://swiftkorea.slack.com/messages/C568YM2RF/) on [Swift Korea Slack](http://slack.swiftkorea.org/)
+
+### Community Projects
+
+* [ReactorKit-Template](https://github.com/gre4ixin/ReactorKit-Template)
 
 ## Who's using ReactorKit
 
@@ -410,7 +432,9 @@ Any discussions and pull requests are welcomed 💖
   <br><br>
   <a href="http://getdoctalk.com"><img align="center" height="48" alt="DocTalk" hspace="15" src="https://user-images.githubusercontent.com/931655/30633896-503d142c-9e28-11e7-8e67-69c2822efe77.png"></a>
   <a href="https://www.constantcontact.com"><img align="center" height="44" alt="Constant Contact" hspace="15" src="https://user-images.githubusercontent.com/931655/43634090-2cb30c7e-9746-11e8-8e18-e4fcf87a08cc.png"></a>
-  <a href="https://www.kt.com"><img align="center" height="42" alt="Wantedly" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
+  <a href="https://www.kt.com"><img align="center" height="42" alt="KT" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
+  <br><br>
+  <a href="https://hyperconnect.com/"><img align="center" height="48" alt="Hyperconnect" hspace="15" src="https://user-images.githubusercontent.com/931655/50819891-aa89d200-136e-11e9-8b19-780e64e54b2a.png"></a>
   <br><br>
 </p>
 

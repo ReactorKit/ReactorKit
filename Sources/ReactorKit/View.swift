@@ -13,7 +13,7 @@ import RxSwift
 /// inputs to the action stream and binds the view states to each UI component. There's no business
 /// logic in a view layer. A view just defines how to map the action stream and the state stream.
 public protocol View: class, AssociatedObjectStore {
-  associatedtype Reactor: _Reactor
+  associatedtype Reactor: ReactorKit.Reactor
 
   /// A dispose bag. It is disposed each time the `reactor` is assigned.
   var disposeBag: DisposeBag { get set }
