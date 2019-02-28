@@ -50,3 +50,27 @@ public final class StateRelay<Element>: ObservableType {
         return _subject.asObservable()
     }
 }
+
+extension ObservableType {
+    public func subscribe(_ relay: StateRelay<E>) -> Disposable {
+        return subscribe { e in
+            switch e {
+            case let .next(element):
+                relay.accept(element)
+            case let .error(error):
+                let errorMessage = "Binding error to stateRelay: \(error)"
+                #if DEBUG
+                fatalError(errorMessage)
+                #else
+                print("\(file):\(line): \(errorMessage)")
+                #endif
+            case .completed:
+                break
+            }
+        }
+    }
+
+    public func subscribe(_ relay: StateRelay<E?>) -> Disposable {
+        return self.map { $0 as E? }.subscribe(relay)
+    }
+}

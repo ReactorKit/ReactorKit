@@ -124,4 +124,63 @@ class StateRelayTests: XCTestCase {
         
         XCTAssertEqual(latestValueOfC!, 8)
     }
+
+    func testWhenSubscribed() {
+        let test = RxExpect()
+        // given
+        let input = 10
+        let relay = test.retain(StateRelay<Int>(value: input))
+
+        // when subscribed
+        test.assert(relay) { events in
+            // then emit onNext(input)
+            XCTAssertEqual(events, [
+                next(0, input),
+                ])
+        }
+    }
+
+    func testWhenStateRelaySubscribeObserver() {
+        // given
+        let initialValue = 10
+        let observer = PublishSubject<Int>()
+        let relay = StateRelay<Int>(value: initialValue)
+        let inputs: [Int] = [1, 2, 583, 53]
+        var outputs: [Int] = []
+
+        _ = observer.subscribe(onNext: { outputs.append($0) })
+
+        // when
+        _ = relay.subscribe(observer)
+
+        _ = Observable.from(inputs).subscribe(relay)
+
+        // then
+        XCTAssertEqual(outputs, [initialValue] + inputs)
+    }
+
+    func testWhenObservableSubscribeStateRelay() {
+        let test = RxExpect()
+        // given
+        let initialValue = 10
+        let relay = test.retain(StateRelay<Int?>(value: initialValue))
+        let inputs = test.scheduler.createHotObservable([
+            .next(100, 10),
+            .next(200, 100),
+            .next(400, 20),
+            ])
+
+        // when
+        inputs.subscribe(relay).disposed(by: test.disposeBag)
+
+        // then
+        test.assert(relay) { events in
+            XCTAssertEqual(events, [
+                .next(0, initialValue),
+                .next(100, 10),
+                .next(200, 100),
+                .next(400, 20),
+                ])
+        }
+    }
 }
