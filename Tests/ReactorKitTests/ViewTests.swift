@@ -124,7 +124,7 @@ private final class TestViewController: OSViewController, StoryboardView {
 }
 
 private final class TestReactor: Reactor {
-  typealias Action = NoAction
+  typealias Action = Never
   struct State {}
   let initialState = State()
 }
