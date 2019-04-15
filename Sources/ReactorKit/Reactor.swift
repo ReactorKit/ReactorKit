@@ -8,8 +8,11 @@
 
 import RxSwift
 
-public struct NoAction {}
-public struct NoMutation {}
+@available(*, obsoleted: 0, renamed: "Never")
+public typealias NoAction = Never
+
+@available(*, obsoleted: 0, renamed: "Never")
+public typealias NoMutation = Never
 
 /// A Reactor is an UI-independent layer which manages the state of a view. The foremost role of a
 /// reactor is to separate control flow from a view. Every view has its corresponding reactor and
