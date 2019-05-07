@@ -10,11 +10,11 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-  var window: UIWindow?
-
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-    let viewController = self.window?.rootViewController as! CounterViewController
-    viewController.reactor = CounterViewReactor()
-    return true
-  }
+    var window: UIWindow?
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        let viewController = self.window?.rootViewController as! CounterViewController
+        viewController.reactor = CounterViewReactor()
+        return true
+    }
 }

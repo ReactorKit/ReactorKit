@@ -32,7 +32,7 @@ public final class ActionSubject<Element>: ObservableType, ObserverType, Subject
   }
   #endif
 
-  public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.E == Element {
+  public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.Element == Element {
     self.lock.lock()
     let key = self.nextKey
     self.nextKey += 1

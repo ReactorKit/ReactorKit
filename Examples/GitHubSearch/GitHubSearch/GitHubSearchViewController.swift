@@ -37,7 +37,7 @@ class GitHubSearchViewController: UIViewController, StoryboardView {
   func bind(reactor: GitHubSearchViewReactor) {
     // Action
     searchController.searchBar.rx.text
-      .throttle(0.3, scheduler: MainScheduler.instance)
+      .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
       .map { Reactor.Action.updateQuery($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

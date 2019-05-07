@@ -102,7 +102,7 @@ final class GitHubSearchViewReactor: Reactor {
       .map { json -> ([String], Int?) in
         guard let dict = json as? [String: Any] else { return emptyResult }
         guard let items = dict["items"] as? [[String: Any]] else { return emptyResult }
-        let repos = items.flatMap { $0["full_name"] as? String }
+        let repos = items.compactMap { $0["full_name"] as? String }
         let nextPage = repos.isEmpty ? nil : page + 1
         return (repos, nextPage)
       }

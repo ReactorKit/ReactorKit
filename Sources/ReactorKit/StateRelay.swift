@@ -41,7 +41,7 @@ public final class StateRelay<Element>: ObservableType {
     }
     
     /// Subscribes observer
-    public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.E == E {
+    public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.Element == E {
         return _subject.subscribe(observer)
     }
     
