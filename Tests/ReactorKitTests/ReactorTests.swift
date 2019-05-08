@@ -175,13 +175,13 @@ final class ReactorTests: XCTestCase {
   func testStub_state() {
     let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
     reactor.stub.isEnabled = true
-    reactor.stub.state.value = 0
+    reactor.stub.state.accept(0)
     XCTAssertEqual(reactor.currentState, 0)
-    reactor.stub.state.value = 1
+    reactor.stub.state.accept(1)
     XCTAssertEqual(reactor.currentState, 1)
-    reactor.stub.state.value = -10
+    reactor.stub.state.accept(-10)
     XCTAssertEqual(reactor.currentState, -10)
-    reactor.stub.state.value = 30
+    reactor.stub.state.accept(30)
     XCTAssertEqual(reactor.currentState, 30)
   }
 
@@ -295,7 +295,7 @@ private final class StopwatchReactor: Reactor {
     switch action {
     case .start:
       let stopAction = self.action.filter { $0 == .stop }
-      return Observable<Int>.interval(1, scheduler: self.scheduler)
+      return Observable<Int>.interval(.seconds(1), scheduler: self.scheduler)
         .map { _ in 1 }
         .takeUntil(stopAction)
 

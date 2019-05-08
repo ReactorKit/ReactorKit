@@ -11,6 +11,7 @@ import RxSwift
 import RxTest
 @testable import ReactorKit
 
+@available(*, deprecated)
 class StateRelayTests: XCTestCase {
     func testInitialValues() {
         let a = StateRelay(value: 1)

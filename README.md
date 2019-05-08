@@ -1,7 +1,7 @@
 <img alt="ReactorKit" src="https://cloud.githubusercontent.com/assets/931655/25277625/6aa05998-26da-11e7-9b85-e48bec938a6e.png" style="max-width: 100%">
 
 <p align="center">
-  <img alt="Swift" src="https://img.shields.io/badge/Swift-4.2-orange.svg">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-5.0-orange.svg">
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
   </a>
@@ -211,13 +211,13 @@ func transform(action: Observable<Action>) -> Observable<Action> {
 
 ### Global States
 
-Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `BehaviorSubject`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
+Unlike Redux, ReactorKit doesn't define a global app state. It means that you can use anything to manage a global state. You can use a `BehaviorRelay`, a `PublishSubject` or even a reactor. ReactorKit doesn't force to have a global state so you can use ReactorKit in a specific feature in your application.
 
-There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorSubject` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
+There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorRelay` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
 
 ```swift
-var currentUser: BehaviorSubject<User> // global state
+var currentUser: BehaviorRelay<User> // global state
 
 func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
   return Observable.merge(mutation, currentUser.map(Mutation.setUser))
@@ -273,7 +273,7 @@ A view can be tested with a *stub* reactor. A reactor has a property `stub` whic
 
 ```swift
 var isEnabled: Bool { get set }
-var state: StateRelay<Reactor.State> { get }
+var state: BehaviorRelay<Reactor.State> { get }
 var action: ActionSubject<Reactor.Action> { get }
 var actions: [Reactor.Action] { get } // recorded actions
 ```
@@ -307,7 +307,7 @@ func testState_isLoading() {
   view.reactor = reactor
 
   // 3. set a stub state
-  reactor.stub.state.value = MyReactor.State(isLoading: true)
+  reactor.stub.state.accpect(MyReactor.State(isLoading: true))
 
   // 4. assert view properties
   XCTAssertEqual(view.activityIndicator.isAnimating, true)
@@ -335,7 +335,7 @@ func testIsLoading() {
   RxExpect("it should change isLoading") { test in
     let reactor = test.retain(MyReactor())
     test.input(reactor.action, [
-      next(100, .refresh) // send .refresh at 100 scheduler time
+      .next(100, .refresh) // send .refresh at 100 scheduler time
     ])
     test.assert(reactor.state.map { $0.isLoading })
       .since(100) // values since 100 scheduler time
@@ -360,11 +360,11 @@ func testIsLoading() {
 
 ## Dependencies
 
-* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 4.0
+* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 5.0
 
 ## Requirements
 
-* Swift 4
+* Swift 5
 * iOS 8
 * macOS 10.11
 * tvOS 9.0
@@ -442,6 +442,10 @@ Any discussions and pull requests are welcomed 💖
 
 ## Changelog
 
+* 2019-05-08
+    * Deprecated StateRelay. Please use BehaviorRelay.
+* 2018-10-23
+    * Use StateRelay instead of Variable. (Variable is Deprecated)
 * 2017-04-18
     * Change the repository name to ReactorKit.
 * 2017-03-17

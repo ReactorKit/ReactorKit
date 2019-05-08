@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "RxExpect",
-        "repositoryURL": "https://github.com/devxoul/RxExpect.git",
+        "repositoryURL": "https://github.com/tokijh/RxExpect.git",
         "state": {
-          "branch": null,
-          "revision": "d27d2f730a41728e0f4ed7d8326e14296d3a2766",
-          "version": "1.1.0"
+          "branch": "master",
+          "revision": "cb0da8a16912c9971fbd0279b47dee2131079047",
+          "version": null
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
         "state": {
           "branch": null,
-          "revision": "0df62b4d562f8620d4b795b18e4adf0b631527a1",
-          "version": "4.3.1"
+          "revision": "b3e888b4972d9bc76495dd74d30a8c7fad4b9395",
+          "version": "5.0.1"
         }
       }
     ]
