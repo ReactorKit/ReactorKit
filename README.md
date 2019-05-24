@@ -384,8 +384,8 @@ ReactorKit does not officially support Carthage.
 
 **Cartfile**
 
-```ruby
-github 'ReactorKit/ReactorKit'
+```swift
+github "ReactorKit/ReactorKit"
 ```
 
 Most Carthage installation issues can be resolved with the following:
