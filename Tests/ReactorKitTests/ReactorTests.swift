@@ -9,7 +9,7 @@ final class ReactorTests: XCTestCase {
     let test = RxExpect()
     let reactor = test.retain(TestReactor())
     test.input(reactor.action, [
-      next(100, ["action"]),
+      .next(100, ["action"]),
     ])
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements.count, 2)
@@ -47,26 +47,26 @@ final class ReactorTests: XCTestCase {
     let test = RxExpect()
     let reactor = test.retain(CounterReactor())
     let action1 = test.scheduler.createHotObservable([
-      next(100, Void()),
-      next(200, Void()),
-      error(300, TestError()),
-      next(400, Void()),
+      .next(100, Void()),
+      .next(200, Void()),
+      .error(300, TestError()),
+      .next(400, Void()),
     ])
     let action2 = test.scheduler.createHotObservable([
-      error(300, TestError()),
-      next(500, Void()),
-      next(600, Void()),
+      .error(300, TestError()),
+      .next(500, Void()),
+      .next(600, Void()),
     ])
     action1.subscribe(reactor.action).disposed(by: test.disposeBag)
     action2.subscribe(reactor.action).disposed(by: test.disposeBag)
     test.assert(reactor.state) { events in
       XCTAssertEqual(events, [
-        next(0, 0),
-        next(100, 1),
-        next(200, 2),
-        next(400, 3),
-        next(500, 4),
-        next(600, 5),
+        .next(0, 0),
+        .next(100, 1),
+        .next(200, 2),
+        .next(400, 3),
+        .next(500, 4),
+        .next(600, 5),
       ])
     }
   }
@@ -76,11 +76,11 @@ final class ReactorTests: XCTestCase {
     let reactor = test.retain(CounterReactor())
     reactor.stateForTriggerError = 2
     test.input(reactor.action, [
-      next(100, Void()),
-      next(200, Void()),
-      next(300, Void()), // error will be emit on this mutate
-      next(400, Void()),
-      next(500, Void()),
+      .next(100, Void()),
+      .next(200, Void()),
+      .next(300, Void()), // error will be emit on this mutate
+      .next(400, Void()),
+      .next(500, Void()),
     ])
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements, [0, 1, 2, 3, 4, 5])
@@ -91,26 +91,26 @@ final class ReactorTests: XCTestCase {
     let test = RxExpect()
     let reactor = test.retain(CounterReactor())
     let action1 = test.scheduler.createHotObservable([
-      next(100, Void()),
-      next(200, Void()),
-      completed(300),
-      next(400, Void()),
+      .next(100, Void()),
+      .next(200, Void()),
+      .completed(300),
+      .next(400, Void()),
     ])
     let action2 = test.scheduler.createHotObservable([
-      completed(300),
-      next(500, Void()),
-      next(600, Void()),
+      .completed(300),
+      .next(500, Void()),
+      .next(600, Void()),
     ])
     action1.subscribe(reactor.action).disposed(by: test.disposeBag)
     action2.subscribe(reactor.action).disposed(by: test.disposeBag)
     test.assert(reactor.state) { events in
       XCTAssertEqual(events, [
-        next(0, 0),
-        next(100, 1),
-        next(200, 2),
-        next(400, 3),
-        next(500, 4),
-        next(600, 5),
+        .next(0, 0),
+        .next(100, 1),
+        .next(200, 2),
+        .next(400, 3),
+        .next(500, 4),
+        .next(600, 5),
       ])
     }
   }
@@ -120,11 +120,11 @@ final class ReactorTests: XCTestCase {
     let reactor = test.retain(CounterReactor())
     reactor.stateForTriggerCompleted = 2
     test.input(reactor.action, [
-      next(100, Void()),
-      next(200, Void()),
-      next(300, Void()), // completed will be emit on this mutate
-      next(400, Void()),
-      next(500, Void()),
+      .next(100, Void()),
+      .next(200, Void()),
+      .next(300, Void()), // completed will be emit on this mutate
+      .next(400, Void()),
+      .next(500, Void()),
     ])
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements, [0, 1, 2, 3, 4, 5])
@@ -135,10 +135,10 @@ final class ReactorTests: XCTestCase {
     let test = RxExpect()
     let reactor = test.retain(StopwatchReactor(scheduler: test.scheduler))
     test.input(reactor.action, [
-      next(1, .start),
-      next(5, .stop),
-      next(6, .start),
-      next(9, .stop),
+      .next(1, .start),
+      .next(5, .stop),
+      .next(6, .start),
+      .next(9, .stop),
     ])
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements, [
@@ -295,7 +295,7 @@ private final class StopwatchReactor: Reactor {
     switch action {
     case .start:
       let stopAction = self.action.filter { $0 == .stop }
-      return Observable<Int>.interval(1, scheduler: self.scheduler)
+      return Observable<Int>.interval(.seconds(1), scheduler: self.scheduler)
         .map { _ in 1 }
         .takeUntil(stopAction)
 
