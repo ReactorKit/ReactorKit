@@ -295,7 +295,7 @@ private final class StopwatchReactor: Reactor {
     switch action {
     case .start:
       let stopAction = self.action.filter { $0 == .stop }
-      return Observable<Int>.interval(1, scheduler: self.scheduler)
+      return Observable<Int>.interval(.seconds(1), scheduler: self.scheduler)
         .map { _ in 1 }
         .takeUntil(stopAction)
 

@@ -11,8 +11,8 @@ let package = Package(
     .library(name: "ReactorKit", targets: ["ReactorKit"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "4.0.0")),
-    .package(url: "https://github.com/devxoul/RxExpect.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0")),
+    .package(url: "https://github.com/devxoul/RxExpect.git", .upToNextMajor(from: "2.0.0"))
   ],
   targets: [
     .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift"]),
