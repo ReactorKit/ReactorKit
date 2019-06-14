@@ -1,7 +1,7 @@
 <img alt="ReactorKit" src="https://cloud.githubusercontent.com/assets/931655/25277625/6aa05998-26da-11e7-9b85-e48bec938a6e.png" style="max-width: 100%">
 
 <p align="center">
-  <img alt="Swift" src="https://img.shields.io/badge/Swift-4.2-orange.svg">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-5.0-orange.svg">
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
   </a>
@@ -360,11 +360,11 @@ func testIsLoading() {
 
 ## Dependencies
 
-* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 4.0
+* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 5.0
 
 ## Requirements
 
-* Swift 4
+* Swift 5
 * iOS 8
 * macOS 10.11
 * tvOS 9.0
