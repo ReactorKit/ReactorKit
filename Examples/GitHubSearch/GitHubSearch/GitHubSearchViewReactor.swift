@@ -42,7 +42,7 @@ final class GitHubSearchViewReactor: Reactor {
         // 2) call API and set repos (.setRepos)
         self.search(query: query, page: 1)
           // cancel previous request when the new `.updateQuery` action is fired
-          .takeUntil(self.action.filter(isUpdateQueryAction))
+          .takeUntil(self.action.filter(Action.isUpdateQueryAction))
           .map { Mutation.setRepos($0, nextPage: $1) },
       ])
 
@@ -55,7 +55,7 @@ final class GitHubSearchViewReactor: Reactor {
 
         // 2) call API and append repos
         self.search(query: self.currentState.query, page: page)
-          .takeUntil(self.action.filter(isUpdateQueryAction))
+          .takeUntil(self.action.filter(Action.isUpdateQueryAction))
           .map { Mutation.appendRepos($0, nextPage: $1) },
 
         // 3) set loading status to false
@@ -102,7 +102,7 @@ final class GitHubSearchViewReactor: Reactor {
       .map { json -> ([String], Int?) in
         guard let dict = json as? [String: Any] else { return emptyResult }
         guard let items = dict["items"] as? [[String: Any]] else { return emptyResult }
-        let repos = items.flatMap { $0["full_name"] as? String }
+        let repos = items.compactMap { $0["full_name"] as? String }
         let nextPage = repos.isEmpty ? nil : page + 1
         return (repos, nextPage)
       }
@@ -113,8 +113,10 @@ final class GitHubSearchViewReactor: Reactor {
       })
       .catchErrorJustReturn(emptyResult)
   }
+}
 
-  private func isUpdateQueryAction(_ action: Action) -> Bool {
+extension GitHubSearchViewReactor.Action {
+  static func isUpdateQueryAction(_ action: GitHubSearchViewReactor.Action) -> Bool {
     if case .updateQuery = action {
       return true
     } else {
