@@ -69,6 +69,7 @@ private var actionKey = "action"
 private var currentStateKey = "currentState"
 private var stateKey = "state"
 private var disposeBagKey = "disposeBag"
+private var isStubEnabledKey = "isStubEnabled"
 private var stubKey = "stub"
 
 
@@ -76,7 +77,7 @@ private var stubKey = "stub"
 
 extension Reactor {
   private var _action: ActionSubject<Action> {
-    if self.stub.isEnabled {
+    if self.isStubEnabled {
       return self.stub.action
     } else {
       return self.associatedObject(forKey: &actionKey, default: .init())
@@ -97,7 +98,7 @@ extension Reactor {
   }
 
   private var _state: Observable<State> {
-    if self.stub.isEnabled {
+    if self.isStubEnabled {
       return self.stub.state.asObservable()
     } else {
       return self.associatedObject(forKey: &stateKey, default: self.createStateStream())
@@ -170,6 +171,11 @@ extension Reactor where Action == Mutation {
 // MARK: - Stub
 
 extension Reactor {
+  public var isStubEnabled: Bool {
+    set { self.setAssociatedObject(newValue, forKey: &isStubEnabledKey) }
+    get { return self.associatedObject(forKey: &isStubEnabledKey, default: false) }
+  }
+
   public var stub: Stub<Self> {
     return self.associatedObject(
       forKey: &stubKey,
