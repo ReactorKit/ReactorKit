@@ -35,28 +35,3 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X xcodeplist -J 'ReactorKit';
-
-before_deploy:
-  - bundle exec swiftproj generate-xcconfig --podspec ReactorKit.podspec
-  - bundle exec swiftproj generate-xcodeproj --xcconfig-overrides Config.xcconfig
-  - bundle exec swiftproj configure-scheme --project ReactorKit.xcodeproj --scheme ReactorKit-Package --buildable-targets ReactorKit,ReactorKitRuntime
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxBlocking.framework
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxCocoa.framework
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKit --framework RxCocoaRuntime.framework
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxBlocking.framework
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxCocoa.framework
-  - bundle exec swiftproj remove-framework --project ReactorKit.xcodeproj --target ReactorKitRuntime --framework RxCocoaRuntime.framework
-  - rm -rf Examples  # https://github.com/Carthage/Carthage/issues/1974
-  - carthage bootstrap
-  - carthage build --no-skip-current --verbose | xcpretty -c
-  - carthage archive ReactorKit ReactorKitRuntime
-
-deploy:
-  provider: releases
-  api_key: $GITHUB_ACCESS_TOKEN
-  file: "$FRAMEWORK.framework.zip"
-  skip_cleanup: true
-  on:
-    repo: ReactorKit/ReactorKit
-    tags: true
-    condition: $SDK = $IOS_SDK
