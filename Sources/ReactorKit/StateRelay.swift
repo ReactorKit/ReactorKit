@@ -11,8 +11,6 @@ import RxSwift
 ///
 /// Unlike `BehaviorSubject` it can't terminate with error or completed.
 public final class StateRelay<Element>: ObservableType {
-    public typealias E = Element
-    
     private let _subject: BehaviorSubject<Element>
     
     /// Accepts `event` and emits it to subscribers
@@ -41,7 +39,7 @@ public final class StateRelay<Element>: ObservableType {
     }
     
     /// Subscribes observer
-    public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.E == E {
+    public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.Element == Element {
         return _subject.subscribe(observer)
     }
     
