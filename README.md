@@ -368,6 +368,7 @@ final class MyReactor: Reactor {
 * [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
 * [Passcode](https://github.com/cruisediary/Passcode): Passcode for iOS RxSwift, ReactorKit and IGListKit example
 * [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
+* [RxSwift-MVVM](https://github.com/ripplek/RxSwift-MVVM): Display the GitHub repository list using ReactorKit
 * [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
 
 ## Dependencies
