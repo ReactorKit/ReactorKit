@@ -7,6 +7,7 @@
 //
 
 import RxSwift
+import RxRelay
 
 @available(*, obsoleted: 0, renamed: "Never")
 public typealias NoAction = Never
@@ -29,7 +30,7 @@ public protocol Reactor: class, AssociatedObjectStore {
   associatedtype State
 
   /// The action from the view. Bind user inputs to this subject.
-  var action: ActionSubject<Action> { get }
+  var action: PublishRelay<Action> { get }
 
   /// The initial state.
   var initialState: State { get }
@@ -76,14 +77,14 @@ private var stubKey = "stub"
 // MARK: - Default Implementations
 
 extension Reactor {
-  private var _action: ActionSubject<Action> {
+  private var _action: PublishRelay<Action> {
     if self.isStubEnabled {
       return self.stub.action
     } else {
       return self.associatedObject(forKey: &actionKey, default: .init())
     }
   }
-  public var action: ActionSubject<Action> {
+  public var action: PublishRelay<Action> {
     // Creates a state stream automatically
     _ = self._state
 

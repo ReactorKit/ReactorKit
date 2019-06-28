@@ -9,3 +9,4 @@ docs/
 Pods/
 Carthage/
 Examples/**/Podfile.lock
+.idea

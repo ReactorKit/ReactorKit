@@ -1,4 +1,5 @@
 import RxSwift
+import RxRelay
 
 public class Stub<Reactor: ReactorKit.Reactor> {
   private unowned var reactor: Reactor
@@ -10,8 +11,8 @@ public class Stub<Reactor: ReactorKit.Reactor> {
     get { return self.reactor.isStubEnabled }
   }
 
-  public let state: StateRelay<Reactor.State>
-  public let action: ActionSubject<Reactor.Action>
+  public let state: BehaviorRelay<Reactor.State>
+  public let action: PublishRelay<Reactor.Action>
   public private(set) var actions: [Reactor.Action] = []
 
   public init(reactor: Reactor, disposeBag: DisposeBag) {
