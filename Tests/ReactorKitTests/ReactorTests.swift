@@ -22,8 +22,8 @@ final class ReactorTests: XCTestCase {
     let test = RxExpect()
     let reactor = test.retain(CounterReactor())
     let disposable = reactor.state.subscribe() // state: 0
-    reactor.action.onNext(Void()) // state: 1
-    reactor.action.onNext(Void()) // state: 2
+    reactor.action.accept(Void()) // state: 1
+    reactor.action.accept(Void()) // state: 2
     disposable.dispose()
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements, [2])
@@ -33,13 +33,13 @@ final class ReactorTests: XCTestCase {
   func testCurrentState() {
     let reactor = TestReactor()
     _ = reactor.state
-    reactor.action.onNext(["action"])
+    reactor.action.accept(["action"])
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
   }
 
   func testCurrentState_stateIsCreatedWhenAccessAction() {
     let reactor = TestReactor()
-    reactor.action.onNext(["action"])
+    reactor.action.accept(["action"])
     XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
   }
 
@@ -57,8 +57,8 @@ final class ReactorTests: XCTestCase {
       .next(500, Void()),
       .next(600, Void()),
     ])
-    action1.subscribe(reactor.action).disposed(by: test.disposeBag)
-    action2.subscribe(reactor.action).disposed(by: test.disposeBag)
+    action1.bind(to: reactor.action).disposed(by: test.disposeBag)
+    action2.bind(to: reactor.action).disposed(by: test.disposeBag)
     test.assert(reactor.state) { events in
       XCTAssertEqual(events, [
         .next(0, 0),
@@ -101,8 +101,8 @@ final class ReactorTests: XCTestCase {
       .next(500, Void()),
       .next(600, Void()),
     ])
-    action1.subscribe(reactor.action).disposed(by: test.disposeBag)
-    action2.subscribe(reactor.action).disposed(by: test.disposeBag)
+    action1.bind(to: reactor.action).disposed(by: test.disposeBag)
+    action2.bind(to: reactor.action).disposed(by: test.disposeBag)
     test.assert(reactor.state) { events in
       XCTAssertEqual(events, [
         .next(0, 0),
@@ -166,29 +166,29 @@ final class ReactorTests: XCTestCase {
   func testStub_actions() {
     let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
     reactor.isStubEnabled = true
-    reactor.action.onNext(.start)
-    reactor.action.onNext(.start)
-    reactor.action.onNext(.stop)
+    reactor.action.accept(.start)
+    reactor.action.accept(.start)
+    reactor.action.accept(.stop)
     XCTAssertEqual(reactor.stub.actions, [.start, .start, .stop])
   }
 
   func testStub_state() {
     let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
     reactor.isStubEnabled = true
-    reactor.stub.state.value = 0
+    reactor.stub.state.accept(0)
     XCTAssertEqual(reactor.currentState, 0)
-    reactor.stub.state.value = 1
+    reactor.stub.state.accept(1)
     XCTAssertEqual(reactor.currentState, 1)
-    reactor.stub.state.value = -10
+    reactor.stub.state.accept(-10)
     XCTAssertEqual(reactor.currentState, -10)
-    reactor.stub.state.value = 30
+    reactor.stub.state.accept(30)
     XCTAssertEqual(reactor.currentState, 30)
   }
 
   func testStub_ignoreAction() {
     let reactor = TestReactor()
     reactor.isStubEnabled = true
-    reactor.action.onNext(["A"])
+    reactor.action.accept(["A"])
     XCTAssertEqual(reactor.currentState, [])
   }
 
@@ -234,7 +234,7 @@ final class ReactorTests: XCTestCase {
 
     let reactor = ChildReactor()
     XCTAssertEqual(reactor.currentState, 0)
-    reactor.action.onNext(.foo)
+    reactor.action.accept(.foo)
     XCTAssertEqual(reactor.currentState, 1)
   }
 }
