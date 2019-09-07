@@ -45,7 +45,7 @@
 
   IMP newMethodImp = imp_implementationWithBlock(^(__unsafe_unretained id self) {
     oldMethodImp(self, oldSelector);
-    if ([self respondsToSelector:performBindingSelector] && [self class] == class) {
+    if ([self respondsToSelector:performBindingSelector]) {
       #pragma clang diagnostic push
       #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
       [self performSelector:performBindingSelector];
