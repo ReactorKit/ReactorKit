@@ -8,8 +8,8 @@
   <a href="https://github.com/ReactorKit/ReactorKit" target="_blank">
     <img alt="Platform" src="https://img.shields.io/cocoapods/p/ReactorKit.svg?style=flat">
   </a>
-  <a href="https://travis-ci.org/ReactorKit/ReactorKit" target="_blank">
-    <img alt="Build Status" src="https://travis-ci.org/ReactorKit/ReactorKit.svg?branch=master">
+  <a href="https://github.com/ReactorKit/ReactorKit/actions" target="_blank">
+    <img alt="CI" src="https://github.com/ReactorKit/ReactorKit/workflows/CI/badge.svg">
   </a>
   <a href="https://codecov.io/gh/ReactorKit/ReactorKit/" target="_blank">
     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/ReactorKit/ReactorKit.svg">
