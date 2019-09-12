@@ -48,3 +48,5 @@ jobs:
         bash <(curl -s https://codecov.io/bash) \
           -X xcodeplist \
           -J ReactorKit
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
