@@ -14,9 +14,6 @@
   <a href="https://codecov.io/gh/ReactorKit/ReactorKit/" target="_blank">
     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/ReactorKit/ReactorKit.svg">
   </a>
-  <a href="http://reactorkit.io/docs/latest/" target="_blank">
-    <img alt="CocoaDocs" src="http://reactorkit.io/docs/latest/badge.svg">
-  </a>
 </p>
 
 ReactorKit is a framework for a reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
