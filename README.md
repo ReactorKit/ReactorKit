@@ -18,9 +18,7 @@
 
 ReactorKit is a framework for a reactive and unidirectional Swift application architecture. This repository introduces the basic concept of ReactorKit and describes how to build an application using ReactorKit.
 
-You may want to see the [Examples](#examples) section first if you'd like to see the actual code. Visit the [API Reference](http://reactorkit.io/docs/latest/) for code-level documentation.
-
-For an overview of ReactorKit's features and the reasoning behind its creation, you may also check the slides from this introductory presentation over at [SlideShare](https://www.slideshare.net/devxoul/hello-reactorkit).
+You may want to see the [Examples](#examples) section first if you'd like to see the actual code. For an overview of ReactorKit's features and the reasoning behind its creation, you may also check the slides from this introductory presentation over at [SlideShare](https://www.slideshare.net/devxoul/hello-reactorkit).
 
 ## Table of Contents
 
