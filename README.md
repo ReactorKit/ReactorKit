@@ -429,7 +429,8 @@ Any discussions and pull requests are welcomed 💖
   <a href="https://www.constantcontact.com"><img align="center" height="44" alt="Constant Contact" hspace="15" src="https://user-images.githubusercontent.com/931655/43634090-2cb30c7e-9746-11e8-8e18-e4fcf87a08cc.png"></a>
   <a href="https://www.kt.com"><img align="center" height="42" alt="KT" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
   <br><br>
-  <a href="https://hyperconnect.com/"><img align="center" height="48" alt="Hyperconnect" hspace="15" src="https://user-images.githubusercontent.com/931655/50819891-aa89d200-136e-11e9-8b19-780e64e54b2a.png"></a>
+  <a href="https://hyperconnect.com/"><img align="center" height="62" alt="Hyperconnect" hspace="15" src="https://user-images.githubusercontent.com/931655/50819891-aa89d200-136e-11e9-8b19-780e64e54b2a.png"></a>
+  <a href="https://toss.im/career/?category=engineering&positionId=7"><img align="center" height="28" alt="Toss" hspace="15" src="https://user-images.githubusercontent.com/931655/65512318-ede39b00-df13-11e9-874c-f1e478bda6c8.png"></a>
   <br><br>
 </p>
 
