@@ -12,17 +12,20 @@ jobs:
     strategy:
       matrix:
         env:
-          - sdk: iphonesimulator12.2
-            destination: platform=iOS Simulator,name=iPhone XS,OS=12.2
+          - sdk: iphonesimulator13.0
+            destination: platform=iOS Simulator,name=iPhone 11 Pro,OS=13.0
 
-          - sdk: macosx10.14
+          - sdk: macosx10.15
             destination: arch=x86_64
 
-          - sdk: appletvsimulator12.2
-            destination: OS=12.2,name=Apple TV
+          - sdk: appletvsimulator13.0
+            destination: OS=13.0,name=Apple TV
 
     steps:
     - uses: actions/checkout@v1
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_11.app
 
     - name: Generate Xcode Project
       run: swift package generate-xcodeproj --enable-code-coverage
