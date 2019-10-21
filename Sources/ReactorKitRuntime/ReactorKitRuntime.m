@@ -8,7 +8,7 @@
   dispatch_once(&onceToken, ^{
     [self swizzleInitializeOfClassNamed:@"UIViewController"];
       
-    #if !targetEnvironment(macCatalyst)
+    #if !TARGET_OS_MACCATALYST
     [self swizzleInitializeOfClassNamed:@"NSViewController"];
     #endif
   });
