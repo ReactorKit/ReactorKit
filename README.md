@@ -30,6 +30,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     * [Global States](#global-states)
     * [View Communication](#view-communication)
     * [Testing](#testing)
+    * [Scheduling](#scheduling)
 * [Examples](#examples)
 * [Dependencies](#dependencies)
 * [Requirements](#requirements)
@@ -338,6 +339,22 @@ func testIsLoading() {
         true,  // just after .refresh
         false, // after refreshing
       ])
+  }
+}
+```
+
+### Scheduling
+
+Define `scheduler` property to specify which scheduler is used for reducing and observing the state stream. Note that this queue **must be** a serial queue. The default scheduler is `CurrentThreadScheduler`.
+
+```swift
+final class MyReactor: Reactor {
+  let scheduler: Scheduler = SerialDispatchQueueScheduler(qos: .default)
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    // executed in a background thread
+    heavyAndImportantCalculation()
+    return state
   }
 }
 ```
