@@ -44,4 +44,58 @@ final class ReactorSchedulerTests: XCTestCase {
       XCTAssertTrue(state === states.first)
     }
   }
+
+  func testScheduler() {
+    final class SimpleReactor: Reactor {
+      typealias Action = Void
+      typealias Mutation = Void
+
+      struct State {
+        var reductionThreads: [Thread] = []
+      }
+
+      let initialState: State = State()
+      let scheduler: ImmediateSchedulerType = SerialDispatchQueueScheduler(qos: .default)
+
+      func mutate(action: Action) -> Observable<Mutation> {
+        return Observable.just(Void()).observeOn(MainScheduler.instance)
+      }
+
+      func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        newState.reductionThreads.append(Thread.current)
+        return newState
+      }
+    }
+
+    let reactor = SimpleReactor()
+    let disposeBag = DisposeBag()
+
+    var observationThreads: [Thread] = []
+
+    reactor.state
+      .subscribe(onNext: { _ in
+        observationThreads.append(Thread.current)
+      })
+      .disposed(by: disposeBag)
+
+    for _ in 0..<5 {
+      reactor.action.onNext(Void())
+    }
+
+    XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1)
+
+    let reductionThreads = reactor.currentState.reductionThreads
+    XCTAssertEqual(reductionThreads.count, 5)
+    for thread in reductionThreads {
+      XCTAssertNotEqual(thread, Thread.main)
+      XCTAssertEqual(thread, reductionThreads.first)
+    }
+
+    XCTAssertEqual(observationThreads.count, 6) // +1 for initial state
+    for thread in observationThreads {
+      XCTAssertNotEqual(thread, Thread.main)
+      XCTAssertEqual(thread, observationThreads.first)
+    }
+  }
 }

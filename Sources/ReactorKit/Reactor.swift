@@ -28,6 +28,8 @@ public protocol Reactor: class {
   /// A State represents the current state of a view.
   associatedtype State
 
+  typealias Scheduler = ImmediateSchedulerType
+
   /// The action from the view. Bind user inputs to this subject.
   var action: ActionSubject<Action> { get }
 
@@ -39,6 +41,9 @@ public protocol Reactor: class {
 
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
+
+  /// A scheduler for reducing and observing the state stream. Defaults to `CurrentThreadScheduler`.
+  var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
   /// called once before the state stream is created.
@@ -114,6 +119,10 @@ extension Reactor {
     return self._state
   }
 
+  public var scheduler: Scheduler {
+    return CurrentThreadScheduler.instance
+  }
+
   fileprivate var disposeBag: DisposeBag {
     return MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
@@ -128,20 +137,20 @@ extension Reactor {
       }
     let transformedMutation = self.transform(mutation: mutation)
     let state = transformedMutation
+      .observeOn(self.scheduler)
       .scan(self.initialState) { [weak self] state, mutation -> State in
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
       }
       .catchError { _ in .empty() }
       .startWith(self.initialState)
-      .observeOn(MainScheduler.instance)
     let transformedState = self.transform(state: state)
       .do(onNext: { [weak self] state in
         self?.currentState = state
       })
       .replay(1)
     transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState
+    return transformedState.observeOn(self.scheduler)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
