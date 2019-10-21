@@ -158,14 +158,14 @@ final class ReactorTests: XCTestCase {
 
   func testStub_actionAndStateMemoryAddress() {
     let reactor = TestReactor()
-    reactor.stub.isEnabled = true
+    reactor.isStubEnabled = true
     XCTAssertTrue(reactor.action === reactor.stub.action)
     XCTAssertTrue(reactor.state === reactor.stub.state.asObservable())
   }
 
   func testStub_actions() {
     let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
-    reactor.stub.isEnabled = true
+    reactor.isStubEnabled = true
     reactor.action.onNext(.start)
     reactor.action.onNext(.start)
     reactor.action.onNext(.stop)
@@ -174,7 +174,7 @@ final class ReactorTests: XCTestCase {
 
   func testStub_state() {
     let reactor = StopwatchReactor(scheduler: MainScheduler.instance)
-    reactor.stub.isEnabled = true
+    reactor.isStubEnabled = true
     reactor.stub.state.value = 0
     XCTAssertEqual(reactor.currentState, 0)
     reactor.stub.state.value = 1
@@ -187,7 +187,7 @@ final class ReactorTests: XCTestCase {
 
   func testStub_ignoreAction() {
     let reactor = TestReactor()
-    reactor.stub.isEnabled = true
+    reactor.isStubEnabled = true
     reactor.action.onNext(["A"])
     XCTAssertEqual(reactor.currentState, [])
   }
@@ -295,7 +295,7 @@ private final class StopwatchReactor: Reactor {
     switch action {
     case .start:
       let stopAction = self.action.filter { $0 == .stop }
-      return Observable<Int>.interval(1, scheduler: self.scheduler)
+      return Observable<Int>.interval(.seconds(1), scheduler: self.scheduler)
         .map { _ in 1 }
         .takeUntil(stopAction)
 

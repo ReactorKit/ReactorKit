@@ -4,6 +4,6 @@ target 'Counter' do
   use_frameworks!
 
   pod 'ReactorKit', :path => '../../'
-  pod 'RxSwift'
-  pod 'RxCocoa'
+  pod 'RxSwift', '~> 5.0'
+  pod 'RxCocoa', '~> 5.0'
 end

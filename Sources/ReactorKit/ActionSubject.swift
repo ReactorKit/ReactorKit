@@ -12,7 +12,6 @@ import RxSwift
 
 /// A special subject for Reactor's Action. It only emits `.next` event.
 public final class ActionSubject<Element>: ObservableType, ObserverType, SubjectType {
-  public typealias E = Element
   typealias Key = UInt
 
   var lock = NSRecursiveLock()
