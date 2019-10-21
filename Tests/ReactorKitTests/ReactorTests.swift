@@ -237,6 +237,23 @@ final class ReactorTests: XCTestCase {
     reactor.action.onNext(.foo)
     XCTAssertEqual(reactor.currentState, 1)
   }
+
+  func testDispose() {
+    weak var weakReactor: TestReactor?
+    weak var weakAction: ActionSubject<TestReactor.Action>?
+    weak var weakState: Observable<TestReactor.State>?
+
+    _ = {
+      let reactor = TestReactor()
+      weakReactor = reactor
+      weakAction = reactor.action
+      weakState = reactor.state
+    }()
+
+    XCTAssertNil(weakReactor)
+    XCTAssertNil(weakAction)
+    XCTAssertNil(weakState)
+  }
 }
 
 struct TestError: Error {

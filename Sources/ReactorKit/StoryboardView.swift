@@ -9,6 +9,12 @@ import AppKit
 private typealias OSViewController = NSViewController
 #endif
 
+private typealias AnyView = AnyObject
+private enum MapTables {
+  static let reactor = WeakMapTable<AnyView, Any>()
+  static let isReactorBinded = WeakMapTable<AnyView, Bool>()
+}
+
 public protocol _ObjCStoryboardView {
   func performBinding()
 }
@@ -18,9 +24,9 @@ public protocol StoryboardView: View, _ObjCStoryboardView {
 
 extension StoryboardView {
   public var reactor: Reactor? {
-    get { return self.associatedObject(forKey: &reactorKey) }
+    get { return MapTables.reactor.value(forKey: self) as? Reactor }
     set {
-      self.setAssociatedObject(newValue, forKey: &reactorKey)
+      MapTables.reactor.setValue(newValue, forKey: self)
       self.isReactorBinded = false
       self.disposeBag = DisposeBag()
       self.performBinding()
@@ -28,8 +34,8 @@ extension StoryboardView {
   }
 
   fileprivate var isReactorBinded: Bool {
-    get { return self.associatedObject(forKey: &isReactorBindedKey, default: false) }
-    set { self.setAssociatedObject(newValue, forKey: &isReactorBindedKey) }
+    get { return MapTables.isReactorBinded.value(forKey: self, default: false) }
+    set { MapTables.isReactorBinded.setValue(newValue, forKey: self) }
   }
 
   public func performBinding() {
