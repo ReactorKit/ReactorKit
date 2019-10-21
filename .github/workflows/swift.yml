@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        env:
+          - sdk: iphonesimulator13.0
+            destination: platform=iOS Simulator,name=iPhone 11 Pro,OS=13.0
+
+          - sdk: macosx10.15
+            destination: arch=x86_64
+
+          - sdk: appletvsimulator13.0
+            destination: OS=13.0,name=Apple TV
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_11.app
+
+    - name: Generate Xcode Project
+      run: swift package generate-xcodeproj --enable-code-coverage
+
+    - name: Build and Test
+      run: |
+        set -o pipefail && xcodebuild clean build test \
+          -project "$PROJECT" \
+          -scheme "$SCHEME" \
+          -sdk "$SDK" \
+          -destination "$DESTINATION" \
+          -configuration Debug \
+          -enableCodeCoverage YES \
+          CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty -c;
+      env:
+        PROJECT: ReactorKit.xcodeproj
+        SCHEME: ReactorKit-Package
+        SDK: ${{ matrix.env.sdk }}
+        DESTINATION: ${{ matrix.env.destination }}
+
+    - name: Upload Code Coverage
+      run: |
+        bash <(curl -s https://codecov.io/bash) \
+          -X xcodeplist \
+          -J ReactorKit
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
