@@ -63,7 +63,8 @@ final class ReactorSchedulerTests: XCTestCase {
 
       func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
-        newState.reductionThreads.append(Thread.current)
+        let currentThread = Thread.current
+        newState.reductionThreads.append(currentThread)
         return newState
       }
     }
@@ -75,24 +76,25 @@ final class ReactorSchedulerTests: XCTestCase {
 
     reactor.state
       .subscribe(onNext: { _ in
-        observationThreads.append(Thread.current)
+        let currentThread = Thread.current
+        observationThreads.append(currentThread)
       })
       .disposed(by: disposeBag)
 
-    for _ in 0..<5 {
+    for _ in 0..<100 {
       reactor.action.onNext(Void())
     }
 
     XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1)
 
     let reductionThreads = reactor.currentState.reductionThreads
-    XCTAssertEqual(reductionThreads.count, 5)
+    XCTAssertEqual(reductionThreads.count, 100)
     for thread in reductionThreads {
       XCTAssertNotEqual(thread, Thread.main)
       XCTAssertEqual(thread, reductionThreads.first)
     }
 
-    XCTAssertEqual(observationThreads.count, 6) // +1 for initial state
+    XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
     for thread in observationThreads {
       XCTAssertNotEqual(thread, Thread.main)
       XCTAssertEqual(thread, observationThreads.first)
