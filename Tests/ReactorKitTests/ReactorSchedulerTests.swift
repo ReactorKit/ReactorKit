@@ -91,13 +91,11 @@ final class ReactorSchedulerTests: XCTestCase {
     XCTAssertEqual(reductionThreads.count, 100)
     for thread in reductionThreads {
       XCTAssertNotEqual(thread, Thread.main)
-      XCTAssertEqual(thread, reductionThreads.first)
     }
 
     XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
     for thread in observationThreads {
       XCTAssertNotEqual(thread, Thread.main)
-      XCTAssertEqual(thread, observationThreads.first)
     }
   }
 }
