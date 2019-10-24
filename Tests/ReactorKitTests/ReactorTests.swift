@@ -14,8 +14,58 @@ final class ReactorTests: XCTestCase {
     test.assert(reactor.state) { events in
       XCTAssertEqual(events.elements.count, 2)
       XCTAssertEqual(events.elements[0], ["transformedState"]) // initial state
-      XCTAssertEqual(events.elements[1], ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
+      XCTAssertEqual(events.elements[1], ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
     }
+  }
+
+  func testReduceIsExecutedRightAfterMutation() {
+    final class MyReactor: Reactor {
+      enum Action {
+        case append([String])
+      }
+
+      enum Mutation {
+        case setCharacters([String])
+      }
+
+      struct State {
+        var characters: [String] = []
+      }
+
+      let initialState = State()
+
+      func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case let .append(characters):
+          let sources: [Observable<Mutation>] = characters.map { character in
+            Observable<Mutation>.create { [weak self] observer in
+              if let self = self {
+                let newCharacters = self.currentState.characters + [character]
+                observer.onNext(Mutation.setCharacters(newCharacters))
+              }
+              observer.onCompleted()
+              return Disposables.create()
+            }
+          }
+          return Observable.concat(sources)
+        }
+      }
+
+      func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        switch mutation {
+        case let .setCharacters(newCharacters):
+          newState.characters = newCharacters
+        }
+        return newState
+      }
+    }
+
+    let reactor = MyReactor()
+    reactor.action.onNext(.append(["a", "b"]))
+    reactor.action.onNext(.append(["c"]))
+    reactor.action.onNext(.append(["d", "e", "f"]))
+    XCTAssertEqual(reactor.currentState.characters, ["a", "b", "c", "d", "e", "f"])
   }
 
   func testStateReplayCurrentState() {
@@ -34,13 +84,13 @@ final class ReactorTests: XCTestCase {
     let reactor = TestReactor()
     _ = reactor.state
     reactor.action.onNext(["action"])
-    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
+    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
   }
 
   func testCurrentState_stateIsCreatedWhenAccessAction() {
     let reactor = TestReactor()
     reactor.action.onNext(["action"])
-    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "transformedState"])
+    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
   }
 
   func testStreamIgnoresErrorFromAction() {
@@ -281,12 +331,12 @@ private final class TestReactor: Reactor {
     return mutation.map { $0 + ["transformedMutation"] }
   }
 
-  // 4. [] + ["action", "transformedAction", "mutation", "transformedMutation"]
+  // 4. [] + ["action", "transformedAction", "mutation", "transformedMutation"] + ["reduce"]
   func reduce(state: State, mutation: Mutation) -> State {
-    return state + mutation
+    return state + mutation + ["reduce"]
   }
 
-  // 5. ["action", "transformedAction", "mutation", "transformedMutation"] + ["transformedState"]
+  // 5. ["action", "transformedAction", "mutation", "transformedMutation", "reduce"] + ["transformedState"]
   func transform(state: Observable<State>) -> Observable<State> {
     return state.map { $0 + ["transformedState"] }
   }

@@ -57,10 +57,6 @@ final class ReactorSchedulerTests: XCTestCase {
       let initialState: State = State()
       let scheduler: ImmediateSchedulerType = SerialDispatchQueueScheduler(qos: .default)
 
-      func mutate(action: Action) -> Observable<Mutation> {
-        return Observable.just(Void()).observeOn(MainScheduler.instance)
-      }
-
       func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         let currentThread = Thread.current
