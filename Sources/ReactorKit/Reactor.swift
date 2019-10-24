@@ -128,7 +128,7 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self._action.asObservable()
+    let action = self._action.observeOn(self.scheduler)
     let transformedAction = self.transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
@@ -136,8 +136,7 @@ extension Reactor {
         return self.mutate(action: action).catchError { _ in .empty() }
       }
     let transformedMutation = self.transform(mutation: mutation)
-    let state = transformedMutation
-      .observeOn(self.scheduler)
+    let state = transformedMutation         
       .scan(self.initialState) { [weak self] state, mutation -> State in
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
