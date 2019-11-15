@@ -149,7 +149,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState.observeOn(self.scheduler)
+    return transformedState
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
