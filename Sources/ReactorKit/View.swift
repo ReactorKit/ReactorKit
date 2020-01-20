@@ -8,6 +8,7 @@
 
 #if !os(Linux)
 import RxSwift
+import WeakMapTable
 
 private typealias AnyView = AnyObject
 private enum MapTables {
