@@ -12,10 +12,11 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0")),
+    .package(url: "https://github.com/ReactorKit/WeakMapTable.git", .upToNextMajor(from: "1.1.0")),
     .package(url: "https://github.com/devxoul/RxExpect.git", .upToNextMajor(from: "2.0.0"))
   ],
   targets: [
-    .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift"]),
+    .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift", "WeakMapTable"]),
     .target(name: "ReactorKitRuntime", dependencies: []),
     .testTarget(name: "ReactorKitTests", dependencies: ["ReactorKit", "RxExpect"]),
   ],
