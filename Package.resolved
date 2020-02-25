@@ -18,6 +18,15 @@
           "revision": "b3e888b4972d9bc76495dd74d30a8c7fad4b9395",
           "version": "5.0.1"
         }
+      },
+      {
+        "package": "WeakMapTable",
+        "repositoryURL": "https://github.com/ReactorKit/WeakMapTable.git",
+        "state": {
+          "branch": null,
+          "revision": "eda6ba374666bb2177034b6418025103cc72bcbf",
+          "version": "1.1.0"
+        }
       }
     ]
   },
