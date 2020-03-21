@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: macOS-latest
+    env:
+      PROJECT: ReactorKit.xcodeproj
+      SCHEME: ReactorKit-Package
+      CODECOV_PACKAGE_NAME: ReactorKit
     strategy:
       matrix:
         env:
@@ -39,8 +43,6 @@ jobs:
           -enableCodeCoverage YES \
           CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty -c;
       env:
-        PROJECT: ReactorKit.xcodeproj
-        SCHEME: ReactorKit-Package
         SDK: ${{ matrix.env.sdk }}
         DESTINATION: ${{ matrix.env.destination }}
 
@@ -49,6 +51,4 @@ jobs:
         bash <(curl -s https://codecov.io/bash) \
           -X xcodeplist \
           -J ReactorKit \
-          -t "$CODECOV_TOKEN"
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          -t ${{ secrets.CODECOV_TOKEN }}
