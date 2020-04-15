@@ -49,13 +49,6 @@ public protocol View: class {
   func bind(reactor: Reactor)
 }
 
-
-// MARK: - Associated Object Keys
-
-var reactorKey = "reactor"
-var isReactorBindedKey = "isReactorBinded"
-
-
 // MARK: - Default Implementations
 
 extension View {
