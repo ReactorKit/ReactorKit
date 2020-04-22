@@ -58,8 +58,7 @@ final class CounterViewReactor: Reactor {
   }
 
   // Mutation -> State
-  func reduce(state: State, mutation: Mutation) -> State {
-    var state = state
+  func reduce(state: inout State, mutation: Mutation) {
     switch mutation {
     case .increaseValue:
       state.value += 1
@@ -70,6 +69,5 @@ final class CounterViewReactor: Reactor {
     case let .setLoading(isLoading):
       state.isLoading = isLoading
     }
-    return state
   }
 }

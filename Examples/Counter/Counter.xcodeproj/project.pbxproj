@@ -37,8 +37,8 @@
 		035053411F61C325008E8863 /* CounterViewReactor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CounterViewReactor.swift; sourceTree = "<group>"; };
 		03F235ED244C2E8D003B7446 /* GitHubSearch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = GitHubSearch.xcodeproj; path = ../GitHubSearch/GitHubSearch.xcodeproj; sourceTree = "<group>"; };
 		51B4C3728455C73235AA1B33 /* Pods_Example_Counter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example_Counter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7C070D54E231EB5BFAC0BA70 /* Pods-Example-Counter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-Counter.debug.xcconfig"; path = "Target Support Files/Pods-Example-Counter/Pods-Example-Counter.debug.xcconfig"; sourceTree = "<group>"; };
-		DC5AF3EF6AAA10E38857BD02 /* Pods-Example-Counter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-Counter.release.xcconfig"; path = "Target Support Files/Pods-Example-Counter/Pods-Example-Counter.release.xcconfig"; sourceTree = "<group>"; };
+		862177901A8E18E3436A8519 /* Pods-Example-Counter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-Counter.release.xcconfig"; path = "Target Support Files/Pods-Example-Counter/Pods-Example-Counter.release.xcconfig"; sourceTree = "<group>"; };
+		AC6FFD7BEFDEC41864DEBC85 /* Pods-Example-Counter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-Counter.debug.xcconfig"; path = "Target Support Files/Pods-Example-Counter/Pods-Example-Counter.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,8 +105,8 @@
 		7082DFF53EF14F498683E0CC /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				7C070D54E231EB5BFAC0BA70 /* Pods-Example-Counter.debug.xcconfig */,
-				DC5AF3EF6AAA10E38857BD02 /* Pods-Example-Counter.release.xcconfig */,
+				AC6FFD7BEFDEC41864DEBC85 /* Pods-Example-Counter.debug.xcconfig */,
+				862177901A8E18E3436A8519 /* Pods-Example-Counter.release.xcconfig */,
 			);
 			name = Pods;
 			path = ../Pods;
@@ -146,6 +146,7 @@
 				TargetAttributes = {
 					034F94BF1EB789F400CB9EF1 = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = CG9RTC2HJD;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
@@ -397,9 +398,10 @@
 		};
 		034F94D31EB789F400CB9EF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7C070D54E231EB5BFAC0BA70 /* Pods-Example-Counter.debug.xcconfig */;
+			baseConfigurationReference = AC6FFD7BEFDEC41864DEBC85 /* Pods-Example-Counter.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = CG9RTC2HJD;
 				INFOPLIST_FILE = Counter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.Counter;
@@ -410,9 +412,10 @@
 		};
 		034F94D41EB789F400CB9EF1 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DC5AF3EF6AAA10E38857BD02 /* Pods-Example-Counter.release.xcconfig */;
+			baseConfigurationReference = 862177901A8E18E3436A8519 /* Pods-Example-Counter.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = CG9RTC2HJD;
 				INFOPLIST_FILE = Counter/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.Counter;

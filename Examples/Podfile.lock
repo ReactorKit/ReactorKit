@@ -1,5 +1,5 @@
 PODS:
-  - ReactorKit (2.0.1):
+  - ReactorKit (2.1.0):
     - RxSwift (~> 5.0)
     - WeakMapTable (~> 1.1)
   - RxCocoa (5.1.1):
@@ -27,7 +27,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ReactorKit: c0c1f3cb6e7909086a40b8f39bd9201cefb05701
+  ReactorKit: 12a93358c554bb3f167b16b14c40374fa9cd5acd
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
@@ -35,4 +35,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 46a2c885520796f08b2992d490a2e294f6fbefc7
 
-COCOAPODS: 1.9.0
+COCOAPODS: 1.8.4

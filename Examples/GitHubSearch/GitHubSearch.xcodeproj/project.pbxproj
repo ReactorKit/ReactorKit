@@ -25,9 +25,9 @@
 		030AD4691EC5BC3300360E05 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		030AD46B1EC5BC3300360E05 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		031F76491EC63D1500E9BAEA /* GitHubSearchViewReactor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitHubSearchViewReactor.swift; sourceTree = "<group>"; };
-		210850100AF5C900E1771E50 /* Pods-Example-GitHubSearch.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-GitHubSearch.debug.xcconfig"; path = "Target Support Files/Pods-Example-GitHubSearch/Pods-Example-GitHubSearch.debug.xcconfig"; sourceTree = "<group>"; };
+		39584C2065206D613A59363A /* Pods-Example-GitHubSearch.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-GitHubSearch.release.xcconfig"; path = "Target Support Files/Pods-Example-GitHubSearch/Pods-Example-GitHubSearch.release.xcconfig"; sourceTree = "<group>"; };
+		434A4BBADB60073A605F4902 /* Pods-Example-GitHubSearch.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-GitHubSearch.debug.xcconfig"; path = "Target Support Files/Pods-Example-GitHubSearch/Pods-Example-GitHubSearch.debug.xcconfig"; sourceTree = "<group>"; };
 		D79957DB17989B06CE67AC7E /* Pods_Example_GitHubSearch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example_GitHubSearch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F5BE0349B44453D1BF483BE6 /* Pods-Example-GitHubSearch.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example-GitHubSearch.release.xcconfig"; path = "Target Support Files/Pods-Example-GitHubSearch/Pods-Example-GitHubSearch.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,8 +77,8 @@
 		3BC93782B996756E59284E8E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				210850100AF5C900E1771E50 /* Pods-Example-GitHubSearch.debug.xcconfig */,
-				F5BE0349B44453D1BF483BE6 /* Pods-Example-GitHubSearch.release.xcconfig */,
+				434A4BBADB60073A605F4902 /* Pods-Example-GitHubSearch.debug.xcconfig */,
+				39584C2065206D613A59363A /* Pods-Example-GitHubSearch.release.xcconfig */,
 			);
 			name = Pods;
 			path = ../Pods;
@@ -126,6 +126,7 @@
 				TargetAttributes = {
 					030AD45B1EC5BC3300360E05 = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = CG9RTC2HJD;
 						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
@@ -361,9 +362,10 @@
 		};
 		030AD46F1EC5BC3300360E05 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 210850100AF5C900E1771E50 /* Pods-Example-GitHubSearch.debug.xcconfig */;
+			baseConfigurationReference = 434A4BBADB60073A605F4902 /* Pods-Example-GitHubSearch.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = CG9RTC2HJD;
 				INFOPLIST_FILE = GitHubSearch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.GitHubSearch;
@@ -374,9 +376,10 @@
 		};
 		030AD4701EC5BC3300360E05 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F5BE0349B44453D1BF483BE6 /* Pods-Example-GitHubSearch.release.xcconfig */;
+			baseConfigurationReference = 39584C2065206D613A59363A /* Pods-Example-GitHubSearch.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = CG9RTC2HJD;
 				INFOPLIST_FILE = GitHubSearch/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.GitHubSearch;

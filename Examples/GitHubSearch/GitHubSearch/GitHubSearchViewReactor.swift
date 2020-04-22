@@ -64,29 +64,21 @@ final class GitHubSearchViewReactor: Reactor {
     }
   }
 
-  func reduce(state: State, mutation: Mutation) -> State {
+  func reduce(state: inout State, mutation: Mutation) {
     switch mutation {
     case let .setQuery(query):
-      var newState = state
-      newState.query = query
-      return newState
+      state.query = query
 
     case let .setRepos(repos, nextPage):
-      var newState = state
-      newState.repos = repos
-      newState.nextPage = nextPage
-      return newState
+      state.repos = repos
+      state.nextPage = nextPage
 
     case let .appendRepos(repos, nextPage):
-      var newState = state
-      newState.repos.append(contentsOf: repos)
-      newState.nextPage = nextPage
-      return newState
+      state.repos.append(contentsOf: repos)
+      state.nextPage = nextPage
 
     case let .setLoadingNextPage(isLoadingNextPage):
-      var newState = state
-      newState.isLoadingNextPage = isLoadingNextPage
-      return newState
+      state.isLoadingNextPage = isLoadingNextPage
     }
   }
 
