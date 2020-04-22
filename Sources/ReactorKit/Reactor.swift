@@ -58,7 +58,7 @@ public protocol Reactor: class {
   /// observables. This method is called once before the state stream is created.
   func transform(mutation: Observable<Mutation>) -> Observable<Mutation>
 
-  /// Generates a new state with the previous state and the action. It should be purely functional
+  /// Mutates the state. It should be purely functional
   /// so it should not perform any side-effects here. This method is called every time when the
   /// mutation is committed.
   func reduce(state: inout State, mutation: Mutation)
