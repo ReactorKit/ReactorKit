@@ -61,7 +61,7 @@ public protocol Reactor: class {
   /// Generates a new state with the previous state and the action. It should be purely functional
   /// so it should not perform any side-effects here. This method is called every time when the
   /// mutation is committed.
-  func reduce(state: State, mutation: Mutation) -> State
+  func reduce(state: inout State, mutation: Mutation)
 
   /// Transforms the state stream. Use this function to perform side-effects such as logging. This
   /// method is called once after the state stream is created.
@@ -165,8 +165,7 @@ extension Reactor {
     return mutation
   }
 
-  public func reduce(state: State, mutation: Mutation) -> State {
-    return state
+  public func reduce(state: inout State, mutation: Mutation) {
   }
 
   public func transform(state: Observable<State>) -> Observable<State> {
