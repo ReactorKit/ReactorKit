@@ -51,13 +51,11 @@ final class ReactorTests: XCTestCase {
         }
       }
 
-      func reduce(state: State, mutation: Mutation) -> State {
-        var newState = state
+      func reduce(state: inout State, mutation: Mutation) {
         switch mutation {
         case let .setCharacters(newCharacters):
-          newState.characters = newCharacters
+          state.characters = newCharacters
         }
-        return newState
       }
     }
 
@@ -274,8 +272,8 @@ final class ReactorTests: XCTestCase {
         return .just(Void())
       }
 
-      func reduce(state: State, mutation: Mutation) -> State {
-        return state + 1
+      func reduce(state: inout State, mutation: Mutation) {
+        state = state + 1
       }
     }
 
@@ -332,8 +330,8 @@ private final class TestReactor: Reactor {
   }
 
   // 4. [] + ["action", "transformedAction", "mutation", "transformedMutation"] + ["reduce"]
-  func reduce(state: State, mutation: Mutation) -> State {
-    return state + mutation + ["reduce"]
+  func reduce(state: inout State, mutation: Mutation) {
+    state = state + mutation + ["reduce"]
   }
 
   // 5. ["action", "transformedAction", "mutation", "transformedMutation", "reduce"] + ["transformedState"]
@@ -371,8 +369,8 @@ private final class StopwatchReactor: Reactor {
     }
   }
 
-  func reduce(state: State, mutation: Mutation) -> State {
-    return state + mutation
+  func reduce(state: inout State, mutation: Mutation) {
+    state = state + mutation
   }
 }
 
@@ -395,7 +393,7 @@ private final class CounterReactor: Reactor {
     }
   }
 
-  func reduce(state: State, mutation: Mutation) -> State {
-    return state + 1
+  func reduce(state: inout State, mutation: Mutation) {
+    state = state + 1
   }
 }

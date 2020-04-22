@@ -139,8 +139,10 @@ extension Reactor {
     let transformedMutation = self.transform(mutation: mutation)
     let state = transformedMutation         
       .scan(self.initialState) { [weak self] state, mutation -> State in
+        var newState = state
         guard let `self` = self else { return state }
-        return self.reduce(state: state, mutation: mutation)
+        self.reduce(state: &newState, mutation: mutation)
+        return newState
       }
       .catchError { _ in .empty() }
       .startWith(self.initialState)
