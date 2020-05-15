@@ -369,6 +369,7 @@ final class MyReactor: Reactor {
 * [Passcode](https://github.com/cruisediary/Passcode): Passcode for iOS RxSwift, ReactorKit and IGListKit example
 * [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
 * [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
+* [SWHub](https://github.com/tospery/SWHub): Use ReactorKit develop the Github client
 
 ## Dependencies
 
