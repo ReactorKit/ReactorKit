@@ -370,6 +370,7 @@ final class MyReactor: Reactor {
 * [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
 * [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
 * [reactorkit-keyboard-example](https://github.com/techinpark/reactorkit-keyboard-example): iOS Application example for develop keyboard-extensions using ReactorKit Architecture.
+* [SWHub](https://github.com/tospery/SWHub): Use ReactorKit develop the Github client
 
 ## Dependencies
 
