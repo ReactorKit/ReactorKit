@@ -70,44 +70,28 @@ final class ReactorSchedulerTests: XCTestCase {
 
     var observationThreads: [Thread] = []
 
-    var isExecuted = false
+    reactor.state
+      .subscribe(onNext: { _ in
+        let currentThread = Thread.current
+        observationThreads.append(currentThread)
+      })
+      .disposed(by: disposeBag)
 
-    DispatchQueue.global().async {
-      let currentThread = Thread.current
-
-      reactor.state
-        .subscribe(onNext: { _ in
-          let currentThread = Thread.current
-          observationThreads.append(currentThread)
-        })
-        .disposed(by: disposeBag)
-
-      for _ in 0..<100 {
-        reactor.action.onNext(Void())
-      }
-
-      XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1)
-
-      let reductionThreads = reactor.currentState.reductionThreads
-      XCTAssertEqual(reductionThreads.count, 100)
-      for thread in reductionThreads {
-        XCTAssertNotEqual(thread, currentThread)
-      }
-
-      XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
-
-      // initial state is observed on the same thread with the one where the state stream is created.
-      XCTAssertEqual(observationThreads[0], currentThread)
-
-      // other states are observed on the specified thread.
-      for thread in observationThreads[1...] {
-        XCTAssertNotEqual(thread, currentThread)
-      }
-
-      isExecuted = true
+    for _ in 0..<100 {
+      reactor.action.onNext(Void())
     }
 
-    XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1.5)
-    XCTAssertTrue(isExecuted)
+    XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1)
+
+    let reductionThreads = reactor.currentState.reductionThreads
+    XCTAssertEqual(reductionThreads.count, 100)
+    for thread in reductionThreads {
+      XCTAssertNotEqual(thread, Thread.main)
+    }
+
+    XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
+    for thread in observationThreads {
+      XCTAssertNotEqual(thread, Thread.main)
+    }
   }
 }
