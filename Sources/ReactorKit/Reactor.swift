@@ -137,7 +137,7 @@ extension Reactor {
         return self.mutate(action: action).catchError { _ in .empty() }
       }
     let transformedMutation = self.transform(mutation: mutation)
-    let state = transformedMutation         
+    let state = transformedMutation
       .scan(self.initialState) { [weak self] state, mutation -> State in
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
@@ -150,7 +150,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState
+    return transformedState.observeOn(self.scheduler)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {

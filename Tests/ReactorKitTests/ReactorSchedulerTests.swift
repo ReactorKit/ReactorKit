@@ -96,11 +96,7 @@ final class ReactorSchedulerTests: XCTestCase {
 
       XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
 
-      // initial state is observed on the same thread with the one where the state stream is created.
-      XCTAssertEqual(observationThreads[0], currentThread)
-
-      // other states are observed on the specified thread.
-      for thread in observationThreads[1...] {
+      for thread in observationThreads {
         XCTAssertNotEqual(thread, currentThread)
       }
 
