@@ -9,6 +9,7 @@ A protocol `View` requires a dispose bag property and a binding method. This is 
 ```swift
 import UIKit
 import ReactorKit
+import RxCocoa
 import RxSwift
 
 class GitHubSearchViewController: UIViewController, View {
