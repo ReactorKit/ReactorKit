@@ -9,6 +9,7 @@ let package = Package(
   ],
   products: [
     .library(name: "ReactorKit", targets: ["ReactorKit"]),
+    .library(name: "ReactorKitCombine", targets: ["ReactorKitCombine"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "5.0.0")),
@@ -17,8 +18,10 @@ let package = Package(
   ],
   targets: [
     .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift", "WeakMapTable"]),
+    .target(name: "ReactorKitCombine", dependencies: ["WeakMapTable"]),
     .target(name: "ReactorKitRuntime", dependencies: []),
     .testTarget(name: "ReactorKitTests", dependencies: ["ReactorKit", "RxExpect"]),
+    .testTarget(name: "ReactorKitCombineTests", dependencies: ["ReactorKitCombine"]),
   ],
   swiftLanguageVersions: [.v5]
 )
