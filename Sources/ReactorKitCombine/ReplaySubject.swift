@@ -15,9 +15,9 @@ import Combine
 ///
 /// The implementation borrows heavily from [Entwine’s](https://github.com/tcldr/Entwine/blob/b839c9fcc7466878d6a823677ce608da998b95b9/Sources/Entwine/Operators/ReplaySubject.swift).
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class ReplaySubject<Output, Failure: Error>: Subject {
-  public typealias Output = Output
-  public typealias Failure = Failure
+final class ReplaySubject<Output, Failure: Error>: Subject {
+  typealias Output = Output
+  typealias Failure = Failure
 
   private let bufferSize: Int
   private var buffer = [Output]()
@@ -30,11 +30,11 @@ public final class ReplaySubject<Output, Failure: Error>: Subject {
 
   /// Create a `ReplaySubject`, buffering up to `bufferSize` values and replaying them to new subscribers
   /// - Parameter bufferSize: The maximum number of value events to buffer and replay to all future subscribers.
-  public init(bufferSize: Int) {
+  init(bufferSize: Int) {
     self.bufferSize = bufferSize
   }
 
-  public func send(_ value: Output) {
+  func send(_ value: Output) {
     guard self.isActive else { return }
 
     self.buffer.append(value)
@@ -46,7 +46,7 @@ public final class ReplaySubject<Output, Failure: Error>: Subject {
     self.subscriptions.forEach { $0.forwardValueToBuffer(value) }
   }
 
-  public func send(completion: Subscribers.Completion<Failure>) {
+  func send(completion: Subscribers.Completion<Failure>) {
     guard self.isActive else { return }
 
     self.completion = completion
@@ -54,11 +54,11 @@ public final class ReplaySubject<Output, Failure: Error>: Subject {
     self.subscriptions.forEach { $0.forwardCompletionToBuffer(completion) }
   }
 
-  public func send(subscription: Combine.Subscription) {
+  func send(subscription: Combine.Subscription) {
     subscription.request(.unlimited)
   }
 
-  public func receive<Subscriber: Combine.Subscriber>(subscriber: Subscriber) where Failure == Subscriber.Failure, Output == Subscriber.Input {
+  func receive<Subscriber: Combine.Subscriber>(subscriber: Subscriber) where Failure == Subscriber.Failure, Output == Subscriber.Input {
     let subscriberIdentifier = subscriber.combineIdentifier
 
     let subscription = Subscription(downstream: AnySubscriber(subscriber)) { [weak self] in
