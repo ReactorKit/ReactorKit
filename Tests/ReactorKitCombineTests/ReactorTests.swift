@@ -188,8 +188,14 @@ final class ReactorTests: XCTestCase {
     let reactor = TestReactor()
     reactor.isStubEnabled = true
     XCTAssertTrue(reactor.action === reactor.stub.action)
-    // TODO: How can I test same AnyPublisher
-    // XCTAssertTrue(reactor.state as AnyObject === reactor.stub.state)
+    let statePublisher: AnyObject? = {
+      let stateMirror = Mirror(reflecting: reactor.state)
+      guard let box = stateMirror.children.first(where: { $0.label == "box" })?.value else { return nil }
+      let boxMirror = Mirror(reflecting: box)
+      let base = boxMirror.children.first { $0.label == "base" }?.value
+      return base as AnyObject
+    }()
+    XCTAssertTrue(statePublisher === reactor.stub.state)
   }
 
   func testStub_actions() {

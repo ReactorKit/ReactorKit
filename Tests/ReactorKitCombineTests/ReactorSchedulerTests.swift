@@ -20,8 +20,6 @@ extension AnyPublisher: Equatable {
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class ReactorSchedulerTests: XCTestCase {
-  // TODO: How can I test same AnyPublisher
-  /*
   func testStateStreamIsCreatedOnce() {
     final class SimpleReactor: Reactor {
       typealias Action = Never
@@ -51,12 +49,22 @@ final class ReactorSchedulerTests: XCTestCase {
 
     XCTWaiter().wait(for: [XCTestExpectation()], timeout: 10)
 
+    let firstStatePublisher: AnyObject? = {
+      guard let firstState = states.first else { return nil }
+      let mirror = Mirror(reflecting: firstState)
+      let box = mirror.children.first { $0.label == "box" }?.value
+      return box as AnyObject
+    }()
     XCTAssertGreaterThan(states.count, 0)
     for state in states {
-      XCTAssertTrue(state === states.first)
+      let statePublisher: AnyObject? = {
+        let mirror = Mirror(reflecting: state)
+        let box = mirror.children.first { $0.label == "box" }?.value
+        return box as AnyObject
+      }()
+      XCTAssertTrue(statePublisher === firstStatePublisher)
     }
   }
-  */
 
   func testScheduler() {
     final class SimpleReactor: Reactor {
