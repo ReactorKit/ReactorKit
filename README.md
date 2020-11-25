@@ -268,7 +268,6 @@ First of all, you have to decide what to test. There are two things to test: a v
 A view can be tested with a *stub* reactor. A reactor has a property `stub` which can log actions and force change states. If a reactor's stub is enabled, both `mutate()` and `reduce()` are not executed. A stub has these properties:
 
 ```swift
-var isEnabled: Bool { get set }
 var state: StateRelay<Reactor.State> { get }
 var action: ActionSubject<Reactor.Action> { get }
 var actions: [Reactor.Action] { get } // recorded actions
@@ -280,7 +279,7 @@ Here are some example test cases:
 func testAction_refresh() {
   // 1. prepare a stub reactor
   let reactor = MyReactor()
-  reactor.stub.isEnabled = true
+  reactor.isStubEnabled = true
 
   // 2. prepare a view with a stub reactor
   let view = MyView()
@@ -296,7 +295,7 @@ func testAction_refresh() {
 func testState_isLoading() {
   // 1. prepare a stub reactor
   let reactor = MyReactor()
-  reactor.stub.isEnabled = true
+  reactor.isStubEnabled = true
 
   // 2. prepare a view with a stub reactor
   let view = MyView()
