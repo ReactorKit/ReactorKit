@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "ReactorKit"
-  s.version          = "2.1.0"
+  s.version          = "2.1.1"
   s.summary          = "A framework for reactive and unidirectional Swift application architecture"
   s.homepage         = "https://github.com/ReactorKit/ReactorKit"
   s.license          = { :type => "MIT", :file => "LICENSE" }
