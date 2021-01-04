@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.source_files = "Sources/**/*.{swift,h,m}"
   s.frameworks   = "Foundation"
   s.swift_version = "5.0"
-  s.dependency "RxSwift", "~> 5.0"
+  s.dependency "RxSwift", "~> 6.0"
   s.dependency "WeakMapTable", "~> 1.1"
 
   s.ios.deployment_target = "9.0"
