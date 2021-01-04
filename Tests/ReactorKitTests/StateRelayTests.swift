@@ -6,9 +6,7 @@
 //
 
 import XCTest
-import RxExpect
 import RxSwift
-import RxTest
 @testable import ReactorKit
 
 class StateRelayTests: XCTestCase {

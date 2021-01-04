@@ -1,21 +1,35 @@
 import XCTest
 import ReactorKit
-import RxExpect
 import RxSwift
 import RxTest
 
 final class ReactorTests: XCTestCase {
   func testEachMethodsAreInvoked() {
-    let test = RxExpect()
-    let reactor = test.retain(TestReactor())
-    test.input(reactor.action, [
-      .next(100, ["action"]),
+    // given
+    let reactor = TestReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+    let disposeBag = DisposeBag()
+
+    // when
+    scheduler
+      .createHotObservable([
+        .next(100, ["action"]),
+      ])
+      .subscribe(reactor.action)
+      .disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events.count, 2)
+    XCTAssertEqual(response.events[0].value.element, ["transformedState"]) // initial state
+    XCTAssertEqual(response.events[1].value.element, [
+      "action",
+      "transformedAction",
+      "mutation",
+      "transformedMutation",
+      "reduce",
+      "transformedState"
     ])
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events.elements.count, 2)
-      XCTAssertEqual(events.elements[0], ["transformedState"]) // initial state
-      XCTAssertEqual(events.elements[1], ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
-    }
   }
 
   func testReduceIsExecutedRightAfterMutation() {
@@ -69,15 +83,19 @@ final class ReactorTests: XCTestCase {
   }
 
   func testStateReplayCurrentState() {
-    let test = RxExpect()
-    let reactor = test.retain(CounterReactor())
+    // given
+    let reactor = CounterReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+
+    // when
     let disposable = reactor.state.subscribe() // state: 0
     reactor.action.onNext(Void()) // state: 1
     reactor.action.onNext(Void()) // state: 2
     disposable.dispose()
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events.elements, [2])
-    }
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events.map(\.value.element), [2])
   }
 
   func testCurrentState() {
@@ -94,116 +112,152 @@ final class ReactorTests: XCTestCase {
   }
 
   func testStreamIgnoresErrorFromAction() {
-    let test = RxExpect()
-    let reactor = test.retain(CounterReactor())
-    let action1 = test.scheduler.createHotObservable([
+    // given
+    let reactor = CounterReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+    let disposeBag = DisposeBag()
+
+    // when
+    let action1 = scheduler.createHotObservable([
       .next(100, Void()),
       .next(200, Void()),
       .error(300, TestError()),
       .next(400, Void()),
     ])
-    let action2 = test.scheduler.createHotObservable([
+    let action2 = scheduler.createHotObservable([
       .error(300, TestError()),
       .next(500, Void()),
       .next(600, Void()),
     ])
-    action1.subscribe(reactor.action).disposed(by: test.disposeBag)
-    action2.subscribe(reactor.action).disposed(by: test.disposeBag)
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events, [
-        .next(0, 0),
-        .next(100, 1),
-        .next(200, 2),
-        .next(400, 3),
-        .next(500, 4),
-        .next(600, 5),
-      ])
-    }
+    action1.subscribe(reactor.action).disposed(by: disposeBag)
+    action2.subscribe(reactor.action).disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events, [
+      .next(0, 0),
+      .next(100, 1),
+      .next(200, 2),
+      .next(400, 3),
+      .next(500, 4),
+      .next(600, 5),
+    ])
   }
 
   func testStreamIgnoresErrorFromMutate() {
-    let test = RxExpect()
-    let reactor = test.retain(CounterReactor())
+    // given
+    let reactor = CounterReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+    let disposeBag = DisposeBag()
+
     reactor.stateForTriggerError = 2
-    test.input(reactor.action, [
-      .next(100, Void()),
-      .next(200, Void()),
-      .next(300, Void()), // error will be emit on this mutate
-      .next(400, Void()),
-      .next(500, Void()),
-    ])
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events.elements, [0, 1, 2, 3, 4, 5])
-    }
+
+    // when
+    scheduler
+      .createHotObservable([
+        .next(100, Void()),
+        .next(200, Void()),
+        .next(300, Void()), // error will be emit on this mutate
+        .next(400, Void()),
+        .next(500, Void()),
+      ])
+      .subscribe(reactor.action)
+      .disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events.map(\.value.element), [0, 1, 2, 3, 4, 5])
   }
 
   func testStreamIgnoresCompletedFromAction() {
-    let test = RxExpect()
-    let reactor = test.retain(CounterReactor())
-    let action1 = test.scheduler.createHotObservable([
+    // given
+    let reactor = CounterReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+    let disposeBag = DisposeBag()
+
+    // when
+    let action1 = scheduler.createHotObservable([
       .next(100, Void()),
       .next(200, Void()),
       .completed(300),
       .next(400, Void()),
     ])
-    let action2 = test.scheduler.createHotObservable([
+    let action2 = scheduler.createHotObservable([
       .completed(300),
       .next(500, Void()),
       .next(600, Void()),
     ])
-    action1.subscribe(reactor.action).disposed(by: test.disposeBag)
-    action2.subscribe(reactor.action).disposed(by: test.disposeBag)
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events, [
-        .next(0, 0),
-        .next(100, 1),
-        .next(200, 2),
-        .next(400, 3),
-        .next(500, 4),
-        .next(600, 5),
-      ])
-    }
+    action1.subscribe(reactor.action).disposed(by: disposeBag)
+    action2.subscribe(reactor.action).disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events, [
+      .next(0, 0),
+      .next(100, 1),
+      .next(200, 2),
+      .next(400, 3),
+      .next(500, 4),
+      .next(600, 5),
+    ])
   }
 
   func testStreamIgnoresCompletedFromMutate() {
-    let test = RxExpect()
-    let reactor = test.retain(CounterReactor())
+    // given
+    let reactor = CounterReactor()
+    let scheduler = TestScheduler(initialClock: 0)
+    let disposeBag = DisposeBag()
+
     reactor.stateForTriggerCompleted = 2
-    test.input(reactor.action, [
-      .next(100, Void()),
-      .next(200, Void()),
-      .next(300, Void()), // completed will be emit on this mutate
-      .next(400, Void()),
-      .next(500, Void()),
-    ])
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events.elements, [0, 1, 2, 3, 4, 5])
-    }
+
+    // when
+    scheduler
+      .createHotObservable([
+        .next(100, Void()),
+        .next(200, Void()),
+        .next(300, Void()), // completed will be emit on this mutate
+        .next(400, Void()),
+        .next(500, Void()),
+      ])
+      .subscribe(reactor.action)
+      .disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events.map(\.value.element), [0, 1, 2, 3, 4, 5])
   }
 
   func testCancel() {
-    let test = RxExpect()
-    let reactor = test.retain(StopwatchReactor(scheduler: test.scheduler))
-    test.input(reactor.action, [
-      .next(1, .start),
-      .next(5, .stop),
-      .next(6, .start),
-      .next(9, .stop),
-    ])
-    test.assert(reactor.state) { events in
-      XCTAssertEqual(events.elements, [
-        0, // 0
-           // 1 (start)
-        1, // 2
-        2, // 3
-        3, // 4
-           // 5 (stop)
-           // 6 (start)
-        4, // 7
-        5, // 8
-           // 9 (stop)
+    // given
+    let scheduler = TestScheduler(initialClock: 0)
+    let reactor = StopwatchReactor(scheduler: scheduler)
+    let disposeBag = DisposeBag()
+
+    // when
+    scheduler
+      .createHotObservable([
+        .next(1, .start),
+        .next(5, .stop),
+        .next(6, .start),
+        .next(9, .stop),
       ])
-    }
+      .subscribe(reactor.action)
+      .disposed(by: disposeBag)
+
+    // then
+    let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
+    XCTAssertEqual(response.events.map(\.value.element), [
+      0, // 0
+         // 1 (start)
+      1, // 2
+      2, // 3
+      3, // 4
+         // 5 (stop)
+         // 6 (start)
+      4, // 7
+      5, // 8
+         // 9 (stop)
+    ])
   }
 
   func testStub_actionAndStateMemoryAddress() {
