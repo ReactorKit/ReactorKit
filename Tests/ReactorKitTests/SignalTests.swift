@@ -29,8 +29,8 @@ final class SignalTests: XCTestCase {
     reactor.action.onNext(.showAlert(message: "Hello"))
     reactor.action.onNext(.showAlert(message: "I'm tokijh"))
     reactor.action.onNext(.showAlert(message: "I'm tokijh"))
-    reactor.action.onNext(.increaseCount) // alert 에는 영향이 없음
-    reactor.action.onNext(.increaseCount) // alert 에는 영향이 없음
+    reactor.action.onNext(.increaseCount) // no event of alertMessage
+    reactor.action.onNext(.increaseCount) // no event of alertMessage
     reactor.action.onNext(.showAlert(message: "Hello"))
     reactor.action.onNext(.showAlert(message: "Hello"))
 
@@ -86,6 +86,84 @@ final class SignalTests: XCTestCase {
 
     signal.value = 2
     XCTAssertEqual(signal.valueUpdatedCount, 1)
+  }
+
+  func testDistinctAndMapToValue() {
+    // given
+    let reactor = TestReactor()
+    let disposeBag = DisposeBag()
+    var receivedAlertMessages: [String?] = []
+
+    reactor.state
+      .map(\.$alertMessage)
+      .distinctAndMapToValue()
+      .subscribe(onNext: { alertMessage in
+        receivedAlertMessages.append(alertMessage)
+      })
+      .disposed(by: disposeBag)
+
+    // when
+    reactor.action.onNext(.showAlert(message: "1"))
+    reactor.action.onNext(.increaseCount) // alert 에는 영향이 없음
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.showAlert(message: "2"))
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.increaseCount) // alert 에는 영향이 없음
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.showAlert(message: "3"))
+    reactor.action.onNext(.showAlert(message: "3"))
+
+    // then
+    XCTAssertEqual(receivedAlertMessages, [
+      nil, // initial value
+      "1",
+      nil,
+      "2",
+      nil,
+      nil,
+      "3",
+      "3",
+    ])
+    XCTAssertEqual(reactor.currentState.count, 2)
+  }
+
+  func testDistinctAndCompactMapToValue() {
+    // given
+    let reactor = TestReactor()
+    let disposeBag = DisposeBag()
+    var receivedAlertMessages: [String?] = []
+
+    reactor.state
+      .map(\.$alertMessage)
+      .distinctAndCompactMapToValue()
+      .subscribe(onNext: { alertMessage in
+        receivedAlertMessages.append(alertMessage)
+      })
+      .disposed(by: disposeBag)
+
+    // when
+    reactor.action.onNext(.showAlert(message: "1"))
+    reactor.action.onNext(.increaseCount) // no event of alertMessage
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.showAlert(message: "2"))
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.increaseCount) // no event of alertMessage
+    reactor.action.onNext(.showAlert(message: nil))
+    reactor.action.onNext(.showAlert(message: "3"))
+    reactor.action.onNext(.showAlert(message: "3"))
+
+    // then
+    XCTAssertEqual(receivedAlertMessages, [
+      // nil, // ignore nil
+      "1",
+      // nil, // ignore nil
+      "2",
+      // nil, // ignore nil
+      // nil, // ignore nil
+      "3",
+      "3",
+    ])
+    XCTAssertEqual(reactor.currentState.count, 2)
   }
 }
 
