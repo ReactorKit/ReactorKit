@@ -22,24 +22,35 @@ You may want to see the [Examples](#examples) section first if you'd like to see
 
 ## Table of Contents
 
-* [Basic Concept](#basic-concept)
-    * [Design Goal](#design-goal)
-    * [View](#view)
-    * [Reactor](#reactor)
-* [Advanced](#advanced)
-    * [Global States](#global-states)
-    * [View Communication](#view-communication)
-    * [Testing](#testing)
-    * [Scheduling](#scheduling)
-* [Examples](#examples)
-* [Dependencies](#dependencies)
-* [Requirements](#requirements)
-* [Installation](#installation)
-* [Contributing](#contribution)
-* [Community](#community)
-* [Who's using ReactorKit](#whos-using-reactorkit)
-* [Changelog](#changelog)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [Basic Concept](#basic-concept)
+  - [Design Goal](#design-goal)
+  - [View](#view)
+    - [Storyboard Support](#storyboard-support)
+  - [Reactor](#reactor)
+    - [`mutate()`](#mutate)
+    - [`reduce()`](#reduce)
+    - [`transform()`](#transform)
+- [Advanced](#advanced)
+  - [Global States](#global-states)
+  - [View Communication](#view-communication)
+  - [Testing](#testing)
+    - [What to test](#what-to-test)
+    - [View testing](#view-testing)
+    - [Reactor testing](#reactor-testing)
+  - [Scheduling](#scheduling)
+  - [Signal](#signal)
+- [Examples](#examples)
+- [Dependencies](#dependencies)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Contribution](#contribution)
+- [Community](#community)
+  - [Join](#join)
+  - [Community Projects](#community-projects)
+- [Who's using ReactorKit](#whos-using-reactorkit)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Basic Concept
 
@@ -356,6 +367,65 @@ final class MyReactor: Reactor {
     return state
   }
 }
+```
+
+### Signal
+
+`Signal` has diff only when mutated
+To explain in code, the results are as follows.
+```swift
+var messageSignal: Signal<String?> = Signal(wrappedValue: "Hello tokijh")
+
+let oldMessageSignal: Signal<String?> = message
+message = "Hello tokijh"
+
+oldMessageSignal != messageSignal // true
+oldMessageSignal.value == messageSignal.value // true
+```
+
+Use when you want to receive an event only if the new value is assigned, even if it is the same value.
+like `alertMessage` (See follows or [SignalTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/SignalTests.swift))
+```swift
+// Reactor
+private final class MyReactor: Reactor {
+  struct State {
+    @Signal var alertMessage: String?
+  }
+
+  func mutate(action: Action) -> Observable<Mutation> {
+    switch action {
+    case let .alert(message):
+      return Observable.just(Mutation.setAlertMessage(message))
+    }
+  }
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    var newState = state
+
+    switch mutation {
+    case let .setAlertMessage(alertMessage):
+      newState.alertMessage = alertMessage
+    }
+
+    return newState
+  }
+}
+
+// View
+reactor.state.map(\.$alertMessage)
+  .distinctAndCompactMapToValue()
+  .subscribe(onNext: { [weak self] (message: String) in
+    self?.showAlert(message)
+  })
+  .disposed(by: disposeBag)
+
+// Cases
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.doSomeAction)    // showAlert() is not called
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.alert("tokijh")) // showAlert() is called with `tokijh`
+reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 ```
 
 ## Examples
