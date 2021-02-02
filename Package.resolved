@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "RxExpect",
-        "repositoryURL": "https://github.com/devxoul/RxExpect.git",
-        "state": {
-          "branch": null,
-          "revision": "c3a3bb3d46ee831582c6619ecc48cda1cdbff890",
-          "version": "2.0.0"
-        }
-      },
-      {
         "package": "RxSwift",
         "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
         "state": {
