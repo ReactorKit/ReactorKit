@@ -5,8 +5,8 @@ inhibit_all_warnings!
 
 abstract_target 'Example' do
   pod 'ReactorKit', :path => '../'
-  pod 'RxSwift', '~> 5.0'
-  pod 'RxCocoa', '~> 5.0'
+  pod 'RxSwift', '~> 6.0'
+  pod 'RxCocoa', '~> 6.0'
 
   target 'Counter' do
     project 'Counter/Counter.xcodeproj'

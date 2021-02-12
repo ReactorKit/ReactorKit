@@ -1,19 +1,19 @@
 PODS:
-  - ReactorKit (2.0.1):
-    - RxSwift (~> 5.0)
+  - ReactorKit (3.0.0):
+    - RxSwift (~> 6.0)
     - WeakMapTable (~> 1.1)
-  - RxCocoa (5.1.1):
-    - RxRelay (~> 5)
-    - RxSwift (~> 5)
-  - RxRelay (5.1.1):
-    - RxSwift (~> 5)
-  - RxSwift (5.1.1)
-  - WeakMapTable (1.1.0)
+  - RxCocoa (6.0.0):
+    - RxRelay (= 6.0.0)
+    - RxSwift (= 6.0.0)
+  - RxRelay (6.0.0):
+    - RxSwift (= 6.0.0)
+  - RxSwift (6.0.0)
+  - WeakMapTable (1.2.0)
 
 DEPENDENCIES:
   - ReactorKit (from `../`)
-  - RxCocoa (~> 5.0)
-  - RxSwift (~> 5.0)
+  - RxCocoa (~> 6.0)
+  - RxSwift (~> 6.0)
 
 SPEC REPOS:
   trunk:
@@ -27,12 +27,12 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ReactorKit: c0c1f3cb6e7909086a40b8f39bd9201cefb05701
-  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
-  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
-  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
-  WeakMapTable: d0327eda092be6a8f7c532942ae98dc7948f5d32
+  ReactorKit: 5348c9881dcb546605b451e32759dccc9937d36e
+  RxCocoa: 3f79328fafa3645b34600f37c31e64c73ae3a80e
+  RxRelay: 8d593be109c06ea850df027351beba614b012ffb
+  RxSwift: c14e798c59b9f6e9a2df8fd235602e85cc044295
+  WeakMapTable: 05c694ce8439a7a9ebabb56187287a63c57673d6
 
-PODFILE CHECKSUM: 46a2c885520796f08b2992d490a2e294f6fbefc7
+PODFILE CHECKSUM: b204e616c7f3ffe95c0aa0f26e3702460d195172
 
 COCOAPODS: 1.9.0
