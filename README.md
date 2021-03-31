@@ -412,8 +412,8 @@ private final class MyReactor: Reactor {
 }
 
 // View
-reactor.state.map(\.$alertMessage)
-  .distinctAndCompactMapToValue()
+reactor.state.signal(\.$alertMessage)
+  .compactMap { $0 } // filter nil
   .subscribe(onNext: { [weak self] (message: String) in
     self?.showAlert(message)
   })
