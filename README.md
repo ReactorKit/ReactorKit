@@ -39,7 +39,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     - [View testing](#view-testing)
     - [Reactor testing](#reactor-testing)
   - [Scheduling](#scheduling)
-  - [Signal](#signal)
+  - [Pulse](#pulse)
 - [Examples](#examples)
 - [Dependencies](#dependencies)
 - [Requirements](#requirements)
@@ -369,27 +369,27 @@ final class MyReactor: Reactor {
 }
 ```
 
-### Signal
+### Pulse
 
-`Signal` has diff only when mutated
+`Pulse` has diff only when mutated
 To explain in code, the results are as follows.
 ```swift
-var messageSignal: Signal<String?> = Signal(wrappedValue: "Hello tokijh")
+var messagePulse: Pulse<String?> = Pulse(wrappedValue: "Hello tokijh")
 
-let oldMessageSignal: Signal<String?> = message
+let oldMessagePulse: Pulse<String?> = message
 message = "Hello tokijh"
 
-oldMessageSignal != messageSignal // true
-oldMessageSignal.value == messageSignal.value // true
+oldMessagePulse != messagePulse // true
+oldMessagePulse.value == messagePulse.value // true
 ```
 
 Use when you want to receive an event only if the new value is assigned, even if it is the same value.
-like `alertMessage` (See follows or [SignalTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/SignalTests.swift))
+like `alertMessage` (See follows or [PulseTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift))
 ```swift
 // Reactor
 private final class MyReactor: Reactor {
   struct State {
-    @Signal var alertMessage: String?
+    @Pulse var alertMessage: String?
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -412,7 +412,7 @@ private final class MyReactor: Reactor {
 }
 
 // View
-reactor.state.signal(\.$alertMessage)
+reactor.state.pulse(\.$alertMessage)
   .compactMap { $0 } // filter nil
   .subscribe(onNext: { [weak self] (message: String) in
     self?.showAlert(message)

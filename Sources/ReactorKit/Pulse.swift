@@ -1,12 +1,12 @@
 //
-//  Signal.swift
+//  Pulse.swift
 //  ReactorKit
 //
 //  Created by tokijh on 2021/01/11.
 //
 
 @propertyWrapper
-public struct Signal<Value> {
+public struct Pulse<Value> {
 
   public var value: Value {
     didSet {
@@ -24,7 +24,7 @@ public struct Signal<Value> {
     set { self.value = newValue }
   }
 
-  public var projectedValue: Signal<Value> {
+  public var projectedValue: Pulse<Value> {
     return self
   }
 
@@ -37,8 +37,8 @@ public struct Signal<Value> {
   }
 }
 
-extension Signal: Equatable {
-  public static func == (lhs: Signal<Value>, rhs: Signal<Value>) -> Bool {
+extension Pulse: Equatable {
+  public static func == (lhs: Pulse<Value>, rhs: Pulse<Value>) -> Bool {
     return lhs.valueUpdatedCount == rhs.valueUpdatedCount
   }
 }

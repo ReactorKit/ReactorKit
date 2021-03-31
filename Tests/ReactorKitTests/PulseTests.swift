@@ -1,5 +1,5 @@
 //
-//  SignalTests.swift
+//  PulseTests.swift
 //  ReactorKitTests
 //
 //  Created by 윤중현 on 2021/01/10.
@@ -9,11 +9,11 @@ import XCTest
 import RxSwift
 @testable import ReactorKit
 
-final class SignalTests: XCTestCase {
+final class PulseTests: XCTestCase {
   func testRiseValueUpdatedCountWhenSetNewValue() {
     // given
     struct State {
-      @Signal var value: Int = 0
+      @Pulse var value: Int = 0
     }
 
     var state = State()
@@ -38,17 +38,17 @@ final class SignalTests: XCTestCase {
 
   func testSet0WhenValueUpdatedCountIsOverflowed() {
     // given
-    var signal = Signal<Int>(wrappedValue: 0)
+    var pulse = Pulse<Int>(wrappedValue: 0)
 
     // make to full
-    signal.valueUpdatedCount = UInt.max
-    XCTAssertEqual(signal.valueUpdatedCount, UInt.max)
+    pulse.valueUpdatedCount = UInt.max
+    XCTAssertEqual(pulse.valueUpdatedCount, UInt.max)
 
     // when & then
-    signal.value = 1 // when valueUpdatedCount is overflowed
-    XCTAssertEqual(signal.valueUpdatedCount, 0)
+    pulse.value = 1 // when valueUpdatedCount is overflowed
+    XCTAssertEqual(pulse.valueUpdatedCount, 0)
 
-    signal.value = 2
-    XCTAssertEqual(signal.valueUpdatedCount, 1)
+    pulse.value = 2
+    XCTAssertEqual(pulse.valueUpdatedCount, 1)
   }
 }

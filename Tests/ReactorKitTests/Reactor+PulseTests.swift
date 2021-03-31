@@ -1,5 +1,5 @@
 //
-//  Reactor+SignalTests.swift
+//  Reactor+PulseTests.swift
 //  ReactorKit
 //
 //  Created by 윤중현 on 2021/03/31.
@@ -9,14 +9,14 @@ import XCTest
 import RxSwift
 @testable import ReactorKit
 
-final class Reactor_SignalTests: XCTestCase {
-  func testSignal() {
+final class Reactor_PulseTests: XCTestCase {
+  func testPulse() {
     // given
     let reactor = TestReactor()
     let disposeBag = DisposeBag()
     var receivedAlertMessages: [String] = []
 
-    reactor.signal(\.$alertMessage)
+    reactor.pulse(\.$alertMessage)
       .compactMap { $0 }
       .subscribe(onNext: { alertMessage in
         receivedAlertMessages.append(alertMessage)
@@ -57,7 +57,7 @@ private final class TestReactor: Reactor {
   }
 
   struct State {
-    @Signal var alertMessage: String?
+    @Pulse var alertMessage: String?
     var count: Int = 0
   }
 
