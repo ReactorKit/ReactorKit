@@ -45,8 +45,8 @@ final class CounterViewController: UIViewController, StoryboardView {
       .bind(to: activityIndicatorView.rx.isAnimating)
       .disposed(by: disposeBag)
 
-    reactor.state.map(\.$alertMessage)
-      .distinctAndCompactMapToValue()
+    reactor.pulse(\.$alertMessage)
+      .compactMap { $0 }
       .subscribe(onNext: { [weak self] message in
         let alertController = UIAlertController(
           title: nil,

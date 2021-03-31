@@ -28,7 +28,7 @@ final class CounterViewReactor: Reactor {
   struct State {
     var value: Int
     var isLoading: Bool
-    @Signal var alertMessage: String?
+    @Pulse var alertMessage: String?
   }
 
   let initialState: State
