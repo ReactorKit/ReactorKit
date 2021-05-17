@@ -36,9 +36,3 @@ public struct Pulse<Value> {
     }
   }
 }
-
-extension Pulse: Equatable {
-  public static func == (lhs: Pulse<Value>, rhs: Pulse<Value>) -> Bool {
-    return lhs.valueUpdatedCount == rhs.valueUpdatedCount
-  }
-}
