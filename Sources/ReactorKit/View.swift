@@ -18,7 +18,7 @@ private enum MapTables {
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
 /// logic in a view layer. A view just defines how to map the action stream and the state stream.
-public protocol View: class {
+public protocol View: AnyObject {
   associatedtype Reactor: ReactorKit.Reactor
 
   /// A dispose bag. It is disposed each time the `reactor` is assigned.
