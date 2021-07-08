@@ -5,7 +5,7 @@
 //  Created by Suyeol Jeon on 2019/10/17.
 //
 
-public protocol IdentityEquatable: class, Equatable {
+public protocol IdentityEquatable: AnyObject, Equatable {
 }
 
 public extension IdentityEquatable {
