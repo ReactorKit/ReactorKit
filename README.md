@@ -412,7 +412,7 @@ private final class MyReactor: Reactor {
 }
 
 // View
-reactor.state.pulse(\.$alertMessage)
+reactor.pulse(\.$alertMessage)
   .compactMap { $0 } // filter nil
   .subscribe(onNext: { [weak self] (message: String) in
     self?.showAlert(message)
