@@ -358,7 +358,58 @@ final class ReactorTests: XCTestCase {
     XCTAssertNil(weakAction)
     XCTAssertNil(weakState)
   }
+
+  func testState() {
+    // given
+    let reactor = TestCounterReactor()
+    let disposeBag = DisposeBag()
+    var receivedValues: [Int] = []
+    var receivedLoadings: [Bool] = []
+
+    reactor.state(\.value)
+      .distinctUntilChanged()
+      .subscribe(onNext: { value in
+        print(value)
+        receivedValues.append(value)
+      })
+      .disposed(by: disposeBag)
+
+    reactor.state(\.isLoading)
+      .distinctUntilChanged()
+      .subscribe(onNext: { isLoading in
+        print(isLoading)
+        receivedLoadings.append(isLoading)
+      })
+      .disposed(by: disposeBag)
+
+    // when
+                                     // value 0, isLoading false
+    reactor.action.onNext(.increase) // value 1, isLoading [true, false]
+    reactor.action.onNext(.increase) // value 2, isLoading [true, false]
+    reactor.action.onNext(.decrease) // value 1, isLoading [true, false]
+    reactor.action.onNext(.increase) // value 2, isLoading [true, false]
+    reactor.action.onNext(.increase) // value 3, isLoading [true, false]
+    reactor.action.onNext(.increase) // value 4, isLoading [true, false]
+    reactor.action.onNext(.increase) // value 5, isLoading [true, false]
+    reactor.action.onNext(.decrease) // value 4, isLoading [true, false]
+
+    // then
+    XCTAssertEqual(receivedLoadings.count, 17)
+    XCTAssertEqual(receivedValues, [
+      0,
+      1,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4
+    ])
+  }
 }
+
+
 
 struct TestError: Error {
 }
@@ -451,5 +502,65 @@ private final class CounterReactor: Reactor {
 
   func reduce(state: State, mutation: Mutation) -> State {
     return state + 1
+  }
+}
+
+final class TestCounterReactor: Reactor {
+  enum Action {
+    case increase
+    case decrease
+  }
+
+  enum Mutation {
+    case increaseValue
+    case decreaseValue
+    case setLoading(Bool)
+  }
+
+  struct State {
+    var value: Int
+    var isLoading: Bool
+  }
+
+  let initialState: State
+
+  init() {
+    self.initialState = State(
+      value: 0,
+      isLoading: false
+    )
+  }
+
+  func mutate(action: Action) -> Observable<Mutation> {
+    switch action {
+    case .increase:
+      return Observable.concat([
+        Observable.just(Mutation.setLoading(true)),
+        Observable.just(Mutation.increaseValue),
+        Observable.just(Mutation.setLoading(false)),
+      ])
+
+    case .decrease:
+      return Observable.concat([
+        Observable.just(Mutation.setLoading(true)),
+        Observable.just(Mutation.decreaseValue),
+        Observable.just(Mutation.setLoading(false)),
+      ])
+    }
+  }
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    var state = state
+    switch mutation {
+    case .increaseValue:
+      state.value += 1
+
+    case .decreaseValue:
+      state.value -= 1
+
+    case let .setLoading(isLoading):
+      state.isLoading = isLoading
+    }
+    return state
   }
 }

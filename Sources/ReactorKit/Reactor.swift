@@ -153,6 +153,10 @@ extension Reactor {
     return transformedState
   }
 
+  public func state<Result>(_ transform: @escaping (State) throws -> Result) -> Observable<Result> {
+    return self.state.map(transform)
+  }
+
   public func transform(action: Observable<Action>) -> Observable<Action> {
     return action
   }
