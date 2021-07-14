@@ -369,7 +369,6 @@ final class ReactorTests: XCTestCase {
     reactor.state(\.value)
       .distinctUntilChanged()
       .subscribe(onNext: { value in
-        print(value)
         receivedValues.append(value)
       })
       .disposed(by: disposeBag)
@@ -377,7 +376,6 @@ final class ReactorTests: XCTestCase {
     reactor.state(\.isLoading)
       .distinctUntilChanged()
       .subscribe(onNext: { isLoading in
-        print(isLoading)
         receivedLoadings.append(isLoading)
       })
       .disposed(by: disposeBag)
