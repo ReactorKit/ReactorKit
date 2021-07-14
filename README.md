@@ -82,6 +82,11 @@ func bind(reactor: ProfileViewReactor) {
   reactor.state.map { $0.isFollowing }
     .bind(to: followButton.rx.isSelected)
     .disposed(by: self.disposeBag)
+
+  // state (Reactor -> View) with KeyPath
+  reactor.state(\.isFollowing)
+    .bind(to: followButton.rx.isSelected)
+    .disposed(by: self.disposeBag)
 }
 ```
 
@@ -366,6 +371,57 @@ final class MyReactor: Reactor {
     return state
   }
 }
+```
+
+### State KeyPath
+
+Boilerplate could be little less using KeyPath.
+
+```swift
+// Reactor
+final class FooReactor: Reactor {
+  enum Action {
+    case increase
+  }
+
+  enum Mutation {
+    case increaseValue
+  }
+
+  struct State {
+    var value: Int
+  }
+
+  func mutate(action: Action) -> Observable<Mutation> {
+    switch action {
+      case .increase:
+        return Observable.just(Mutation.increaseValue)
+    }
+  }
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    var newState = state
+    switch mutation {
+    case .increaseValue:
+      newState.value += 1
+    }
+
+    return newState
+  }
+}
+
+// View
+reactor.state.map(\.value) // default
+  .subscribe(onNext: value in
+    print(value)
+  })
+  .disposed(by: disposeBag)
+
+reactor.state(\.value) // use KeyPath
+  .subscribe(onNext: value in
+    print(value)
+  })
+  .disposed(by: disposeBag)
 ```
 
 ## Examples
