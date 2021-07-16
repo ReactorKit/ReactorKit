@@ -503,7 +503,7 @@ private final class CounterReactor: Reactor {
   }
 }
 
-final class TestCounterReactor: Reactor {
+private final class TestCounterReactor: Reactor {
   enum Action {
     case increase
     case decrease
