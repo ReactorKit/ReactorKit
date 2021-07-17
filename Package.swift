@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
@@ -15,9 +15,25 @@ let package = Package(
     .package(url: "https://github.com/ReactorKit/WeakMapTable.git", .upToNextMajor(from: "1.1.0"))
   ],
   targets: [
-    .target(name: "ReactorKit", dependencies: ["ReactorKitRuntime", "RxSwift", "WeakMapTable"]),
-    .target(name: "ReactorKitRuntime", dependencies: []),
-    .testTarget(name: "ReactorKitTests", dependencies: ["ReactorKit", "RxTest"]),
+    .target(
+      name: "ReactorKit",
+      dependencies: [
+        "ReactorKitRuntime",
+        "RxSwift",
+        "WeakMapTable"
+      ]
+    ),
+    .target(
+      name: "ReactorKitRuntime",
+      dependencies: []
+    ),
+    .testTarget(
+      name: "ReactorKitTests",
+      dependencies: [
+        "ReactorKit",
+        .product(name: "RxTest", package: "RxSwift")
+      ]
+    ),
   ],
   swiftLanguageVersions: [.v5]
 )
