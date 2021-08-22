@@ -8,8 +8,7 @@ jobs:
   test:
     runs-on: macos-11
     env:
-      PROJECT: ReactorKit.xcodeproj
-      SCHEME: ReactorKit-Package
+      SCHEME: ReactorKit
       CODECOV_PACKAGE_NAME: ReactorKit
     strategy:
       matrix:
@@ -32,13 +31,9 @@ jobs:
     - name: List SDKs and Devices
       run: xcodebuild -showsdks; instruments -s
 
-    - name: Generate Xcode Project
-      run: swift package generate-xcodeproj --enable-code-coverage
-
     - name: Build and Test
       run: |
         set -o pipefail && xcodebuild clean build test \
-          -project "$PROJECT" \
           -scheme "$SCHEME" \
           -sdk "$SDK" \
           -destination "$DESTINATION" \
