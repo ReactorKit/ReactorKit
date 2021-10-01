@@ -21,12 +21,14 @@ final class CounterViewReactor: Reactor {
     case increaseValue
     case decreaseValue
     case setLoading(Bool)
+    case setAlertMessage(String)
   }
 
   // State is a current view state
   struct State {
     var value: Int
     var isLoading: Bool
+    @Pulse var alertMessage: String?
   }
 
   let initialState: State
@@ -46,6 +48,7 @@ final class CounterViewReactor: Reactor {
         Observable.just(Mutation.setLoading(true)),
         Observable.just(Mutation.increaseValue).delay(.milliseconds(500), scheduler: MainScheduler.instance),
         Observable.just(Mutation.setLoading(false)),
+        Observable.just(Mutation.setAlertMessage("increased!")),
       ])
 
     case .decrease:
@@ -53,6 +56,7 @@ final class CounterViewReactor: Reactor {
         Observable.just(Mutation.setLoading(true)),
         Observable.just(Mutation.decreaseValue).delay(.milliseconds(500), scheduler: MainScheduler.instance),
         Observable.just(Mutation.setLoading(false)),
+        Observable.just(Mutation.setAlertMessage("decreased!")),
       ])
     }
   }
@@ -69,6 +73,9 @@ final class CounterViewReactor: Reactor {
 
     case let .setLoading(isLoading):
       state.isLoading = isLoading
+
+    case let .setAlertMessage(message):
+      state.alertMessage = message
     }
     return state
   }
