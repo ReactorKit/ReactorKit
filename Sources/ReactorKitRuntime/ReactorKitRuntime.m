@@ -6,35 +6,18 @@
 + (void)load {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    [self swizzleInitializeOfClassNamed:@"UIViewController"];
+    [self swizzleViewDidLoadOfClassNamed:@"UIViewController"];
     #if !TARGET_OS_MACCATALYST
-    [self swizzleInitializeOfClassNamed:@"NSViewController"];
+    [self swizzleViewDidLoadOfClassNamed:@"NSViewController"];
     #endif
   });
 }
 
-+ (void)swizzleInitializeOfClassNamed:(NSString *)className {
++ (void)swizzleViewDidLoadOfClassNamed:(NSString *)className {
   Class class = NSClassFromString(className);
   if (!class) {
     return;
   }
-  method_exchangeImplementations(class_getClassMethod(class, @selector(initialize)),
-                                 class_getClassMethod(self, @selector(_reactorkit_initialize)));
-}
-
-+ (void)_reactorkit_initialize {
-  [self _reactorkit_initialize];
-  BOOL isUIViewController = [self isSubclassOfClassNamed:@"UIViewController"];
-  BOOL isNSViewController = [self isSubclassOfClassNamed:@"NSViewController"];
-  if (!isUIViewController && !isNSViewController) {
-    return;
-  }
-  [self swizzleViewDidLoad];
-}
-
-+ (void)swizzleViewDidLoad {
-  Class class = self;
-
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wundeclared-selector"
   SEL oldSelector = @selector(viewDidLoad);
