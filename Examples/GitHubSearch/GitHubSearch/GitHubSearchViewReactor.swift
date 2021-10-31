@@ -42,7 +42,7 @@ final class GitHubSearchViewReactor: Reactor {
         // 2) call API and set repos (.setRepos)
         self.search(query: query, page: 1)
           // cancel previous request when the new `.updateQuery` action is fired
-          .takeUntil(self.action.filter(Action.isUpdateQueryAction))
+          .take(until: self.action.filter(Action.isUpdateQueryAction))
           .map { Mutation.setRepos($0, nextPage: $1) },
       ])
 
@@ -55,7 +55,7 @@ final class GitHubSearchViewReactor: Reactor {
 
         // 2) call API and append repos
         self.search(query: self.currentState.query, page: page)
-          .takeUntil(self.action.filter(Action.isUpdateQueryAction))
+          .take(until: self.action.filter(Action.isUpdateQueryAction))
           .map { Mutation.appendRepos($0, nextPage: $1) },
 
         // 3) set loading status to false
@@ -111,7 +111,7 @@ final class GitHubSearchViewReactor: Reactor {
           print("⚠️ GitHub API rate limit exceeded. Wait for 60 seconds and try again.")
         }
       })
-      .catchErrorJustReturn(emptyResult)
+      .catchAndReturn(emptyResult)
   }
 }
 
