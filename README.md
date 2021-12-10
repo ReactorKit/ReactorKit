@@ -465,12 +465,24 @@ reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 
 ## Installation
 
-ReactorKit officially supports CocoaPods only.
-
 **Podfile**
 
 ```ruby
 pod 'ReactorKit'
+```
+
+**Package.swift**
+
+```swift
+let package = Package(
+  name: "MyPackage",
+  dependencies: [
+    .package(url: "https://github.com/ReactorKit/ReactorKit.git", .upToNextMajor(from: "3.0.0"))
+  ],
+  targets: [
+    .target(name: "MyTarget", dependencies: ["ReactorKit"])
+  ]
+)
 ```
 
 ReactorKit does not officially support Carthage.
