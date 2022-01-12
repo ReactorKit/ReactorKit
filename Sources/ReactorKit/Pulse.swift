@@ -13,7 +13,7 @@ public struct Pulse<Value> {
       self.riseValueUpdatedCount()
     }
   }
-  var valueUpdatedCount = UInt.min
+  public internal(set) var valueUpdatedCount = UInt.min
 
   public init(wrappedValue: Value) {
     self.value = wrappedValue
