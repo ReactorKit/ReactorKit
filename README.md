@@ -450,6 +450,7 @@ reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 * [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
 * [reactorkit-keyboard-example](https://github.com/techinpark/reactorkit-keyboard-example): iOS Application example for develop keyboard-extensions using ReactorKit Architecture.
 * [SWHub](https://github.com/tospery/SWHub): Use ReactorKit develop the Github client
+* [BoxOffice](https://github.com/haeseoklee/BoxOffice-ReactorKit): A simple movie information application using ReactorKit
 
 ## Dependencies
 
