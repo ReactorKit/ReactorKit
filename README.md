@@ -386,10 +386,10 @@ To explain in code, the results are as follows.
 ```swift
 var messagePulse: Pulse<String?> = Pulse(wrappedValue: "Hello tokijh")
 
-let oldMessagePulse: Pulse<String?> = message
-message = "Hello tokijh"
+let oldMessagePulse: Pulse<String?> = messagePulse
+messagePulse.value = "Hello tokijh" // add valueUpdatedCount +1
 
-oldMessagePulse != messagePulse // true
+oldMessagePulse.valueUpdatedCount != messagePulse.valueUpdatedCount // true
 oldMessagePulse.value == messagePulse.value // true
 ```
 
