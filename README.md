@@ -296,7 +296,7 @@ func testAction_refresh() {
   let view = MyView()
   view.reactor = reactor
 
-  // 3. send an user interaction programatically
+  // 3. send an user interaction programmatically
   view.refreshControl.sendActions(for: .valueChanged)
 
   // 4. assert actions
