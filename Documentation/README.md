@@ -7,4 +7,4 @@
         * [Defining View](Tutorials/GitHubSearch/3-DefiningView.md)
         * [Implementing Reactor](Tutorials/GitHubSearch/4-ImplementingReactor.md)
 * [Contents](Tutorials/README.md)
-    * [Pulse](Contents/Pulse.md)
+    * [Pulse](https://kickbell.github.io/ReactorKit-Pulse-EN/)
