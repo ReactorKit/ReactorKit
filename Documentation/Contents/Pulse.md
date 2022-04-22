@@ -92,13 +92,6 @@ Looking at the `// Cases`, perhaps something similar to '[distinctUntilChanged](
 
 
 ```swift
-//
-//  Pulse.swift
-//  ReactorKit
-//
-//  Created by tokijh on 2021/01/11.
-//
-
 @propertyWrapper
 public struct Pulse<Value> {
 
@@ -141,13 +134,6 @@ Actually, I didn't get it at first, but the important part is `var value` and `d
 Whenever `the value` changes, the count `valueUpdatedCount` is +1. And if the `valueUpdatedCount` is UInt.max, we are assigning UInt.min back to the `valueUpdatedCount`.That's all. Shall we move on?
 
 ```swift
-//
-//  Reactor+Pulse.swift
-//  ReactorKit
-//
-//  Created by 윤중현 on 2021/03/31.
-//
-
 extension Reactor {
   public func pulse<Result>(_ transformToPulse: @escaping (State) throws -> Pulse<Result>) -> Observable<Result> {
     return self.state.map(transformToPulse).distinctUntilChanged(\.valueUpdatedCount).map(\.value)
@@ -273,6 +259,3 @@ If you do that, `the values` of oldMessagePulse and messagePulse are the same, b
 Above, we learned about `Pulse` in `Reactorkit`. I was a little confused because I didn't know what it means to use it, but I hope that people who read this article will find it helpful. 😊
 
 thank you.
-
-
-
