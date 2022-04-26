@@ -25,7 +25,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
 - [Table of Contents](#table-of-contents)
 - [Basic Concept](#basic-concept)
   - [Design Goal](#design-goal)
-  - [View](#view)
+  - [ReactorView](#reactorview)
     - [Storyboard Support](#storyboard-support)
   - [Reactor](#reactor)
     - [`mutate()`](#mutate)
@@ -66,14 +66,14 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 * **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partially, for one or more specific views. You don't need to rewrite everything to use ReactorKit on your existing project.
 * **Less Typing**: ReactorKit focuses on avoiding complicated code for a simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale up.
 
-### View
+### ReactorView
 
-A *View* displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
+A *ReactorView* displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
 
 To define a view, just have an existing class conform a protocol named `View`. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
 
 ```swift
-class ProfileViewController: UIViewController, View {
+class ProfileViewController: UIViewController, ReactorView {
   var disposeBag = DisposeBag()
 }
 

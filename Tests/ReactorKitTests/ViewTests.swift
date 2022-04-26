@@ -99,7 +99,7 @@ final class ViewTests: XCTestCase {
   }
 }
 
-private final class TestView: View {
+private final class TestView: ReactorView {
   var disposeBag = DisposeBag()
   var bindInvokeCount = 0
 

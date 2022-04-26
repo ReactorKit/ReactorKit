@@ -21,7 +21,7 @@ public protocol _ObjCStoryboardView {
   func performBinding()
 }
 
-public protocol StoryboardView: View, _ObjCStoryboardView {
+public protocol StoryboardView: ReactorView, _ObjCStoryboardView {
 }
 
 extension StoryboardView {
