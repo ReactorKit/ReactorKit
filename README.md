@@ -22,24 +22,35 @@ You may want to see the [Examples](#examples) section first if you'd like to see
 
 ## Table of Contents
 
-* [Basic Concept](#basic-concept)
-    * [Design Goal](#design-goal)
-    * [View](#view)
-    * [Reactor](#reactor)
-* [Advanced](#advanced)
-    * [Global States](#global-states)
-    * [View Communication](#view-communication)
-    * [Testing](#testing)
-    * [Scheduling](#scheduling)
-* [Examples](#examples)
-* [Dependencies](#dependencies)
-* [Requirements](#requirements)
-* [Installation](#installation)
-* [Contributing](#contribution)
-* [Community](#community)
-* [Who's using ReactorKit](#whos-using-reactorkit)
-* [Changelog](#changelog)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [Basic Concept](#basic-concept)
+  - [Design Goal](#design-goal)
+  - [View](#view)
+    - [Storyboard Support](#storyboard-support)
+  - [Reactor](#reactor)
+    - [`mutate()`](#mutate)
+    - [`reduce()`](#reduce)
+    - [`transform()`](#transform)
+- [Advanced](#advanced)
+  - [Global States](#global-states)
+  - [View Communication](#view-communication)
+  - [Testing](#testing)
+    - [What to test](#what-to-test)
+    - [View testing](#view-testing)
+    - [Reactor testing](#reactor-testing)
+  - [Scheduling](#scheduling)
+  - [Pulse](#pulse)
+- [Examples](#examples)
+- [Dependencies](#dependencies)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Contribution](#contribution)
+- [Community](#community)
+  - [Join](#join)
+  - [Community Projects](#community-projects)
+- [Who's using ReactorKit](#whos-using-reactorkit)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Basic Concept
 
@@ -290,7 +301,7 @@ func testAction_refresh() {
   let view = MyView()
   view.reactor = reactor
 
-  // 3. send an user interaction programatically
+  // 3. send an user interaction programmatically
   view.refreshControl.sendActions(for: .valueChanged)
 
   // 4. assert actions
@@ -391,37 +402,76 @@ final class FooReactor: Reactor {
   struct State {
     var value: Int
   }
+}
+    
+// View
+reactor.state.map(\.value) // default
+  .subscribe(onNext: { value in
+    print(value)
+  })
+  .disposed(by: disposeBag)
+
+reactor.state(\.value) // use KeyPath
+  .subscribe(onNext: { value in
+    print(value)
+  })
+  .disposed(by: disposeBag)
+```
+### Pulse
+
+`Pulse` has diff only when mutated
+To explain in code, the results are as follows.
+```swift
+var messagePulse: Pulse<String?> = Pulse(wrappedValue: "Hello tokijh")
+
+let oldMessagePulse: Pulse<String?> = messagePulse
+messagePulse.value = "Hello tokijh" // add valueUpdatedCount +1
+
+oldMessagePulse.valueUpdatedCount != messagePulse.valueUpdatedCount // true
+oldMessagePulse.value == messagePulse.value // true
+```
+
+Use when you want to receive an event only if the new value is assigned, even if it is the same value.
+like `alertMessage` (See follows or [PulseTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift))
+```swift
+// Reactor
+private final class MyReactor: Reactor {
+  struct State {
+    @Pulse var alertMessage: String?
+  }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-      case .increase:
-        return Observable.just(Mutation.increaseValue)
+      case let .alert(message):
+        return Observable.just(Mutation.setAlertMessage(message))
     }
   }
 
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     switch mutation {
-    case .increaseValue:
-      newState.value += 1
+    case let .setAlertMessage(alertMessage):
+      newState.alertMessage = alertMessage
     }
 
     return newState
   }
 }
 
-// View
-reactor.state.map(\.value) // default
-  .subscribe(onNext: value in
-    print(value)
+reactor.pulse(\.$alertMessage)
+  .compactMap { $0 } // filter nil
+  .subscribe(onNext: { [weak self] (message: String) in
+    self?.showAlert(message)
   })
   .disposed(by: disposeBag)
 
-reactor.state(\.value) // use KeyPath
-  .subscribe(onNext: value in
-    print(value)
-  })
-  .disposed(by: disposeBag)
+// Cases
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.doSomeAction)    // showAlert() is not called
+reactor.action.onNext(.alert("Hello"))  // showAlert() is called with `Hello`
+reactor.action.onNext(.alert("tokijh")) // showAlert() is called with `tokijh`
+reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 ```
 
 ## Examples
@@ -451,12 +501,24 @@ reactor.state(\.value) // use KeyPath
 
 ## Installation
 
-ReactorKit officially supports CocoaPods only.
-
 **Podfile**
 
 ```ruby
 pod 'ReactorKit'
+```
+
+**Package.swift**
+
+```swift
+let package = Package(
+  name: "MyPackage",
+  dependencies: [
+    .package(url: "https://github.com/ReactorKit/ReactorKit.git", .upToNextMajor(from: "3.0.0"))
+  ],
+  targets: [
+    .target(name: "MyTarget", dependencies: ["ReactorKit"])
+  ]
+)
 ```
 
 ReactorKit does not officially support Carthage.
@@ -518,6 +580,7 @@ Any discussions and pull requests are welcomed 💖
   <a href="https://pay.line.me"><img align="center" height="58" alt="LINE Pay" hspace="15" src="https://user-images.githubusercontent.com/68603/68569839-7efdd980-04a2-11ea-8d7e-673831b1b658.png"></a>
   <br><br>
   <a href="https://www.gccompany.co.kr/"><img align="center" height="45" alt="LINE Pay" hspace="15" src="https://user-images.githubusercontent.com/931655/84870371-32beeb80-b0ba-11ea-8530-0dc71c4e385e.png"></a>
+  <a href="https://www.kurly.com/"><img align="center" height="70" alt="Kurly" hspace="15" src="https://user-images.githubusercontent.com/5376577/140284812-1f6d82c3-a1c9-488a-b059-d77825b5f962.png"></a>
   <br><br>
 </p>
 
