@@ -442,8 +442,8 @@ private final class MyReactor: Reactor {
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-      case let .alert(message):
-        return Observable.just(Mutation.setAlertMessage(message))
+    case let .alert(message):
+      return Observable.just(Mutation.setAlertMessage(message))
     }
   }
 
@@ -458,6 +458,7 @@ private final class MyReactor: Reactor {
   }
 }
 
+// View
 reactor.pulse(\.$alertMessage)
   .compactMap { $0 } // filter nil
   .subscribe(onNext: { [weak self] (message: String) in
