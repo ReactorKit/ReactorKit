@@ -129,7 +129,7 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self._action.observe(on: self.scheduler)
+    let action = self._action.asObservable()
     let transformedAction = self.transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
@@ -150,7 +150,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState
+    return transformedState.observe(on: self.scheduler)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {

@@ -91,16 +91,13 @@ final class ReactorSchedulerTests: XCTestCase {
       let reductionThreads = reactor.currentState.reductionThreads
       XCTAssertEqual(reductionThreads.count, 100)
       for thread in reductionThreads {
-        XCTAssertNotEqual(thread, currentThread)
+        XCTAssertEqual(thread, currentThread)
       }
 
       XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
 
-      // initial state is observed on the same thread with the one where the state stream is created.
-      XCTAssertEqual(observationThreads[0], currentThread)
-
-      // other states are observed on the specified thread.
-      for thread in observationThreads[1...] {
+      // states are observed on the specified thread.
+      for thread in observationThreads {
         XCTAssertNotEqual(thread, currentThread)
       }
 
