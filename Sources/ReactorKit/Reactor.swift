@@ -43,7 +43,7 @@ public protocol Reactor: AnyObject {
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
 
-  /// A scheduler for reducing and observing the state stream. Defaults to `MainScheduler`.
+  /// A scheduler for observing the state stream. Defaults to `MainScheduler`.
   var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
