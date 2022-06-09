@@ -30,7 +30,7 @@ jobs:
           xcode-version: latest
 
       - name: List SDKs and Devices
-        run: xcodebuild -showsdks; xctrace list devices
+        run: xcodebuild -showsdks; xcrun xctrace list devices
 
       - name: Build and Test
         run: |
