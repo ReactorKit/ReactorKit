@@ -45,7 +45,69 @@ final class ReactorSchedulerTests: XCTestCase {
     }
   }
 
-  func testScheduler() {
+  func testDefaultScheduler() {
+    final class SimpleReactor: Reactor {
+      typealias Action = Void
+      typealias Mutation = Void
+
+      struct State {
+        var reductionThreads: [Thread] = []
+      }
+
+      let initialState: State = State()
+
+      func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        let currentThread = Thread.current
+        newState.reductionThreads.append(currentThread)
+        return newState
+      }
+    }
+
+    let reactor = SimpleReactor()
+    let disposeBag = DisposeBag()
+
+    var observationThreads: [Thread] = []
+
+    var isExecuted = false
+
+    DispatchQueue.global().async {
+      let currentThread = Thread.current
+
+      reactor.state
+        .subscribe(onNext: { _ in
+          let currentThread = Thread.current
+          observationThreads.append(currentThread)
+        })
+        .disposed(by: disposeBag)
+
+      for _ in 0..<100 {
+        reactor.action.onNext(Void())
+      }
+
+      XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1)
+
+      let reductionThreads = reactor.currentState.reductionThreads
+      XCTAssertEqual(reductionThreads.count, 100)
+      for thread in reductionThreads {
+        XCTAssertEqual(thread, currentThread)
+      }
+
+      XCTAssertEqual(observationThreads.count, 101) // +1 for initial state
+
+      // states are observed on the main thread.
+      for thread in observationThreads {
+        XCTAssertTrue(thread.isMainThread)
+      }
+
+      isExecuted = true
+    }
+
+    XCTWaiter().wait(for: [XCTestExpectation()], timeout: 1.5)
+    XCTAssertTrue(isExecuted)
+  }
+
+  func testCustomScheduler() {
     final class SimpleReactor: Reactor {
       typealias Action = Void
       typealias Mutation = Void
