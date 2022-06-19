@@ -365,7 +365,7 @@ func testIsLoading() {
 
 ### Scheduling
 
-Define `scheduler` property to specify which scheduler is used for reducing and observing the state stream. Note that this queue **must be** a serial queue. The default scheduler is `CurrentThreadScheduler`.
+Define `scheduler` property to specify which scheduler is used for observing the state stream. Note that this queue **must be** a serial queue. The default scheduler is `MainScheduler`.
 
 ```swift
 final class MyReactor: Reactor {

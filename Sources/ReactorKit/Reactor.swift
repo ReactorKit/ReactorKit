@@ -43,7 +43,7 @@ public protocol Reactor: AnyObject {
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
 
-  /// A scheduler for reducing and observing the state stream. Defaults to `CurrentThreadScheduler`.
+  /// A scheduler for observing the state stream. Defaults to `MainScheduler`.
   var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
@@ -121,7 +121,7 @@ extension Reactor {
   }
 
   public var scheduler: Scheduler {
-    return CurrentThreadScheduler.instance
+    return MainScheduler.instance
   }
 
   fileprivate var disposeBag: DisposeBag {
@@ -129,7 +129,7 @@ extension Reactor {
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self._action.observe(on: self.scheduler)
+    let action = self._action.asObservable()
     let transformedAction = self.transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
@@ -137,7 +137,7 @@ extension Reactor {
         return self.mutate(action: action).catch { _ in .empty() }
       }
     let transformedMutation = self.transform(mutation: mutation)
-    let state = transformedMutation         
+    let state = transformedMutation
       .scan(self.initialState) { [weak self] state, mutation -> State in
         guard let `self` = self else { return state }
         return self.reduce(state: state, mutation: mutation)
@@ -150,7 +150,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState
+    return transformedState.observe(on: self.scheduler)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
