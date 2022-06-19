@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - master
   pull_request:
 
 jobs:
@@ -25,12 +27,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: List SDKs and Devices
+        run: xcodebuild -showsdks; xcrun xctrace list devices
+
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
-
-      - name: List SDKs and Devices
-        run: xcodebuild -showsdks; xcrun xctrace list devices
 
       - name: Build and Test
         run: |
