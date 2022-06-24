@@ -6,7 +6,7 @@ import RxSwift
 import UIKit
 private typealias OSViewController = UIViewController
 private typealias OSView = UIView
-#elseif os(OSX)
+#elseif os(macOS)
 import AppKit
 private typealias OSViewController = NSViewController
 private typealias OSView = NSView
