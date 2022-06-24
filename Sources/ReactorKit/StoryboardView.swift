@@ -4,7 +4,7 @@ import RxSwift
 #if os(iOS) || os(tvOS)
 import UIKit
 private typealias OSViewController = UIViewController
-#elseif os(OSX)
+#elseif os(macOS)
 import AppKit
 private typealias OSViewController = NSViewController
 #endif
