@@ -43,6 +43,39 @@ final class Reactor_PulseTests: XCTestCase {
     ])
     XCTAssertEqual(reactor.currentState.count, 2)
   }
+    
+  func testPulseNil() {
+      // given
+    let reactor = TestReactor()
+    let disposeBag = DisposeBag()
+    var receivedAlertMessages: [String] = []
+
+    reactor.pulseNil(\.$alertMessage)
+    .subscribe(onNext: { alertMessage in
+        receivedAlertMessages.append(alertMessage)
+    })
+    .disposed(by: disposeBag)
+
+    // when
+    reactor.action.onNext(.showAlert(message: "1")) // alert '1'
+    reactor.action.onNext(.increaseCount)           // ignore
+    reactor.action.onNext(.showAlert(message: nil)) // ignore
+    reactor.action.onNext(.showAlert(message: "2")) // alert '2'
+    reactor.action.onNext(.showAlert(message: nil)) // ignore
+    reactor.action.onNext(.increaseCount)           // ignore
+    reactor.action.onNext(.showAlert(message: nil)) // ignore
+    reactor.action.onNext(.showAlert(message: "3")) // alert '3'
+    reactor.action.onNext(.showAlert(message: "3")) // alert '3'
+
+    // then
+    XCTAssertEqual(receivedAlertMessages, [
+          "1",
+          "2",
+          "3",
+          "3",
+    ])
+    XCTAssertEqual(reactor.currentState.count, 2)
+  }
 }
 
 private final class TestReactor: Reactor {
