@@ -10,9 +10,10 @@ public struct Pulse<Value> {
 
   public var value: Value {
     didSet {
-      self.riseValueUpdatedCount()
+      riseValueUpdatedCount()
     }
   }
+
   public internal(set) var valueUpdatedCount = UInt.min
 
   public init(wrappedValue: Value) {
@@ -20,15 +21,15 @@ public struct Pulse<Value> {
   }
 
   public var wrappedValue: Value {
-    get { return self.value }
-    set { self.value = newValue }
+    get { value }
+    set { value = newValue }
   }
 
   public var projectedValue: Pulse<Value> {
-    return self
+    self
   }
 
   private mutating func riseValueUpdatedCount() {
-    self.valueUpdatedCount &+= 1 
+    valueUpdatedCount &+= 1
   }
 }

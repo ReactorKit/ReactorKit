@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 import ReactorKit
 import RxSwift
 
@@ -21,8 +22,7 @@ final class IdentityHashableTests: XCTestCase {
 private final class SimpleReactor: Reactor, IdentityHashable {
   typealias Action = Never
   typealias Mutation = Never
-  struct State {
-  }
+  struct State {}
 
   let initialState = State()
 }

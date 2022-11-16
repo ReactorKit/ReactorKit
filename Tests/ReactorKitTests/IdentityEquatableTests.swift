@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 import ReactorKit
 import RxSwift
 
@@ -20,8 +21,7 @@ final class IdentityEquatableTests: XCTestCase {
 private final class SimpleReactor: Reactor, IdentityEquatable {
   typealias Action = Never
   typealias Mutation = Never
-  struct State {
-  }
+  struct State {}
 
   let initialState = State()
 }

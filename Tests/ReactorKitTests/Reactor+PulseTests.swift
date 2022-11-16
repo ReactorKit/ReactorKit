@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 import RxSwift
 @testable import ReactorKit
 
@@ -25,11 +26,11 @@ final class Reactor_PulseTests: XCTestCase {
 
     // when
     reactor.action.onNext(.showAlert(message: "1")) // alert '1'
-    reactor.action.onNext(.increaseCount)           // ignore
+    reactor.action.onNext(.increaseCount) // ignore
     reactor.action.onNext(.showAlert(message: nil)) // ignore
     reactor.action.onNext(.showAlert(message: "2")) // alert '2'
     reactor.action.onNext(.showAlert(message: nil)) // ignore
-    reactor.action.onNext(.increaseCount)           // ignore
+    reactor.action.onNext(.increaseCount) // ignore
     reactor.action.onNext(.showAlert(message: nil)) // ignore
     reactor.action.onNext(.showAlert(message: "3")) // alert '3'
     reactor.action.onNext(.showAlert(message: "3")) // alert '3'
@@ -58,14 +59,14 @@ private final class TestReactor: Reactor {
 
   struct State {
     @Pulse var alertMessage: String?
-    var count: Int = 0
+    var count = 0
   }
 
   let initialState = State()
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case let .showAlert(message):
+    case .showAlert(let message):
       return Observable.just(Mutation.setAlertMessage(message))
 
     case .increaseCount:
@@ -77,7 +78,7 @@ private final class TestReactor: Reactor {
     var newState = state
 
     switch mutation {
-    case let .setAlertMessage(alertMessage):
+    case .setAlertMessage(let alertMessage):
       newState.alertMessage = alertMessage
 
     case .increaseCount:

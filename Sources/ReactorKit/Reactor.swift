@@ -87,96 +87,98 @@ private enum MapTables {
 
 extension Reactor {
   private var _action: ActionSubject<Action> {
-    if self.isStubEnabled {
-      return self.stub.action
+    if isStubEnabled {
+      return stub.action
     } else {
       return MapTables.action.forceCastedValue(forKey: self, default: .init())
     }
   }
+
   public var action: ActionSubject<Action> {
     // Creates a state stream automatically
-    _ = self._state
+    _ = _state
 
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
-    return self._action
+    return _action
   }
 
   public internal(set) var currentState: State {
-    get { return MapTables.currentState.forceCastedValue(forKey: self, default: self.initialState) }
+    get { MapTables.currentState.forceCastedValue(forKey: self, default: initialState) }
     set { MapTables.currentState.setValue(newValue, forKey: self) }
   }
 
   private var _state: Observable<State> {
-    if self.isStubEnabled {
-      return self.stub.state.asObservable()
+    if isStubEnabled {
+      return stub.state.asObservable()
     } else {
-      return MapTables.state.forceCastedValue(forKey: self, default: self.createStateStream())
+      return MapTables.state.forceCastedValue(forKey: self, default: createStateStream())
     }
   }
+
   public var state: Observable<State> {
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
-    return self._state
+    _state
   }
 
   public var scheduler: Scheduler {
-    return MainScheduler.instance
+    MainScheduler.instance
   }
 
   fileprivate var disposeBag: DisposeBag {
-    return MapTables.disposeBag.value(forKey: self, default: DisposeBag())
+    MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
 
   public func createStateStream() -> Observable<State> {
-    let action = self._action.asObservable()
-    let transformedAction = self.transform(action: action)
+    let action = _action.asObservable()
+    let transformedAction = transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
-        guard let `self` = self else { return .empty() }
+        guard let self = self else { return .empty() }
         return self.mutate(action: action).catch { _ in .empty() }
       }
-    let transformedMutation = self.transform(mutation: mutation)
+    let transformedMutation = transform(mutation: mutation)
     let state = transformedMutation
-      .scan(self.initialState) { [weak self] state, mutation -> State in
-        guard let `self` = self else { return state }
+      .scan(initialState) { [weak self] state, mutation -> State in
+        guard let self = self else { return state }
         return self.reduce(state: state, mutation: mutation)
       }
       .catch { _ in .empty() }
-      .startWith(self.initialState)
-    let transformedState = self.transform(state: state)
+      .startWith(initialState)
+    let transformedState = transform(state: state)
       .do(onNext: { [weak self] state in
         self?.currentState = state
       })
       .replay(1)
-    transformedState.connect().disposed(by: self.disposeBag)
-    return transformedState.observe(on: self.scheduler)
+    transformedState.connect().disposed(by: disposeBag)
+    return transformedState.observe(on: scheduler)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
-    return action
+    action
   }
 
   public func mutate(action: Action) -> Observable<Mutation> {
-    return .empty()
+    .empty()
   }
 
   public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-    return mutation
+    mutation
   }
 
   public func reduce(state: State, mutation: Mutation) -> State {
-    return state
+    state
   }
 
   public func transform(state: Observable<State>) -> Observable<State> {
-    return state
+    state
   }
 }
 
 extension Reactor where Action == Mutation {
   public func mutate(action: Action) -> Observable<Mutation> {
-    return .just(action)
+    .just(action)
   }
 }
 
@@ -185,11 +187,11 @@ extension Reactor where Action == Mutation {
 
 extension Reactor {
   public var isStubEnabled: Bool {
-    get { return MapTables.isStubEnabled.value(forKey: self, default: false) }
+    get { MapTables.isStubEnabled.value(forKey: self, default: false) }
     set { MapTables.isStubEnabled.setValue(newValue, forKey: self) }
   }
 
   public var stub: Stub<Self> {
-    return MapTables.stub.forceCastedValue(forKey: self, default: .init(reactor: self, disposeBag: self.disposeBag))
+    MapTables.stub.forceCastedValue(forKey: self, default: .init(reactor: self, disposeBag: disposeBag))
   }
 }

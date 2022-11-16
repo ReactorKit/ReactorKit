@@ -53,12 +53,12 @@ public protocol View: AnyObject {
 
 extension View {
   public var reactor: Reactor? {
-    get { return MapTables.reactor.value(forKey: self) as? Reactor }
+    get { MapTables.reactor.value(forKey: self) as? Reactor }
     set {
       MapTables.reactor.setValue(newValue, forKey: self)
-      self.disposeBag = DisposeBag()
+      disposeBag = DisposeBag()
       if let reactor = newValue {
-        self.bind(reactor: reactor)
+        bind(reactor: reactor)
       }
     }
   }
