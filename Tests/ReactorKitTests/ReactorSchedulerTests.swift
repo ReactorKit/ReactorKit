@@ -5,9 +5,10 @@
 //  Created by Suyeol Jeon on 2019/10/17.
 //
 
+import XCTest
+
 import ReactorKit
 import RxSwift
-import XCTest
 
 final class ReactorSchedulerTests: XCTestCase {
   func testStateStreamIsCreatedOnce() {
@@ -54,7 +55,7 @@ final class ReactorSchedulerTests: XCTestCase {
         var reductionThreads: [Thread] = []
       }
 
-      let initialState: State = State()
+      let initialState = State()
 
       func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
@@ -116,7 +117,7 @@ final class ReactorSchedulerTests: XCTestCase {
         var reductionThreads: [Thread] = []
       }
 
-      let initialState: State = State()
+      let initialState = State()
       let scheduler: ImmediateSchedulerType = SerialDispatchQueueScheduler(qos: .default)
 
       func reduce(state: State, mutation: Mutation) -> State {

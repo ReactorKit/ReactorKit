@@ -1,4 +1,5 @@
 import XCTest
+
 import ReactorKit
 import RxSwift
 
@@ -104,7 +105,7 @@ private final class TestView: View {
   var bindInvokeCount = 0
 
   func bind(reactor: TestReactor) {
-    self.bindInvokeCount += 1
+    bindInvokeCount += 1
   }
 }
 
@@ -114,12 +115,12 @@ private final class TestViewController: OSViewController, StoryboardView {
   var bindInvokeCount = 0
 
   override func loadView() {
-    self.view = OSView()
-    self.isLoadViewInvoked = true
+    view = OSView()
+    isLoadViewInvoked = true
   }
 
   func bind(reactor: TestReactor) {
-    self.bindInvokeCount += 1
+    bindInvokeCount += 1
   }
 }
 

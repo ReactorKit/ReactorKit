@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift.git",
         "state": {
           "branch": null,
-          "revision": "7c17a6ccca06b5c107cfa4284e634562ddaf5951",
-          "version": "6.2.0"
+          "revision": "b4307ba0b6425c0ba4178e138799946c3da594f8",
+          "version": "6.5.0"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/ReactorKit/WeakMapTable.git",
         "state": {
           "branch": null,
-          "revision": "9580560169b4b48ba2affe7badba6a7f360495f4",
-          "version": "1.2.0"
+          "revision": "cb05d64cef2bbf51e85c53adee937df46540a74e",
+          "version": "1.2.1"
         }
       }
     ]

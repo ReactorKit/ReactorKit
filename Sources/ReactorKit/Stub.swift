@@ -6,8 +6,8 @@ public class Stub<Reactor: ReactorKit.Reactor> {
 
   @available(*, deprecated, message: "Use 'Reactor.isStubEnabled' instead.")
   public var isEnabled: Bool {
-    set { self.reactor.isStubEnabled = newValue }
-    get { return self.reactor.isStubEnabled }
+    set { reactor.isStubEnabled = newValue }
+    get { reactor.isStubEnabled }
   }
 
   public let state: StateRelay<Reactor.State>
@@ -18,13 +18,13 @@ public class Stub<Reactor: ReactorKit.Reactor> {
     self.reactor = reactor
     self.disposeBag = disposeBag
     self.state = .init(value: reactor.initialState)
-    self.state.asObservable()
+    state.asObservable()
       .subscribe(onNext: { [weak reactor] state in
         reactor?.currentState = state
       })
       .disposed(by: disposeBag)
     self.action = .init()
-    self.action
+    action
       .subscribe(onNext: { [weak self] action in
         self?.actions.append(action)
       })

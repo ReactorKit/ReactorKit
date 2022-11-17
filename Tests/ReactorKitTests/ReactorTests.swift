@@ -1,4 +1,5 @@
 import XCTest
+
 import ReactorKit
 import RxSwift
 import RxTest
@@ -28,7 +29,7 @@ final class ReactorTests: XCTestCase {
       "mutation",
       "transformedMutation",
       "reduce",
-      "transformedState"
+      "transformedState",
     ])
   }
 
@@ -50,7 +51,7 @@ final class ReactorTests: XCTestCase {
 
       func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case let .append(characters):
+        case .append(let characters):
           let sources: [Observable<Mutation>] = characters.map { character in
             Observable<Mutation>.create { [weak self] observer in
               if let self = self {
@@ -68,7 +69,7 @@ final class ReactorTests: XCTestCase {
       func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
         switch mutation {
-        case let .setCharacters(newCharacters):
+        case .setCharacters(let newCharacters):
           newState.characters = newCharacters
         }
         return newState
@@ -102,13 +103,19 @@ final class ReactorTests: XCTestCase {
     let reactor = TestReactor()
     _ = reactor.state
     reactor.action.onNext(["action"])
-    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
+    XCTAssertEqual(
+      reactor.currentState,
+      ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"]
+    )
   }
 
   func testCurrentState_stateIsCreatedWhenAccessAction() {
     let reactor = TestReactor()
     reactor.action.onNext(["action"])
-    XCTAssertEqual(reactor.currentState, ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"])
+    XCTAssertEqual(
+      reactor.currentState,
+      ["action", "transformedAction", "mutation", "transformedMutation", "reduce", "transformedState"]
+    )
   }
 
   func testStreamIgnoresErrorFromAction() {
@@ -248,15 +255,15 @@ final class ReactorTests: XCTestCase {
     let response = scheduler.start(created: 0, subscribed: 0, disposed: 1000) { reactor.state }
     XCTAssertEqual(response.events.map(\.value.element), [
       0, // 0
-         // 1 (start)
+      // 1 (start)
       1, // 2
       2, // 3
       3, // 4
-         // 5 (stop)
-         // 6 (start)
+      // 5 (stop)
+      // 6 (start)
       4, // 7
       5, // 8
-         // 9 (stop)
+      // 9 (stop)
     ])
   }
 
@@ -305,8 +312,7 @@ final class ReactorTests: XCTestCase {
       let initialState: State = State()
     }
 
-    class ChildReactor: ParentReactor<String> {
-    }
+    class ChildReactor: ParentReactor<String> {}
 
     let reactor = ChildReactor()
     let address1 = ObjectIdentifier(reactor.action).hashValue
@@ -320,21 +326,21 @@ final class ReactorTests: XCTestCase {
       enum Action {
         case foo
       }
+
       typealias Mutation = Void
       typealias State = Int
       let initialState: State = 0
 
       func mutate(action: Action) -> Observable<Mutation> {
-        return .just(Void())
+        .just(Void())
       }
 
       func reduce(state: State, mutation: Mutation) -> State {
-        return state + 1
+        state + 1
       }
     }
 
-    class ChildReactor: ParentReactor<String> {
-    }
+    class ChildReactor: ParentReactor<String> {}
 
     let reactor = ChildReactor()
     XCTAssertEqual(reactor.currentState, 0)
@@ -360,8 +366,7 @@ final class ReactorTests: XCTestCase {
   }
 }
 
-struct TestError: Error {
-}
+struct TestError: Error {}
 
 private final class TestReactor: Reactor {
   typealias Action = [String]
@@ -372,27 +377,27 @@ private final class TestReactor: Reactor {
 
   // 1. ["action"] + ["transformedAction"]
   func transform(action: Observable<Action>) -> Observable<Action> {
-    return action.map { action in action + ["transformedAction"] }
+    action.map { action in action + ["transformedAction"] }
   }
 
   // 2. ["action", "transformedAction"] + ["mutation"]
   func mutate(action: Action) -> Observable<Mutation> {
-    return .just(action + ["mutation"])
+    .just(action + ["mutation"])
   }
 
   // 3. ["action", "transformedAction", "mutation"] + ["transformedMutation"]
   func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-    return mutation.map { $0 + ["transformedMutation"] }
+    mutation.map { $0 + ["transformedMutation"] }
   }
 
   // 4. [] + ["action", "transformedAction", "mutation", "transformedMutation"] + ["reduce"]
   func reduce(state: State, mutation: Mutation) -> State {
-    return state + mutation + ["reduce"]
+    state + mutation + ["reduce"]
   }
 
   // 5. ["action", "transformedAction", "mutation", "transformedMutation", "reduce"] + ["transformedState"]
   func transform(state: Observable<State>) -> Observable<State> {
-    return state.map { $0 + ["transformedState"] }
+    state.map { $0 + ["transformedState"] }
   }
 }
 
@@ -402,6 +407,7 @@ private final class StopwatchReactor: Reactor {
     case start
     case stop
   }
+
   typealias Mutation = Int
   typealias State = Int
 
@@ -416,7 +422,7 @@ private final class StopwatchReactor: Reactor {
     switch action {
     case .start:
       let stopAction = self.action.filter { $0 == .stop }
-      return Observable<Int>.interval(.seconds(1), scheduler: self.scheduler)
+      return Observable<Int>.interval(.seconds(1), scheduler: scheduler)
         .map { _ in 1 }
         .take(until: stopAction)
 
@@ -426,7 +432,7 @@ private final class StopwatchReactor: Reactor {
   }
 
   func reduce(state: State, mutation: Mutation) -> State {
-    return state + mutation
+    state + mutation
   }
 }
 
@@ -440,9 +446,9 @@ private final class CounterReactor: Reactor {
   var stateForTriggerCompleted: State?
 
   func mutate(action: Void) -> Observable<Void> {
-    if self.currentState == self.stateForTriggerError {
+    if currentState == stateForTriggerError {
       return Observable.concat(.just(action), .error(TestError()))
-    } else if self.currentState == self.stateForTriggerCompleted {
+    } else if currentState == stateForTriggerCompleted {
       return Observable.concat(.just(action), .empty())
     } else {
       return .just(action)
@@ -450,6 +456,6 @@ private final class CounterReactor: Reactor {
   }
 
   func reduce(state: State, mutation: Mutation) -> State {
-    return state + 1
+    state + 1
   }
 }

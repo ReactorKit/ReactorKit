@@ -7,6 +7,6 @@
 
 extension Reactor {
   public func pulse<Result>(_ transformToPulse: @escaping (State) throws -> Pulse<Result>) -> Observable<Result> {
-    return self.state.map(transformToPulse).distinctUntilChanged(\.valueUpdatedCount).map(\.value)
+    state.map(transformToPulse).distinctUntilChanged(\.valueUpdatedCount).map(\.value)
   }
 }

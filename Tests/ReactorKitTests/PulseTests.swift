@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 import RxSwift
 @testable import ReactorKit
 
@@ -13,7 +14,7 @@ final class PulseTests: XCTestCase {
   func testRiseValueUpdatedCountWhenSetNewValue() {
     // given
     struct State {
-      @Pulse var value: Int = 0
+      @Pulse var value = 0
     }
 
     var state = State()
