@@ -540,7 +540,7 @@ Any discussions and pull requests are welcomed 💖
   <a href="https://www.kt.com"><img align="center" height="42" alt="KT" hspace="15" src="https://user-images.githubusercontent.com/931655/43634093-2ec9e94c-9746-11e8-9213-75c352e0c147.png"></a>
   <br><br>
   <a href="https://hyperconnect.com/"><img align="center" height="62" alt="Hyperconnect" hspace="15" src="https://user-images.githubusercontent.com/931655/50819891-aa89d200-136e-11e9-8b19-780e64e54b2a.png"></a>
-  <a href="https://toss.im/career/?category=engineering&positionId=7"><img align="center" height="28" alt="Toss" hspace="15" src="https://user-images.githubusercontent.com/931655/65512318-ede39b00-df13-11e9-874c-f1e478bda6c8.png"></a>
+  <a href="https://toss.im/career/?category=engineering&positionId=7"><img align="center" height="64" alt="Toss" hspace="15" src="https://user-images.githubusercontent.com/25301615/236112886-9c24bd8d-65f3-419f-9669-1dbc575996a6.png"></a>
   <a href="https://pay.line.me"><img align="center" height="58" alt="LINE Pay" hspace="15" src="https://user-images.githubusercontent.com/68603/68569839-7efdd980-04a2-11ea-8d7e-673831b1b658.png"></a>
   <br><br>
   <a href="https://www.gccompany.co.kr/"><img align="center" height="45" alt="LINE Pay" hspace="15" src="https://user-images.githubusercontent.com/931655/84870371-32beeb80-b0ba-11ea-8530-0dc71c4e385e.png"></a>
