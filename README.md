@@ -363,22 +363,6 @@ func testIsLoading() {
 }
 ```
 
-### Scheduling
-
-Define `scheduler` property to specify which scheduler is used for observing the state stream. Note that this queue **must be** a serial queue. The default scheduler is `MainScheduler`.
-
-```swift
-final class MyReactor: Reactor {
-  let scheduler: Scheduler = SerialDispatchQueueScheduler(qos: .default)
-
-  func reduce(state: State, mutation: Mutation) -> State {
-    // executed in a background thread
-    heavyAndImportantCalculation()
-    return state
-  }
-}
-```
-
 ### Pulse
 
 `Pulse` has diff only when mutated
