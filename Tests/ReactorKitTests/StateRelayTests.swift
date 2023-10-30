@@ -58,25 +58,25 @@ final class StateRelayTests: XCTestCase {
     var a = StateRelay(value: 1)
 
     var latest = 0
-    var completed = false
+    var isCompleted = false
     let disposable = a.asObservable().debug().subscribe(onNext: { n in
       latest = n
     }, onCompleted: {
-      completed = true
+      isCompleted = true
     })
 
     XCTAssertEqual(latest, 1)
-    XCTAssertFalse(completed)
+    XCTAssertFalse(isCompleted)
 
     a = StateRelay(value: 2)
 
     XCTAssertEqual(latest, 1)
-    XCTAssertFalse(completed)
+    XCTAssertFalse(isCompleted)
 
     disposable.dispose()
 
     XCTAssertEqual(latest, 1)
-    XCTAssertFalse(completed)
+    XCTAssertFalse(isCompleted)
   }
 
   func testVariableREADMEExampleByStateRelay() {
