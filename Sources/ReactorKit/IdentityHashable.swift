@@ -8,6 +8,8 @@
 public protocol IdentityHashable: Hashable, IdentityEquatable {}
 
 extension IdentityHashable {
+  @inlinable
+  @inline(__always)
   public func hash(into hasher: inout Hasher) {
     hasher.combine(ObjectIdentifier(self).hashValue)
   }

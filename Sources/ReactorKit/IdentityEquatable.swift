@@ -8,6 +8,8 @@
 public protocol IdentityEquatable: AnyObject, Equatable {}
 
 extension IdentityEquatable {
+  @inlinable
+  @inline(__always)
   public static func == (lhs: Self, rhs: Self) -> Bool {
     lhs === rhs
   }
