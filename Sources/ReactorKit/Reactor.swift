@@ -43,9 +43,6 @@ public protocol Reactor: AnyObject {
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
 
-  /// A scheduler for observing the state stream. Defaults to `MainScheduler`.
-  var scheduler: Scheduler { get }
-
   /// Transforms the action. Use this function to combine with other observables. This method is
   /// called once before the state stream is created.
   func transform(action: Observable<Action>) -> Observable<Action>
@@ -122,10 +119,6 @@ extension Reactor {
     _state
   }
 
-  public var scheduler: Scheduler {
-    MainScheduler.instance
-  }
-
   fileprivate var disposeBag: DisposeBag {
     MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
@@ -152,7 +145,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: disposeBag)
-    return transformedState.observe(on: scheduler)
+    return transformedState
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
