@@ -23,8 +23,11 @@ public protocol Reactor: AnyObject {
   /// An action represents user actions.
   associatedtype Action
 
-  /// A mutation represents state changes.
-  associatedtype Mutation = Action
+  /// A event represents state changes.
+  associatedtype Event = Action
+  
+  @available(*, obsoleted: 0, renamed: "Event")
+  typealias Mutation = Event
 
   /// A State represents the current state of a view.
   associatedtype State
@@ -47,18 +50,18 @@ public protocol Reactor: AnyObject {
   /// called once before the state stream is created.
   func transform(action: Observable<Action>) -> Observable<Action>
 
-  /// Commits mutation from the action. This is the best place to perform side-effects such as
+  /// Commits event from the action. This is the best place to perform side-effects such as
   /// async tasks.
-  func mutate(action: Action) -> Observable<Mutation>
+  func mutate(action: Action) -> Observable<Event>
 
-  /// Transforms the mutation stream. Implement this method to transform or combine with other
+  /// Transforms the event stream. Implement this method to transform or combine with other
   /// observables. This method is called once before the state stream is created.
-  func transform(mutation: Observable<Mutation>) -> Observable<Mutation>
+  func transform(mutation: Observable<Event>) -> Observable<Event>
 
   /// Generates a new state with the previous state and the action. It should be purely functional
   /// so it should not perform any side-effects here. This method is called every time when the
-  /// mutation is committed.
-  func reduce(state: State, mutation: Mutation) -> State
+  /// event is committed.
+  func reduce(state: State, mutation: Event) -> State
 
   /// Transforms the state stream. Use this function to perform side-effects such as logging. This
   /// method is called once after the state stream is created.
@@ -118,16 +121,16 @@ extension Reactor {
     let actionSubject = ActionSubject<Action>()
     let action = actionSubject.asObservable()
     let transformedAction = transform(action: action)
-    let mutation = transformedAction
-      .flatMap { [weak self] action -> Observable<Mutation> in
+    let event = transformedAction
+      .flatMap { [weak self] action -> Observable<Event> in
         guard let self = self else { return .empty() }
         return self.mutate(action: action).catch { _ in .empty() }
       }
-    let transformedMutation = transform(mutation: mutation)
-    let state = transformedMutation
-      .scan(initialState) { [weak self] state, mutation -> State in
+    let transformedEvent = transform(mutation: event)
+    let state = transformedEvent
+      .scan(initialState) { [weak self] state, event -> State in
         guard let self = self else { return state }
-        return self.reduce(state: state, mutation: mutation)
+        return self.reduce(state: state, mutation: event)
       }
       .catch { _ in .empty() }
       .startWith(initialState)
@@ -144,15 +147,15 @@ extension Reactor {
     action
   }
 
-  public func mutate(action: Action) -> Observable<Mutation> {
+  public func mutate(action: Action) -> Observable<Event> {
     .empty()
   }
 
-  public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+  public func transform(mutation: Observable<Event>) -> Observable<Event> {
     mutation
   }
 
-  public func reduce(state: State, mutation: Mutation) -> State {
+  public func reduce(state: State, mutation: Event) -> State {
     state
   }
 
@@ -161,8 +164,8 @@ extension Reactor {
   }
 }
 
-extension Reactor where Action == Mutation {
-  public func mutate(action: Action) -> Observable<Mutation> {
+extension Reactor where Action == Event {
+  public func mutate(action: Action) -> Observable<Event> {
     .just(action)
   }
 }
