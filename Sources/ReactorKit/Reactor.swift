@@ -56,13 +56,19 @@ public protocol Reactor: AnyObject {
 
   /// Transforms the event stream. Implement this method to transform or combine with other
   /// observables. This method is called once before the state stream is created.
+  func transform(event: Observable<Event>) -> Observable<Event>
+  
+  @available(*, deprecated, message: "Use 'transform(event:) -> Observable<Event>' instead.")
   func transform(mutation: Observable<Event>) -> Observable<Event>
 
   /// Generates a new state with the previous state and the action. It should be purely functional
   /// so it should not perform any side-effects here. This method is called every time when the
   /// event is committed.
+  func reduce(state: State, event: Event) -> State
+  
+  @available(*, deprecated, message: "Use 'reduce(state:event:) -> State' instead.")
   func reduce(state: State, mutation: Event) -> State
-
+  
   /// Transforms the state stream. Use this function to perform side-effects such as logging. This
   /// method is called once after the state stream is created.
   func transform(state: Observable<State>) -> Observable<State>
@@ -126,11 +132,11 @@ extension Reactor {
         guard let self = self else { return .empty() }
         return self.mutate(action: action).catch { _ in .empty() }
       }
-    let transformedEvent = transform(mutation: event)
+    let transformedEvent = transform(event: event)
     let state = transformedEvent
       .scan(initialState) { [weak self] state, event -> State in
         guard let self = self else { return state }
-        return self.reduce(state: state, mutation: event)
+        return self.reduce(state: state, event: event)
       }
       .catch { _ in .empty() }
       .startWith(initialState)
@@ -150,9 +156,17 @@ extension Reactor {
   public func mutate(action: Action) -> Observable<Event> {
     .empty()
   }
-
+  
+  public func transform(event: Observable<Event>) -> Observable<Event> {
+    transform(mutation: event)
+  }
+  
   public func transform(mutation: Observable<Event>) -> Observable<Event> {
     mutation
+  }
+
+  public func reduce(state: State, event: Event) -> State {
+    reduce(state: state, mutation: event)
   }
 
   public func reduce(state: State, mutation: Event) -> State {
