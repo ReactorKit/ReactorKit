@@ -90,17 +90,21 @@ private enum MapTables {
 
 // MARK: - ReactorStreams
 
-private struct ReactorStreams<Action, State> {
+private struct ReactorStreams<Action, Event, State> {
   let action: ActionSubject<Action>
+  let event: Observable<Event>
   let state: Observable<State>
 }
 
 // MARK: - Default Implementations
 
 extension Reactor {
-  private var streams: ReactorStreams<Action, State> {
-    if isStubEnabled {
-      return ReactorStreams(action: stub.action, state: stub.state.asObservable())
+  private var streams: ReactorStreams<Action, Event, State> {
+    if (isStubEnabled) {
+      return ReactorStreams(
+        action: stub.action,
+        event: Observable.empty(),
+        state: stub.state.asObservable())
     } else {
       return MapTables.streams.forceCastedValue(forKey: self, default: createReactorStreams())
     }
@@ -119,11 +123,15 @@ extension Reactor {
     streams.state
   }
 
+  public var event: Observable<Event> {
+    streams.event
+  }
+
   fileprivate var disposeBag: DisposeBag {
     MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
 
-  private func createReactorStreams() -> ReactorStreams<Action, State> {
+  private func createReactorStreams() -> ReactorStreams<Action, Event, State> {
     let actionSubject = ActionSubject<Action>()
     let action = actionSubject.asObservable()
     let transformedAction = transform(action: action)
@@ -146,7 +154,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: disposeBag)
-    return ReactorStreams(action: actionSubject, state: transformedState)
+    return ReactorStreams(action: actionSubject, event: transformedEvent, state: transformedState)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
