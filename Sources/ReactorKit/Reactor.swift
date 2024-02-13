@@ -71,33 +71,40 @@ public protocol Reactor: AnyObject {
 private typealias AnyReactor = AnyObject
 
 private enum MapTables {
-  static let action = WeakMapTable<AnyReactor, AnyObject>()
+  static let streams = WeakMapTable<AnyReactor, AnyObject>()
   static let currentState = WeakMapTable<AnyReactor, Any>()
-  static let state = WeakMapTable<AnyReactor, AnyObject>()
   static let disposeBag = WeakMapTable<AnyReactor, DisposeBag>()
   static let isStubEnabled = WeakMapTable<AnyReactor, Bool>()
   static let stub = WeakMapTable<AnyReactor, AnyObject>()
 }
 
 
+// MARK: - ReactorStreams
+
+private struct ReactorStreams<Action, State> {
+  let action: ActionSubject<Action>
+  let state: Observable<State>
+}
+
 // MARK: - Default Implementations
 
 extension Reactor {
-  private var _action: ActionSubject<Action> {
+  private var streams: ReactorStreams<Action, State> {
     if isStubEnabled {
-      return stub.action
+      return ReactorStreams(action: stub.action, state: stub.state.asObservable())
     } else {
-      return MapTables.action.forceCastedValue(forKey: self, default: .init())
+      return MapTables.streams.forceCastedValue(forKey: self, default: createReactorStreams())
     }
+  }
+  
+  private var _action: ActionSubject<Action> {
+    streams.action
   }
 
   public var action: ActionSubject<Action> {
-    // Creates a state stream automatically
-    _ = _state
-
     // It seems that Swift has a bug in associated object when subclassing a generic class. This is
     // a temporary solution to bypass the bug. See #30 for details.
-    return _action
+    _action
   }
 
   public internal(set) var currentState: State {
@@ -106,11 +113,7 @@ extension Reactor {
   }
 
   private var _state: Observable<State> {
-    if isStubEnabled {
-      return stub.state.asObservable()
-    } else {
-      return MapTables.state.forceCastedValue(forKey: self, default: createStateStream())
-    }
+    streams.state
   }
 
   public var state: Observable<State> {
@@ -123,8 +126,9 @@ extension Reactor {
     MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
 
-  public func createStateStream() -> Observable<State> {
-    let action = _action.asObservable()
+  private func createReactorStreams() -> ReactorStreams<Action, State> {
+    let actionSubject = ActionSubject<Action>()
+    let action = actionSubject.asObservable()
     let transformedAction = transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
@@ -145,7 +149,7 @@ extension Reactor {
       })
       .replay(1)
     transformedState.connect().disposed(by: disposeBag)
-    return transformedState
+    return ReactorStreams(action: actionSubject, state: transformedState)
   }
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
