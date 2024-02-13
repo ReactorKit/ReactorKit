@@ -96,15 +96,9 @@ extension Reactor {
       return MapTables.streams.forceCastedValue(forKey: self, default: createReactorStreams())
     }
   }
-  
-  private var _action: ActionSubject<Action> {
-    streams.action
-  }
 
   public var action: ActionSubject<Action> {
-    // It seems that Swift has a bug in associated object when subclassing a generic class. This is
-    // a temporary solution to bypass the bug. See #30 for details.
-    _action
+    streams.action
   }
 
   public internal(set) var currentState: State {
@@ -112,14 +106,8 @@ extension Reactor {
     set { MapTables.currentState.setValue(newValue, forKey: self) }
   }
 
-  private var _state: Observable<State> {
-    streams.state
-  }
-
   public var state: Observable<State> {
-    // It seems that Swift has a bug in associated object when subclassing a generic class. This is
-    // a temporary solution to bypass the bug. See #30 for details.
-    _state
+    streams.state
   }
 
   fileprivate var disposeBag: DisposeBag {
