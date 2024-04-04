@@ -4,4 +4,3 @@ builder:
     - platform: ios
       documentation_targets:
         - ReactorKit
-        - ReactorKitRuntime
