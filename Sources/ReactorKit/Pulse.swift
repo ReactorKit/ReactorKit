@@ -5,6 +5,9 @@
 //  Created by tokijh on 2021/01/11.
 //
 
+/// A property wrapper type that allows to receive events only if the new value is assigned, even if it is the same value.
+///
+/// If you want to see examples, see [Pulse](https://github.com/ReactorKit/ReactorKit?tab=readme-ov-file#pulse).
 @propertyWrapper
 public struct Pulse<Value> {
 
