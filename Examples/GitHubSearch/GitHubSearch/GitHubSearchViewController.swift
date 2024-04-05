@@ -21,8 +21,16 @@ class GitHubSearchViewController: UIViewController, StoryboardView {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    tableView.scrollIndicatorInsets.top = tableView.contentInset.top
-    searchController.dimsBackgroundDuringPresentation = false
+    if #available(iOS 14, *) {
+      tableView.verticalScrollIndicatorInsets.top = tableView.contentInset.top
+    } else {
+      tableView.scrollIndicatorInsets.top = tableView.contentInset.top
+    }
+    if #available(iOS 13, *) {
+      searchController.obscuresBackgroundDuringPresentation = false
+    } else {
+      searchController.dimsBackgroundDuringPresentation = false
+    }
     navigationItem.searchController = searchController
   }
 
