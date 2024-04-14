@@ -2,6 +2,7 @@
 sourcekitten-output.json
 docs/
 /.build
+/.swiftpm
 /Packages
 /*.xcodeproj
 **/xcuserdata
