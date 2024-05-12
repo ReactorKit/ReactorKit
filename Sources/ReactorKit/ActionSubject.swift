@@ -10,46 +10,32 @@ import class Foundation.NSLock.NSRecursiveLock
 
 import RxSwift
 
-/// A special subject for Reactor's Action. It only emits `.next` event.
-public final class ActionSubject<Element>: ObservableType, ObserverType, SubjectType {
-  typealias Key = UInt
+/// A special subject for Reactor's Action. It only emits `.next` event. it can't terminate with error or completed.
+public final class ActionSubject<Element>: SubjectType, ObserverType {
 
   private let lock = NSRecursiveLock()
+  private let subject: PublishSubject<Element>
 
-  private var nextKey: Key = 0
-  var observers: [Key: (Event<Element>) -> ()] = [:]
-
-  #if TRACE_RESOURCES
-  init() {
-    _ = Resources.incrementTotal()
-  }
-  #endif
-
-  #if TRACE_RESOURCES
-  deinit {
-    _ = Resources.decrementTotal()
-  }
-  #endif
-
-  public func subscribe<O: ObserverType>(_ observer: O) -> Disposable where O.Element == Element {
-    self.lock.lock()
-    let key = self.nextKey
-    self.nextKey += 1
-    self.observers[key] = observer.on
-    self.lock.unlock()
-
-    return Disposables.create { [weak self] in
-      self?.lock.lock()
-      self?.observers.removeValue(forKey: key)
-      self?.lock.unlock()
-    }
+  /// Initializes with internal empty subject.
+  public init() {
+    subject = PublishSubject()
   }
 
+  /// Subscribes observer
+  public func subscribe<Observer: ObserverType>(_ observer: Observer) -> Disposable where Observer.Element == Element {
+    subject.subscribe(observer)
+  }
+
+  /// emits it to subscribers
+  public func onNext(_ element: Element) {
+    subject.on(.next(element))
+  }
+
+  /// Synchronized OnNext
   public func on(_ event: Event<Element>) {
-    self.lock.lock()
-    if case .next = event {
-      self.observers.values.forEach { $0(event) }
+    self.lock.lock(); defer { self.lock.unlock() }
+    if case let .next(element) = event {
+      subject.onNext(element)
     }
-    self.lock.unlock()
   }
 }
