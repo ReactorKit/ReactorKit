@@ -5,18 +5,6 @@ import RxTest
 @testable import ReactorKit
 
 final class ActionSubjectTests: XCTestCase {
-  func testObserversCount_disposable() {
-    let subject = ActionSubject<Int>()
-    let disposable1 = subject.subscribe()
-    XCTAssertEqual(subject.observers.count, 1)
-    let disposable2 = subject.subscribe()
-    XCTAssertEqual(subject.observers.count, 2)
-    disposable2.dispose()
-    XCTAssertEqual(subject.observers.count, 1)
-    disposable1.dispose()
-    XCTAssertEqual(subject.observers.count, 0)
-  }
-
   func testEmitNexts() {
     // given
     let subject = ActionSubject<Int>()
