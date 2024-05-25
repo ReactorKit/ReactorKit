@@ -16,7 +16,7 @@ jobs:
       matrix:
         env:
           - sdk: iphonesimulator
-            destination: platform=iOS Simulator,name=iPhone 13 Pro,OS=latest
+            destination: platform=iOS Simulator,name=iPhone 14 Pro,OS=latest
 
           - sdk: macosx
             destination: arch=x86_64
@@ -25,7 +25,7 @@ jobs:
             destination: platform=tvOS Simulator,name=Apple TV,OS=latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: List SDKs and Devices
         run: xcodebuild -showsdks; xcrun xctrace list devices
