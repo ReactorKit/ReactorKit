@@ -62,13 +62,13 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 
 ### Design Goal
 
-* **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors and test view bindings. See [Testing](#testing) section for details.
-* **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partially, for one or more specific views. You don't need to rewrite everything to use ReactorKit on your existing project.
-* **Less Typing**: ReactorKit focuses on avoiding complicated code for a simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale up.
+- **Testability**: The first purpose of ReactorKit is to separate the business logic from a view. This can make the code testable. A reactor doesn't have any dependency to a view. Just test reactors and test view bindings. See [Testing](#testing) section for details.
+- **Start Small**: ReactorKit doesn't require the whole application to follow a single architecture. ReactorKit can be adopted partially, for one or more specific views. You don't need to rewrite everything to use ReactorKit on your existing project.
+- **Less Typing**: ReactorKit focuses on avoiding complicated code for a simple thing. ReactorKit requires less code compared to other architectures. Start simple and scale up.
 
 ### View
 
-A *View* displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
+A _View_ displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
 
 To define a view, just have an existing class conform a protocol named `View`. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
 
@@ -113,7 +113,7 @@ class MyViewController: UIViewController, StoryboardView {
 
 ### Reactor
 
-A *Reactor* is an UI-independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily tested.
+A _Reactor_ is an UI-independent layer which manages the state of a view. The foremost role of a reactor is to separate control flow from a view. Every view has its corresponding reactor and delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily tested.
 
 Conform to the `Reactor` protocol to define a reactor. This protocol requires three types to be defined: `Action`, `Mutation` and `State`. It also requires a property named `initialState`.
 
@@ -222,7 +222,6 @@ Unlike Redux, ReactorKit doesn't define a global app state. It means that you ca
 
 There is no global state in the **Action → Mutation → State** flow. You should use `transform(mutation:)` to transform the global state to a mutation. Let's assume that we have a global `BehaviorSubject` which stores the current authenticated user. If you'd like to emit a `Mutation.setUser(User?)` when the `currentUser` is changed, you can do as following:
 
-
 ```swift
 var currentUser: BehaviorSubject<User> // global state
 
@@ -268,15 +267,15 @@ ReactorKit has a built-in functionality for a testing. You'll be able to easily 
 
 First of all, you have to decide what to test. There are two things to test: a view and a reactor.
 
-* View
-    * Action: is a proper action sent to a reactor with a given user interaction?
-    * State: is a view property set properly with a following state?
-* Reactor
-    * State: is a state changed properly with an action?
+- View
+  - Action: is a proper action sent to a reactor with a given user interaction?
+  - State: is a view property set properly with a following state?
+- Reactor
+  - State: is a state changed properly with an action?
 
 #### View testing
 
-A view can be tested with a *stub* reactor. A reactor has a property `stub` which can log actions and force change states. If a reactor's stub is enabled, both `mutate()` and `reduce()` are not executed. A stub has these properties:
+A view can be tested with a _stub_ reactor. A reactor has a property `stub` which can log actions and force change states. If a reactor's stub is enabled, both `mutate()` and `reduce()` are not executed. A stub has these properties:
 
 ```swift
 var state: StateRelay<Reactor.State> { get }
@@ -367,6 +366,7 @@ func testIsLoading() {
 
 `Pulse` has diff only when mutated
 To explain in code, the results are as follows.
+
 ```swift
 var messagePulse: Pulse<String?> = Pulse(wrappedValue: "Hello tokijh")
 
@@ -379,6 +379,7 @@ oldMessagePulse.value == messagePulse.value // true
 
 Use when you want to receive an event only if the new value is assigned, even if it is the same value.
 like `alertMessage` (See follows or [PulseTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift))
+
 ```swift
 // Reactor
 private final class MyReactor: Reactor {
@@ -424,28 +425,28 @@ reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 
 ## Examples
 
-* [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit
-* [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides a GitHub repository search
-* [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
-* [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
-* [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
-* [Passcode](https://github.com/cruisediary/Passcode): Passcode for iOS RxSwift, ReactorKit and IGListKit example
-* [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
-* [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
-* [reactorkit-keyboard-example](https://github.com/techinpark/reactorkit-keyboard-example): iOS Application example for develop keyboard-extensions using ReactorKit Architecture.
-* [TinyHub](https://github.com/tospery/TinyHubForIOS): Use ReactorKit develop the Github client
+- [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit
+- [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides a GitHub repository search
+- [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
+- [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
+- [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
+- [Passcode](https://github.com/cruisediary/Passcode): Passcode for iOS RxSwift, ReactorKit and IGListKit example
+- [Flickr Search](https://github.com/TaeJoongYoon/FlickrSearch): A simple application which provides a Flickr Photo search with RxSwift and ReactorKit
+- [ReactorKitExample](https://github.com/gre4ixin/ReactorKitExample)
+- [reactorkit-keyboard-example](https://github.com/techinpark/reactorkit-keyboard-example): iOS Application example for develop keyboard-extensions using ReactorKit Architecture.
+- [TinyHub](https://github.com/tospery/TinyHubForIOS): Use ReactorKit develop the Github client
 
 ## Dependencies
 
-* [RxSwift](https://github.com/ReactiveX/RxSwift) >= 5.0
+- [RxSwift](https://github.com/ReactiveX/RxSwift) >= 5.0
 
 ## Requirements
 
-* Swift 5
-* iOS 8
-* macOS 10.11
-* tvOS 9.0
-* watchOS 2.0
+- Swift 5
+- iOS 8
+- macOS 10.11
+- tvOS 9.0
+- watchOS 2.0
 
 ## Installation
 
@@ -478,6 +479,7 @@ github "ReactorKit/ReactorKit"
 ```
 
 Most Carthage installation issues can be resolved with the following:
+
 ```sh
 carthage update 2>/dev/null
 (cd Carthage/Checkouts/ReactorKit && swift package generate-xcodeproj)
@@ -488,28 +490,28 @@ carthage build
 
 Any discussions and pull requests are welcomed 💖
 
-* To development:
+- To development:
 
-    ```console
-    $ TEST=1 swift package generate-xcodeproj
-    ```
+  ```console
+  TEST=1 swift package generate-xcodeproj
+  ```
 
-* To test:
+- To test:
 
-    ```console
-    $ swift test
-    ```
+  ```console
+  swift test
+  ```
 
 ## Community
 
 ### Join
 
-* **English**: Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)
-* **Korean**: Join [#reactorkit](https://swiftkorea.slack.com/messages/C568YM2RF/) on [Swift Korea Slack](http://slack.swiftkorea.org/)
+- **English**: Join [#reactorkit](https://rxswift.slack.com/messages/C561PETRN/) on [RxSwift Slack](http://rxswift-slack.herokuapp.com/)
+- **Korean**: Join [#reactorkit](https://swiftkorea.slack.com/messages/C568YM2RF/) on [Swift Korea Slack](http://slack.swiftkorea.org/)
 
 ### Community Projects
 
-* [ReactorKit-Template](https://github.com/gre4ixin/ReactorKit-Template)
+- [ReactorKit-Template](https://github.com/gre4ixin/ReactorKit-Template)
 
 ## Who's using ReactorKit
 
@@ -536,11 +538,11 @@ Any discussions and pull requests are welcomed 💖
 
 ## Changelog
 
-* 2017-04-18
-    * Change the repository name to ReactorKit.
-* 2017-03-17
-    * Change the architecture name from RxMVVM to The Reactive Architecture.
-    * Every ViewModels are renamed to ViewReactors.
+- 2017-04-18
+  - Change the repository name to ReactorKit.
+- 2017-03-17
+  - Change the architecture name from RxMVVM to The Reactive Architecture.
+  - Every ViewModels are renamed to ViewReactors.
 
 ## License
 

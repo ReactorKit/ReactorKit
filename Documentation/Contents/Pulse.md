@@ -4,13 +4,13 @@ Today we're going to talk about a Pulse in ReactorKit.
 
 Added to version 3.1.0 and partially modified from version 3.2.0, the most recent version of the current (2022.04.08).
 
-> 3.1.0             
-...
-Introduce Pulse 📡 (@tokijh)            
+> 3.1.0  
+> ...
+> Introduce Pulse 📡 (@tokijh)
 
-> 3.2.0 Latest      
-...     
-Make public valueUpdatedCount on Pulse by @tokijh in #196           
+> 3.2.0 Latest  
+> ...  
+> Make public valueUpdatedCount on Pulse by @tokijh in #196
 
 In fact, Pulse is currently being used for in-company projects, and I'm writing this because I'm not sure what this means.I think we can find out one by one.😁
 
@@ -90,7 +90,6 @@ If so, we'll have no choice but to look at the following documents:
 
 Looking at the `// Cases`, perhaps something similar to '[distinctUntilChanged](https://reactivex.io/documentation/operators/distinct.html)' is correct.
 
-
 ```swift
 @propertyWrapper
 public struct Pulse<Value> {
@@ -116,7 +115,7 @@ public struct Pulse<Value> {
   }
 
   private mutating func riseValueUpdatedCount() {
-    self.valueUpdatedCount &+= 1 
+    self.valueUpdatedCount &+= 1
   }
 }
 ```
@@ -127,7 +126,7 @@ Actually, I didn't get it at first, but the important part is `var value` and `d
 
 ```swift
   private mutating func riseValueUpdatedCount() {
-    self.valueUpdatedCount &+= 1 
+    self.valueUpdatedCount &+= 1
   }
 ```
 
@@ -143,7 +142,7 @@ extension Reactor {
 
 If you look at the code above, that's added a method `func pulse` as an extension to the Reactor. and used `distinctUntilChanged` in operator in RxSwift.
 
-The operator is the one that receives the keySelector as a parameter among the four supported by RxSwift. 
+The operator is the one that receives the keySelector as a parameter among the four supported by RxSwift.
 
 ```swift
   public func distinctUntilChanged<Key: Equatable>(_ keySelector: @escaping (Element) throws -> Key)
@@ -176,7 +175,8 @@ usually use is as follows.
   //-> Event next(Human(name: "a", age: 1))
   //-> Event next(Human(name: "c", age: 3))
 ```
-So if you summarize it here, ***`Pulse` emits events, but only when the values of the variables `valueUpdatedCount` declared inside change.***
+
+So if you summarize it here, **_`Pulse` emits events, but only when the values of the variables `valueUpdatedCount` declared inside change._**
 
 So when will the value of `valueUpdatedCount`change? As mentioned above, this is when `value` changes.
 
@@ -184,7 +184,7 @@ The official document of ReactorKit provides additional explanations and example
 
 > Use when you want to receive an event only if the new value is assigned, even if it is the same value. like alertMessage (See follows or PulseTests.swift)
 
-The most important part is `if the new value is assigned`. That is, the stream does not emit events unless a new value is assigned. 
+The most important part is `if the new value is assigned`. That is, the stream does not emit events unless a new value is assigned.
 
 Let's look at an additional [example](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift).
 
@@ -220,9 +220,10 @@ final class PulseTests: XCTestCase {
     XCTAssertEqual(state.$value.valueUpdatedCount, 6)
   }
 ```
-The test is kindly annotated. It says `// same count because no new values are assigned.`. 
 
-***i.e. the value of `valueUpdatedCount` is not incremented because we didn't assign a new value to the value like `state.value = 2` , and consequently `Pulse` will not emit any events.***
+The test is kindly annotated. It says `// same count because no new values are assigned.`.
+
+**_i.e. the value of `valueUpdatedCount` is not incremented because we didn't assign a new value to the value like `state.value = 2` , and consequently `Pulse` will not emit any events._**
 
 So, Pulse, how to use it? Again, as kindly described in the documentation, attach `@Pulse` attribute to `State` and import it in the same way as `reactor.pulse(\.$alertMessage)` inside func bind(reactor:).
 
