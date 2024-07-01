@@ -28,7 +28,7 @@ public struct Pulse<Value> {
     set { value = newValue }
   }
 
-  public var projectedValue: Pulse<Value> {
+  public var projectedValue: Self {
     self
   }
 
