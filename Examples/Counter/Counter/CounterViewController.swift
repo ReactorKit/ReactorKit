@@ -23,12 +23,22 @@ final class CounterViewController: UIViewController, StoryboardView {
   // Called when the new value is assigned to `self.reactor`
   func bind(reactor: CounterViewReactor) {
     // Action
-    increaseButton.rx.tap               // Tap event
+    increaseButton.rx.tap // Tap event
+      .throttle(
+        .milliseconds(500),
+        latest: false,
+        scheduler: MainScheduler.instance
+      )
       .map { Reactor.Action.increase }  // Convert to Action.increase
       .bind(to: reactor.action)         // Bind to reactor.action
       .disposed(by: disposeBag)
 
     decreaseButton.rx.tap
+      .throttle(
+        .milliseconds(500),
+        latest: false,
+        scheduler: MainScheduler.instance
+      )
       .map { Reactor.Action.decrease }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
