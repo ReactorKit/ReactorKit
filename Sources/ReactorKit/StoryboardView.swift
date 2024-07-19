@@ -17,12 +17,14 @@ private enum MapTables {
   static let isReactorBinded = WeakMapTable<AnyView, Bool>()
 }
 
+@MainActor
 public protocol _ObjCStoryboardView {
   func performBinding()
 }
 
 public protocol StoryboardView: View, _ObjCStoryboardView {}
 
+@MainActor
 extension StoryboardView {
   public var reactor: Reactor? {
     get { MapTables.reactor.value(forKey: self) as? Reactor }

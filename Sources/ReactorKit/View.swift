@@ -10,6 +10,8 @@
 import RxSwift
 import WeakMapTable
 
+extension WeakMapTable: @unchecked Sendable {}
+
 private typealias AnyView = AnyObject
 private enum MapTables {
   static let reactor = WeakMapTable<AnyView, Any>()
@@ -18,6 +20,7 @@ private enum MapTables {
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
 /// logic in a view layer. A view just defines how to map the action stream and the state stream.
+@MainActor
 public protocol View: AnyObject {
   associatedtype Reactor: ReactorKit.Reactor
 
