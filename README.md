@@ -38,7 +38,6 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     - [What to test](#what-to-test)
     - [View testing](#view-testing)
     - [Reactor testing](#reactor-testing)
-  - [Scheduling](#scheduling)
   - [Pulse](#pulse)
 - [Examples](#examples)
 - [Dependencies](#dependencies)
