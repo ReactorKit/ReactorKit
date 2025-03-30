@@ -29,8 +29,6 @@ public protocol Reactor: AnyObject {
   /// A State represents the current state of a view.
   associatedtype State
 
-  typealias Scheduler = ImmediateSchedulerType
-
   /// The action from the view. Bind user inputs to this subject.
   var action: ActionSubject<Action> { get }
 
