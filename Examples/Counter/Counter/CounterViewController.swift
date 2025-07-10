@@ -29,7 +29,7 @@ final class CounterViewController: UIViewController, StoryboardView {
         latest: false,
         scheduler: MainScheduler.instance
       )
-      .map { Reactor.Action.increase }  // Convert to Action.increase
+      .map { CounterViewReactor.Action.increase }  // Convert to Action.increase
       .bind(to: reactor.action)         // Bind to reactor.action
       .disposed(by: disposeBag)
 
@@ -39,7 +39,7 @@ final class CounterViewController: UIViewController, StoryboardView {
         latest: false,
         scheduler: MainScheduler.instance
       )
-      .map { Reactor.Action.decrease }
+      .map { CounterViewReactor.Action.decrease }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
