@@ -52,6 +52,15 @@ final class CounterViewReactor: Reactor {
       ])
 
     case .decrease:
+      if #available(iOS 13.0, *) {
+        return run { send in
+          send(.setLoading(true))
+          try? await Task.sleep(nanoseconds: 500 * 1_000_000)
+          send(.decreaseValue)
+          send(.setLoading(false))
+          send(.setAlertMessage("decreased!"))
+        }
+      }
       return Observable.concat([
         Observable.just(Mutation.setLoading(true)),
         Observable.just(Mutation.decreaseValue).delay(.milliseconds(500), scheduler: MainScheduler.instance),
