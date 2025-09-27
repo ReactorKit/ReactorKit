@@ -1,11 +1,11 @@
-// swift-tools-version:5.3
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
   name: "ReactorKit",
   platforms: [
-    .macOS(.v10_11), .iOS(.v9), .tvOS(.v9), .watchOS(.v3),
+    .macOS(.v10_13), .iOS(.v12), .tvOS(.v12), .watchOS(.v4),
   ],
   products: [
     .library(name: "ReactorKit", targets: ["ReactorKit"]),
@@ -35,5 +35,5 @@ let package = Package(
       ]
     ),
   ],
-  swiftLanguageVersions: [.v5]
+  swiftLanguageModes: [.v5]
 )
