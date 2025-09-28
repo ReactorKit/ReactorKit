@@ -1,0 +1,7 @@
+language: "en-US"
+reviews:
+  collapse_walkthrough: true
+  poem: false
+  estimate_code_review_effort: false
+  review_status: false
+  suggested_labels: false
