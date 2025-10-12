@@ -23,14 +23,12 @@ final class ObservedReactorTests: XCTestCase {
     enum Action: Equatable {
       case updateValue(Int)
       case updateText(String)
-      case triggerAlert(String)
       case asyncAction
     }
 
     enum Mutation {
       case setValue(Int)
       case setText(String)
-      case setAlert(String)
       case setLoading(Bool)
     }
 
@@ -38,7 +36,6 @@ final class ObservedReactorTests: XCTestCase {
       var value = 0
       var text = ""
       var isLoading = false
-      @Pulse var alertMessage: String?
     }
 
     let initialState = State()
@@ -50,9 +47,6 @@ final class ObservedReactorTests: XCTestCase {
 
       case .updateText(let text):
         .just(.setText(text))
-
-      case .triggerAlert(let message):
-        .just(.setAlert(message))
 
       case .asyncAction:
         Observable.concat([
@@ -70,8 +64,6 @@ final class ObservedReactorTests: XCTestCase {
         newState.value = value
       case .setText(let text):
         newState.text = text
-      case .setAlert(let message):
-        newState.alertMessage = message
       case .setLoading(let loading):
         newState.isLoading = loading
       }
@@ -79,66 +71,110 @@ final class ObservedReactorTests: XCTestCase {
     }
   }
 
-  // MARK: - Tests
+  // MARK: - Property Wrapper Tests
 
   func testInitialization() {
-    // When
-    let observedReactor = ObservedReactor(wrappedValue: TestReactor())
+    // Given & When
+    @ObservedReactor
+    var reactor = TestReactor()
 
     // Then
-    XCTAssertEqual(observedReactor.wrappedValue.currentState.value, 0)
-    XCTAssertEqual(observedReactor.projectedValue.state.value, 0)
+    XCTAssertEqual(reactor.currentState.value, 0)
+    XCTAssertEqual(reactor.currentState.text, "")
+    XCTAssertEqual(reactor.currentState.isLoading, false)
   }
 
   func testStateObservation() {
     // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
+    @ObservedReactor
+    var reactor = TestReactor()
 
     let expectation = XCTestExpectation(description: "State should update")
     var cancellable: AnyCancellable?
 
     // When
-    cancellable = wrapper.objectWillChange.sink { _ in
+    cancellable = $reactor.objectWillChange.sink { _ in
       expectation.fulfill()
     }
 
-    wrapper.send(.updateValue(42))
+    reactor.action.onNext(.updateValue(42))
 
     // Then
     wait(for: [expectation], timeout: 1.0)
-    XCTAssertEqual(wrapper.state.value, 42)
+    XCTAssertEqual(reactor.currentState.value, 42)
 
     cancellable?.cancel()
   }
 
   func testMultipleStateUpdates() {
     // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
+    @ObservedReactor
+    var reactor = TestReactor()
 
     // When
-    wrapper.send(.updateValue(1))
-    wrapper.send(.updateValue(2))
-    wrapper.send(.updateValue(3))
+    reactor.action.onNext(.updateValue(1))
+    reactor.action.onNext(.updateValue(2))
+    reactor.action.onNext(.updateValue(3))
 
     // Allow time for updates
     RunLoop.main.run(until: Date().addingTimeInterval(0.1))
 
     // Then
-    XCTAssertEqual(wrapper.state.value, 3)
+    XCTAssertEqual(reactor.currentState.value, 3)
   }
 
-  func testBindingCreation() {
+  func testObservedObjectPublishing() {
     // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
+    @ObservedReactor
+    var reactor = TestReactor()
 
-    // When: Create binding with closures
-    let binding = wrapper.binding(
+    var updateCount = 0
+    let cancellable = $reactor.objectWillChange.sink { _ in
+      updateCount += 1
+    }
+
+    // When: Multiple state changes
+    reactor.action.onNext(.updateValue(1))
+    reactor.action.onNext(.updateText("Test"))
+    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+
+    // Then: Should publish updates for each state change
+    XCTAssertGreaterThanOrEqual(updateCount, 2, "Should publish for each state change")
+
+    cancellable.cancel()
+  }
+
+  func testMemoryManagement() {
+    // Given
+    weak var weakReactor: TestReactor?
+
+    autoreleasepool {
+      @ObservedReactor
+      var reactor = TestReactor()
+
+      weakReactor = reactor as? TestReactor
+
+      // Verify it exists and works
+      XCTAssertNotNil(weakReactor)
+      reactor.action.onNext(.updateValue(42))
+      RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+      XCTAssertEqual(reactor.currentState.value, 42)
+    }
+
+    // Then: Should be deallocated after leaving scope
+    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+    XCTAssertNil(weakReactor, "Reactor should be deallocated")
+  }
+
+  // MARK: - Binding Tests
+
+  func testBindingWithClosures() {
+    // Given
+    @ObservedReactor
+    var reactor = TestReactor()
+
+    // When
+    let binding = $reactor.binding(
       get: { $0.value },
       send: { TestReactor.Action.updateValue($0) },
     )
@@ -146,145 +182,49 @@ final class ObservedReactorTests: XCTestCase {
     // Then
     XCTAssertEqual(binding.wrappedValue, 0)
 
-    // When: Update through binding
+    // When: Update via binding
     binding.wrappedValue = 100
     RunLoop.main.run(until: Date().addingTimeInterval(0.1))
 
     // Then
-    XCTAssertEqual(wrapper.state.value, 100)
+    XCTAssertEqual(reactor.currentState.value, 100)
   }
 
   func testBindingWithKeyPath() {
     // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
+    @ObservedReactor
+    var reactor = TestReactor()
 
-    // When: Create binding with KeyPath
-    let binding = wrapper.binding(
-      \.text,
-      send: { TestReactor.Action.updateText($0) },
-    )
+    // When
+    let binding = $reactor.binding(\.text, send: { TestReactor.Action.updateText($0) })
 
     // Then
     XCTAssertEqual(binding.wrappedValue, "")
 
-    // When: Update through binding
+    // When: Update via binding
     binding.wrappedValue = "Hello"
     RunLoop.main.run(until: Date().addingTimeInterval(0.1))
 
     // Then
-    XCTAssertEqual(wrapper.state.text, "Hello")
+    XCTAssertEqual(reactor.currentState.text, "Hello")
   }
 
-  func testDynamicMemberLookup() {
+  func testMultipleBindings() {
     // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
+    @ObservedReactor
+    var reactor = TestReactor()
+
+    let valueBinding = $reactor.binding(\.value, send: { TestReactor.Action.updateValue($0) })
+    let textBinding = $reactor.binding(\.text, send: { TestReactor.Action.updateText($0) })
 
     // When
-    wrapper.send(.updateValue(42))
-    wrapper.send(.updateText("Test"))
-    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-
-    // Then: Access state properties directly via dynamic member lookup
-    XCTAssertEqual(wrapper[dynamicMember: \.value], 42)
-    XCTAssertEqual(wrapper[dynamicMember: \.text], "Test")
-    XCTAssertEqual(wrapper[dynamicMember: \.isLoading], false)
-  }
-
-  func testFunctionCallSyntax() {
-    // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
-
-    // When: Use send method
-    wrapper.send(.updateValue(42))
+    valueBinding.wrappedValue = 99
+    textBinding.wrappedValue = "World"
     RunLoop.main.run(until: Date().addingTimeInterval(0.1))
 
     // Then
-    XCTAssertEqual(wrapper.value, 42)
-  }
-
-  func testWrapperDoesNotRetainCycle() {
-    // Given
-    weak var weakReactor: TestReactor?
-    weak var weakWrapper: ObservedReactor<TestReactor>.Wrapper?
-
-    autoreleasepool {
-      let reactor = TestReactor()
-      let observedReactor = ObservedReactor(wrappedValue: reactor)
-      let wrapper = observedReactor.projectedValue
-
-      weakReactor = reactor
-      weakWrapper = wrapper
-
-      // Verify they exist
-      XCTAssertNotNil(weakReactor)
-      XCTAssertNotNil(weakWrapper)
-
-      // Use them
-      wrapper.send(.updateValue(42))
-      RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-      XCTAssertEqual(wrapper.state.value, 42)
-    }
-
-    // Then: Should be deallocated after leaving scope
-    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-    XCTAssertNil(weakReactor, "Reactor should be deallocated")
-    XCTAssertNil(weakWrapper, "Wrapper should be deallocated")
-  }
-
-  // MARK: - SwiftUI Integration
-
-  func testPropertyWrapperUsageSimulation() {
-    // Simulates @ObservedReactor usage in a SwiftUI View.
-    // Verifies PropertyWrapper behavior without UI testing tools.
-
-    // Test new syntax: @ObservedReactor var reactor = TestReactor()
-    let property1 = ObservedReactor(wrappedValue: TestReactor())
-    let wrappedReactor1 = property1.wrappedValue
-    XCTAssertNotNil(wrappedReactor1)
-    XCTAssertEqual(property1.projectedValue.state.value, 0)
-
-    // Test injection syntax: @ObservedReactor(injected) var reactor
-    let injectedReactor = TestReactor()
-    let property2 = ObservedReactor(wrappedValue: injectedReactor)
-    let wrappedReactor2 = property2.wrappedValue
-    XCTAssertTrue(wrappedReactor2 === injectedReactor)
-
-    // Verify state access and action sending
-    let wrapper = property2.projectedValue
-    wrapper.send(.updateValue(10))
-    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-    XCTAssertEqual(wrapper.state.value, 10)
-  }
-
-  func testObservedObjectPublishing() {
-    // Verifies Wrapper triggers SwiftUI updates via objectWillChange
-
-    // Given
-    let reactor = TestReactor()
-    let observedReactor = ObservedReactor(wrappedValue: reactor)
-    let wrapper = observedReactor.projectedValue
-
-    var updateCount = 0
-    let cancellable = wrapper.objectWillChange.sink { _ in
-      updateCount += 1
-    }
-
-    // When: Multiple state changes
-    wrapper.send(.updateValue(1))
-    wrapper.send(.updateText("Test"))
-    wrapper.send(.triggerAlert("Alert"))
-    RunLoop.main.run(until: Date().addingTimeInterval(0.1))
-
-    // Then: Should publish updates for each state change
-    XCTAssertGreaterThanOrEqual(updateCount, 3, "Should publish for each state change")
-
-    cancellable.cancel()
+    XCTAssertEqual(reactor.currentState.value, 99)
+    XCTAssertEqual(reactor.currentState.text, "World")
   }
 }
 

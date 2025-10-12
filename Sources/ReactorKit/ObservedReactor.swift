@@ -24,9 +24,9 @@ import RxSwift
 ///
 ///     var body: some View {
 ///         VStack {
-///             Text("Count: \($reactor.state.value)")
+///             Text("Count: \(reactor.currentState.value)")
 ///             Button("Increase") {
-///                 $reactor.send(.increase)
+///                 reactor.action.onNext(.increase)
 ///             }
 ///         }
 ///     }
@@ -37,10 +37,9 @@ import RxSwift
 public struct ObservedReactor<R: Reactor>: DynamicProperty {
 
   /// ObservableObject wrapper that manages Reactor state and triggers SwiftUI updates
-  @dynamicMemberLookup
   public final class Wrapper: ObservableObject {
     fileprivate let reactor: R
-    @Published public private(set) var state: R.State
+    @Published private var state: R.State
     private var disposeBag = DisposeBag()
 
     init(_ reactor: R) {
@@ -56,11 +55,6 @@ public struct ObservedReactor<R: Reactor>: DynamicProperty {
         .disposed(by: disposeBag)
     }
 
-    /// Send an action to the reactor
-    public func send(_ action: R.Action) {
-      reactor.action.onNext(action)
-    }
-
     /// Create a binding for a specific state property
     /// - Parameters:
     ///   - get: A closure that extracts a value from the state
@@ -68,11 +62,11 @@ public struct ObservedReactor<R: Reactor>: DynamicProperty {
     /// - Returns: A SwiftUI Binding
     public func binding<Value>(
       get: @escaping (R.State) -> Value,
-      send: @escaping (Value) -> R.Action,
+      send: @escaping (Value) -> R.Action
     ) -> Binding<Value> {
       Binding(
         get: { get(self.state) },
-        set: { self.send(send($0)) },
+        set: { self.reactor.action.onNext(send($0)) }
       )
     }
 
@@ -83,39 +77,27 @@ public struct ObservedReactor<R: Reactor>: DynamicProperty {
     /// - Returns: A SwiftUI Binding
     public func binding<Value>(
       _ keyPath: KeyPath<R.State, Value>,
-      send: @escaping (Value) -> R.Action,
+      send: @escaping (Value) -> R.Action
     ) -> Binding<Value> {
       binding(
         get: { $0[keyPath: keyPath] },
-        send: send,
+        send: send
       )
     }
-
   }
 
   @ObservedObject private var wrapper: Wrapper
 
-  public init(wrappedValue: R) {
+  public init<SR: _PrimitiveReactor>(wrappedValue: SR) where SR == R {
     self.wrapper = Wrapper(wrappedValue)
   }
 
-  public var wrappedValue: R {
+  public var wrappedValue: some _PrimitiveReactor<R.Action, R.State> {
     wrapper.reactor
   }
 
   public var projectedValue: Wrapper {
     wrapper
-  }
-}
-
-// MARK: - Convenience Extensions
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ObservedReactor.Wrapper {
-  /// Dynamic member lookup for state properties
-  /// Example: `$reactor.value` instead of `$reactor.state.value`
-  public subscript<Value>(dynamicMember keyPath: KeyPath<R.State, Value>) -> Value {
-    state[keyPath: keyPath]
   }
 }
 
