@@ -20,7 +20,7 @@ struct BindingExamplesView: SwiftUI.View {
           .font(.largeTitle)
           .fontWeight(.bold)
 
-        // MARK: 1. Basic Binding with KeyPath
+        // MARK: 1. TextField Binding
         GroupBox(label: Label("1. TextField Binding (KeyPath)", systemImage: "text.cursor")) {
           VStack(alignment: .leading, spacing: 10) {
             Text("Use binding with KeyPath to connect UI controls to state")
@@ -36,13 +36,14 @@ struct BindingExamplesView: SwiftUI.View {
             )
             .textFieldStyle(RoundedBorderTextFieldStyle())
 
-            Text("Current text: \($reactor.state.text)")
+            Text("Current text: \(reactor.currentState.text)")
               .font(.caption)
           }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.vertical, 5)
         }
 
-        // MARK: 2. Custom Binding with Get/Set
+        // MARK: 2. Slider Binding
         GroupBox(label: Label("2. Custom Binding (Get/Set)", systemImage: "slider.horizontal.3")) {
           VStack(alignment: .leading, spacing: 10) {
             Text("Use custom get/set closures for complex bindings")
@@ -50,15 +51,18 @@ struct BindingExamplesView: SwiftUI.View {
               .foregroundColor(.secondary)
 
             Slider(
-              value: .constant(Double($reactor.state.value)),
+              value: $reactor.binding(
+                get: { Double($0.value) },
+                send: { CounterReactor.Action.setValue(Int($0)) },
+              ),
               in: -10...10,
               step: 1,
             )
-            .disabled(true)
 
-            Text("Slider value: \(Int($reactor.state.value))")
+            Text("Slider value: \(Int(reactor.currentState.value))")
               .font(.caption)
           }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.vertical, 5)
         }
 
@@ -69,18 +73,22 @@ struct BindingExamplesView: SwiftUI.View {
               .font(.caption)
               .foregroundColor(.secondary)
 
-            Toggle("Loading State", isOn: $reactor.binding(
-              \.isLoading,
-              send: { CounterReactor.Action.setLoading($0) },
-            ))
+            Toggle(
+              "Loading State",
+              isOn: $reactor.binding(
+                \.isLoading,
+                 send: { CounterReactor.Action.setLoading($0) },
+              )
+            )
             .toggleStyle(SwitchToggleStyle())
 
-            if $reactor.state.isLoading {
+            if reactor.currentState.isLoading {
               ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
                 .padding()
             }
           }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.vertical, 5)
         }
 
@@ -92,41 +100,25 @@ struct BindingExamplesView: SwiftUI.View {
               .foregroundColor(.secondary)
 
             HStack {
+              Text("Text:")
+              Text(reactor.currentState.text.isEmpty ? "Empty" : reactor.currentState.text)
+                .font(.title3)
+            }
+
+            HStack {
               Text("Counter:")
-              Text("\($reactor.state.value)")
+              Text("\(reactor.currentState.value)")
                 .font(.title2)
                 .fontWeight(.bold)
             }
 
             HStack {
-              Text("Text:")
-              Text($reactor.state.text.isEmpty ? "Empty" : $reactor.state.text)
-                .font(.title3)
-            }
-
-            HStack {
               Text("Loading:")
-              Image(systemName: $reactor.state.isLoading ? "checkmark.circle.fill" : "xmark.circle")
-                .foregroundColor($reactor.state.isLoading ? .green : .red)
+              Image(systemName: reactor.currentState.isLoading ? "checkmark.circle.fill" : "xmark.circle")
+                .foregroundColor(reactor.currentState.isLoading ? .green : .red)
             }
           }
-          .padding(.vertical, 5)
-        }
-
-        // MARK: 5. Dynamic Member Lookup
-        GroupBox(label: Label("5. Dynamic Member Lookup", systemImage: "arrow.right.circle")) {
-          VStack(alignment: .leading, spacing: 10) {
-            Text("Access state properties directly via $reactor")
-              .font(.caption)
-              .foregroundColor(.secondary)
-
-            VStack(alignment: .leading, spacing: 5) {
-              Text("$reactor.value = \($reactor.value)")
-              Text("$reactor.text = \"\($reactor.text)\"")
-              Text("$reactor.isLoading = \($reactor.isLoading)")
-            }
-            .font(.system(.body, design: .monospaced))
-          }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.vertical, 5)
         }
       }

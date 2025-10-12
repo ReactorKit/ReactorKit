@@ -115,19 +115,19 @@ struct AlertToastExampleView: SwiftUI.View {
       // MARK: Trigger Buttons
       VStack(spacing: 15) {
         Button("Show Success Toast") {
-          $reactor.send(.showSuccess("Operation completed!"))
+          reactor.action.onNext(.showSuccess("Operation completed!"))
         }
         .buttonStyle(.borderedProminent)
         .tint(.green)
 
         Button("Show Error Alert") {
-          $reactor.send(.showError("Something went wrong"))
+          reactor.action.onNext(.showError("Something went wrong"))
         }
         .buttonStyle(.borderedProminent)
         .tint(.red)
 
         Button("Show Confirm Dialog") {
-          $reactor.send(.showConfirmDialog(
+          reactor.action.onNext(.showConfirmDialog(
             title: "Confirm Action",
             message: "Are you sure you want to proceed?",
           ))
@@ -137,7 +137,7 @@ struct AlertToastExampleView: SwiftUI.View {
 
       // MARK: Status Display
       VStack(alignment: .leading, spacing: 10) {
-        if $reactor.state.isProcessing {
+        if reactor.currentState.isProcessing {
           HStack {
             ProgressView()
               .progressViewStyle(CircularProgressViewStyle())
@@ -145,7 +145,7 @@ struct AlertToastExampleView: SwiftUI.View {
           }
         }
 
-        if let lastAction = $reactor.state.lastAction {
+        if let lastAction = reactor.currentState.lastAction {
           Text("Last action: \(lastAction)")
             .font(.caption)
             .foregroundColor(.secondary)
@@ -160,36 +160,36 @@ struct AlertToastExampleView: SwiftUI.View {
     }
     .padding()
     // MARK: Alert
-    .alert("Error", isPresented: .constant($reactor.state.errorMessage != nil)) {
+    .alert("Error", isPresented: .constant(reactor.currentState.errorMessage != nil)) {
       Button("OK") {
-        $reactor.send(.dismissNotification)
+        reactor.action.onNext(.dismissNotification)
       }
     } message: {
-      Text($reactor.state.errorMessage ?? "An error occurred")
+      Text(reactor.currentState.errorMessage ?? "An error occurred")
     }
     // MARK: Confirmation Dialog
     .confirmationDialog(
-      $reactor.state.dialogInfo?.title ?? "",
-      isPresented: .constant($reactor.state.dialogInfo != nil),
+      reactor.currentState.dialogInfo?.title ?? "",
+      isPresented: .constant(reactor.currentState.dialogInfo != nil),
       titleVisibility: .visible,
     ) {
       Button("Confirm") {
-        $reactor.send(.confirmAction)
+        reactor.action.onNext(.confirmAction)
       }
       Button("Cancel", role: .cancel) {
-        $reactor.send(.cancelAction)
+        reactor.action.onNext(.cancelAction)
       }
     } message: {
-      Text($reactor.state.dialogInfo?.message ?? "")
+      Text(reactor.currentState.dialogInfo?.message ?? "")
     }
     // MARK: Toast Overlay
     .overlay(alignment: .top) {
-      if let message = $reactor.state.successMessage {
+      if let message = reactor.currentState.successMessage {
         ToastView(message: message) {
-          $reactor.send(.dismissNotification)
+          reactor.action.onNext(.dismissNotification)
         }
         .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.easeInOut, value: $reactor.state.successMessage)
+        .animation(.easeInOut, value: reactor.currentState.successMessage)
       }
     }
   }

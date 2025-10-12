@@ -11,6 +11,7 @@ import SwiftUI
 import ReactorKit
 
 struct BasicCounterView: SwiftUI.View {
+
   @ObservedReactor var reactor = CounterReactor()
 
   var body: some SwiftUI.View {
@@ -20,29 +21,29 @@ struct BasicCounterView: SwiftUI.View {
         .fontWeight(.bold)
 
       // Current value display
-      Text("\($reactor.state.value)")
+      Text("\(reactor.currentState.value)")
         .font(.system(size: 72, weight: .bold, design: .rounded))
-        .foregroundColor(colorForValue($reactor.state.value))
-        .animation(.easeInOut(duration: 0.2), value: $reactor.state.value)
+        .foregroundColor(colorForValue(reactor.currentState.value))
+        .animation(.easeInOut(duration: 0.2), value: reactor.currentState.value)
 
       // Control buttons
       HStack(spacing: 20) {
-        Button(action: { $reactor.send(.decrease) }) {
+        Button(action: { reactor.action.onNext(.decrease) }) {
           Image(systemName: "minus.circle.fill")
             .font(.system(size: 44))
         }
-        .disabled($reactor.state.value <= -10)
+        .disabled(reactor.currentState.value <= -10)
 
-        Button(action: { $reactor.send(.reset) }) {
+        Button(action: { reactor.action.onNext(.reset) }) {
           Image(systemName: "arrow.counterclockwise.circle.fill")
             .font(.system(size: 44))
         }
 
-        Button(action: { $reactor.send(.increase) }) {
+        Button(action: { reactor.action.onNext(.increase) }) {
           Image(systemName: "plus.circle.fill")
             .font(.system(size: 44))
         }
-        .disabled($reactor.state.value >= 10)
+        .disabled(reactor.currentState.value >= 10)
       }
 
       // Progress bar
@@ -54,21 +55,14 @@ struct BasicCounterView: SwiftUI.View {
             .cornerRadius(5)
 
           Rectangle()
-            .fill(colorForValue($reactor.state.value))
-            .frame(width: progressWidth(for: $reactor.state.value, in: geometry.size.width), height: 10)
+            .fill(colorForValue(reactor.currentState.value))
+            .frame(width: progressWidth(for: reactor.currentState.value, in: geometry.size.width), height: 10)
             .cornerRadius(5)
-            .animation(.spring(), value: $reactor.state.value)
+            .animation(.spring(), value: reactor.currentState.value)
         }
       }
       .frame(height: 10)
       .padding(.horizontal, 30)
-
-      // State info using dynamic member lookup
-      VStack(spacing: 10) {
-        Text("Direct access via $reactor.value: \($reactor.value)")
-          .font(.caption)
-          .foregroundColor(.secondary)
-      }
     }
     .padding()
   }

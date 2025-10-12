@@ -28,10 +28,10 @@ struct ContentView: SwiftUI.View {
           Label("Alerts", systemImage: "bell")
         }
 
-      InjectedReactorView()
-        .tabItem {
-          Label("Injected", systemImage: "arrow.down.circle")
-        }
+//      InjectedReactorView()
+//        .tabItem {
+//          Label("Injected", systemImage: "arrow.down.circle")
+//        }
     }
   }
 }
