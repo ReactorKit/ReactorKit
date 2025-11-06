@@ -13,7 +13,7 @@ import WeakMapTable
 /// reactor is to separate control flow from a view. Every view has its corresponding reactor and
 /// delegates all logic to its reactor. A reactor has no dependency to a view, so it can be easily
 /// tested.
-public protocol Reactor: AnyObject {
+public protocol Reactor: AnyObject, _PrimitiveReactor {
   /// An action represents user actions.
   associatedtype Action
 
