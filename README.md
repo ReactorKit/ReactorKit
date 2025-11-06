@@ -69,10 +69,10 @@ ReactorKit is a combination of [Flux](https://facebook.github.io/flux/) and [Rea
 
 A _View_ displays data. A view controller and a cell are treated as a view. The view binds user inputs to the action stream and binds the view states to each UI component. There's no business logic in a view layer. A view just defines how to map the action stream and the state stream.
 
-To define a view, just have an existing class conform a protocol named `View`. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
+To define a view, just have an existing class conform a protocol named `ReactorView`. Then your class will have a property named `reactor` automatically. This property is typically set outside of the view.
 
 ```swift
-class ProfileViewController: UIViewController, View {
+class ProfileViewController: UIViewController, ReactorView {
   var disposeBag = DisposeBag()
 }
 
@@ -97,13 +97,13 @@ func bind(reactor: ProfileViewReactor) {
 
 #### Storyboard Support
 
-Use `StoryboardView` protocol if you're using a storyboard to initialize view controllers. Everything is same but the only difference is that the `StoryboardView` performs a binding after the view is loaded.
+Use `DeferredReactorView` protocol if you're using a storyboard to initialize view controllers. Everything is same but the only difference is that the `DeferredReactorView` defers binding until the view is loaded.
 
 ```swift
 let viewController = MyViewController()
-viewController.reactor = MyViewReactor() // will not executes `bind(reactor:)` immediately
+viewController.reactor = MyViewReactor() // will not execute `bind(reactor:)` immediately
 
-class MyViewController: UIViewController, StoryboardView {
+class MyViewController: UIViewController, DeferredReactorView {
   func bind(reactor: MyViewReactor) {
     // this is called after the view is loaded (viewDidLoad)
   }
