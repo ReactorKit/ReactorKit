@@ -14,7 +14,7 @@ private typealias OSView = NSView
 #endif
 
 #if !os(Linux)
-final class ViewTests: XCTestCase {
+final class ReactorViewTests: XCTestCase {
   func testBindIsInvoked_differentReactor() {
     let view = TestView()
     XCTAssertEqual(view.bindInvokeCount, 0)
@@ -100,7 +100,7 @@ final class ViewTests: XCTestCase {
   }
 }
 
-private final class TestView: View {
+private final class TestView: ReactorView {
   var disposeBag = DisposeBag()
   var bindInvokeCount = 0
 
@@ -109,7 +109,7 @@ private final class TestView: View {
   }
 }
 
-private final class TestViewController: OSViewController, StoryboardView {
+private final class TestViewController: OSViewController, DeferredReactorView {
   var disposeBag = DisposeBag()
   var isLoadViewInvoked = false
   var bindInvokeCount = 0

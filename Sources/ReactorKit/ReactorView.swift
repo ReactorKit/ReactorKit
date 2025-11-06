@@ -1,5 +1,5 @@
 //
-//  View.swift
+//  ReactorView.swift
 //  ReactorKit
 //
 //  Created by Suyeol Jeon on 13/04/2017.
@@ -18,7 +18,7 @@ private enum MapTables {
 /// A View displays data. A view controller and a cell are treated as a view. The view binds user
 /// inputs to the action stream and binds the view states to each UI component. There's no business
 /// logic in a view layer. A view just defines how to map the action stream and the state stream.
-public protocol View: AnyObject {
+public protocol ReactorView: AnyObject {
   associatedtype Reactor: ReactorKit.Reactor
 
   /// A dispose bag. It is disposed each time the `reactor` is assigned.
@@ -51,7 +51,7 @@ public protocol View: AnyObject {
 
 // MARK: - Default Implementations
 
-extension View {
+extension ReactorView {
   public var reactor: Reactor? {
     get { MapTables.reactor.value(forKey: self) as? Reactor }
     set {

@@ -17,13 +17,13 @@ private enum MapTables {
   static let isReactorBinded = WeakMapTable<AnyView, Bool>()
 }
 
-public protocol _ObjCStoryboardView {
+public protocol _ObjCDeferredReactorView {
   func performBinding()
 }
 
-public protocol StoryboardView: View, _ObjCStoryboardView {}
+public protocol DeferredReactorView: ReactorView, _ObjCDeferredReactorView {}
 
-extension StoryboardView {
+extension DeferredReactorView {
   public var reactor: Reactor? {
     get { MapTables.reactor.value(forKey: self) as? Reactor }
     set {
@@ -60,7 +60,7 @@ extension StoryboardView {
 extension OSViewController {
   @objc
   func _reactorkit_performBinding() {
-    (self as? _ObjCStoryboardView)?.performBinding()
+    (self as? _ObjCDeferredReactorView)?.performBinding()
   }
 }
 #endif
