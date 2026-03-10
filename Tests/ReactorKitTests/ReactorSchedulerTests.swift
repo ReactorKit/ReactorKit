@@ -8,12 +8,13 @@
 import XCTest
 
 import ReactorKit
-import RxSwift
+@preconcurrency import RxSwift
 
+@preconcurrency
 final class ReactorSchedulerTests: XCTestCase {
 
   func testStateStreamIsCreatedOnce() {
-    final class SimpleReactor: Reactor {
+    final class SimpleReactor: Reactor, @unchecked Sendable {
       typealias Action = Never
       typealias Mutation = Never
       typealias State = Int
@@ -25,8 +26,12 @@ final class ReactorSchedulerTests: XCTestCase {
       }
     }
 
+    final class StateBox: @unchecked Sendable {
+      var value: [Observable<SimpleReactor.State>] = []
+    }
+
     let reactor = SimpleReactor()
-    var states: [Observable<SimpleReactor.State>] = []
+    let states = StateBox()
     let lock = NSLock()
     let expectation = XCTestExpectation()
 
@@ -34,10 +39,11 @@ final class ReactorSchedulerTests: XCTestCase {
       DispatchQueue.global().async {
         let state = reactor.state
         lock.lock()
-        states.append(state)
+        states.value.append(state)
+        let count = states.value.count
         lock.unlock()
 
-        if states.count == 100 {
+        if count == 100 {
           expectation.fulfill()
         }
       }
@@ -45,9 +51,9 @@ final class ReactorSchedulerTests: XCTestCase {
 
     XCTWaiter().wait(for: [expectation], timeout: 10)
 
-    XCTAssertGreaterThan(states.count, 0)
-    for state in states {
-      XCTAssertTrue(state === states.first)
+    XCTAssertGreaterThan(states.value.count, 0)
+    for state in states.value {
+      XCTAssertTrue(state === states.value.first)
     }
   }
 }

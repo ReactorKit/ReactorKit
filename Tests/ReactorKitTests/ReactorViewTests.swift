@@ -14,6 +14,7 @@ private typealias OSView = NSView
 #endif
 
 #if !os(Linux)
+@MainActor
 final class ReactorViewTests: XCTestCase {
   func testBindIsInvoked_differentReactor() {
     let view = TestView()
@@ -109,7 +110,7 @@ private final class TestView: ReactorView {
   }
 }
 
-private final class TestViewController: OSViewController, DeferredReactorView {
+private final class TestViewController: OSViewController, @preconcurrency DeferredReactorView {
   var disposeBag = DisposeBag()
   var isLoadViewInvoked = false
   var bindInvokeCount = 0

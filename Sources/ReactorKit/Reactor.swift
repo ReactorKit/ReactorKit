@@ -7,7 +7,7 @@
 //
 
 import RxSwift
-import WeakMapTable
+@preconcurrency import WeakMapTable
 
 /// A Reactor is an UI-independent layer which manages the state of a view. The foremost role of a
 /// reactor is to separate control flow from a view. Every view has its corresponding reactor and

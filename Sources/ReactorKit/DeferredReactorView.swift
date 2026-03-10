@@ -9,7 +9,7 @@ import AppKit
 private typealias OSViewController = NSViewController
 #endif
 
-import WeakMapTable
+@preconcurrency import WeakMapTable
 
 private typealias AnyView = AnyObject
 private enum MapTables {
@@ -49,7 +49,12 @@ extension DeferredReactorView {
 
   fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
     #if !os(watchOS)
-    return (self as? OSViewController)?.isViewLoaded == false
+    guard let viewController = self as? OSViewController else { return false }
+    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+      return MainActor.assumeIsolated { !viewController.isViewLoaded }
+    } else {
+      return viewController.value(forKey: "isViewLoaded") as? Bool == false
+    }
     #else
     return false
     #endif
