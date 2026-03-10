@@ -17,10 +17,12 @@ private enum MapTables {
   static let isReactorBinded = WeakMapTable<AnyView, Bool>()
 }
 
+@MainActor
 public protocol _ObjCDeferredReactorView {
   func performBinding()
 }
 
+@MainActor
 public protocol DeferredReactorView: ReactorView, _ObjCDeferredReactorView {}
 
 extension DeferredReactorView {
@@ -49,12 +51,7 @@ extension DeferredReactorView {
 
   fileprivate func shouldDeferBinding(reactor: Reactor) -> Bool {
     #if !os(watchOS)
-    guard let viewController = self as? OSViewController else { return false }
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
-      return MainActor.assumeIsolated { !viewController.isViewLoaded }
-    } else {
-      return viewController.value(forKey: "isViewLoaded") as? Bool == false
-    }
+    return (self as? OSViewController)?.isViewLoaded == false
     #else
     return false
     #endif

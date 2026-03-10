@@ -110,7 +110,7 @@ private final class TestView: ReactorView {
   }
 }
 
-private final class TestViewController: OSViewController, @preconcurrency DeferredReactorView {
+private final class TestViewController: OSViewController, DeferredReactorView {
   var disposeBag = DisposeBag()
   var isLoadViewInvoked = false
   var bindInvokeCount = 0
