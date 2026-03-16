@@ -34,6 +34,5 @@ let package = Package(
         .product(name: "RxTest", package: "RxSwift"),
       ]
     ),
-  ],
-  swiftLanguageModes: [.v5]
+  ]
 )

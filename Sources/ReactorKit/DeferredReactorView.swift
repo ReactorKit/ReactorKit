@@ -9,7 +9,7 @@ import AppKit
 private typealias OSViewController = NSViewController
 #endif
 
-import WeakMapTable
+@preconcurrency import WeakMapTable
 
 private typealias AnyView = AnyObject
 private enum MapTables {
@@ -17,10 +17,12 @@ private enum MapTables {
   static let isReactorBinded = WeakMapTable<AnyView, Bool>()
 }
 
+@MainActor
 public protocol _ObjCDeferredReactorView {
   func performBinding()
 }
 
+@MainActor
 public protocol DeferredReactorView: ReactorView, _ObjCDeferredReactorView {}
 
 extension DeferredReactorView {

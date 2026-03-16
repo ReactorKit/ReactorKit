@@ -14,6 +14,7 @@ private typealias OSView = NSView
 #endif
 
 #if !os(Linux)
+@MainActor
 final class ReactorViewTests: XCTestCase {
   func testBindIsInvoked_differentReactor() {
     let view = TestView()
