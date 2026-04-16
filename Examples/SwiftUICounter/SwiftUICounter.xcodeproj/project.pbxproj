@@ -1,0 +1,291 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		711B45182F8A64EB00C3818C /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 711B45172F8A64EB00C3818C /* ReactorKit */; };
+		711B451C2F8A64EB00C3818C /* ReactorKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */; };
+		711B46092F8BCFD100C3818C /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 711B46082F8BCFD100C3818C /* ReactorKit */; };
+		711B460B2F8BCFD100C3818C /* ReactorKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000020000000000000001 /* SwiftUICounter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUICounter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		711B450A2F8A2A5000C3818C /* Reactor */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Reactor; sourceTree = "<group>"; };
+		711B450B2F8A2A5A00C3818C /* Highlights */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Highlights; sourceTree = "<group>"; };
+		711B450C2F8A2A6400C3818C /* Vanila */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Vanila; sourceTree = "<group>"; };
+		711B450D2F8A2A7200C3818C /* App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = App; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B10000030000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				711B45182F8A64EB00C3818C /* ReactorKit in Frameworks */,
+				711B451C2F8A64EB00C3818C /* ReactorKitSwiftUI in Frameworks */,
+				711B46092F8BCFD100C3818C /* ReactorKit in Frameworks */,
+				711B460B2F8BCFD100C3818C /* ReactorKitSwiftUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		711B45132F8A64CD00C3818C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B10000040000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				B10000040000000000000002 /* SwiftUICounter */,
+				711B45132F8A64CD00C3818C /* Frameworks */,
+				B10000040000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B10000040000000000000002 /* SwiftUICounter */ = {
+			isa = PBXGroup;
+			children = (
+				711B450D2F8A2A7200C3818C /* App */,
+				711B450C2F8A2A6400C3818C /* Vanila */,
+				711B450B2F8A2A5A00C3818C /* Highlights */,
+				711B450A2F8A2A5000C3818C /* Reactor */,
+			);
+			path = SwiftUICounter;
+			sourceTree = "<group>";
+		};
+		B10000040000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B10000020000000000000001 /* SwiftUICounter.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B10000060000000000000001 /* SwiftUICounter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B10000080000000000000002 /* Build configuration list for PBXNativeTarget "SwiftUICounter" */;
+			buildPhases = (
+				B10000070000000000000001 /* Sources */,
+				B10000030000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				711B450A2F8A2A5000C3818C /* Reactor */,
+				711B450B2F8A2A5A00C3818C /* Highlights */,
+				711B450C2F8A2A6400C3818C /* Vanila */,
+				711B450D2F8A2A7200C3818C /* App */,
+			);
+			name = SwiftUICounter;
+			packageProductDependencies = (
+				711B45172F8A64EB00C3818C /* ReactorKit */,
+				711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */,
+				711B46082F8BCFD100C3818C /* ReactorKit */,
+				711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */,
+			);
+			productName = SwiftUICounter;
+			productReference = B10000020000000000000001 /* SwiftUICounter.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B10000090000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					B10000060000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B10000080000000000000001 /* Build configuration list for PBXProject "SwiftUICounter" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B10000040000000000000001;
+			packageReferences = (
+				711B46072F8BCFD100C3818C /* XCLocalSwiftPackageReference "../../../ReactorKit" */,
+			);
+			productRefGroup = B10000040000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B10000060000000000000001 /* SwiftUICounter */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B10000070000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B100000A0000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B100000A0000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B100000B0000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.SwiftUICounter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		B100000B0000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kr.xoul.SwiftUICounter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B10000080000000000000001 /* Build configuration list for PBXProject "SwiftUICounter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B100000A0000000000000001 /* Debug */,
+				B100000A0000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B10000080000000000000002 /* Build configuration list for PBXNativeTarget "SwiftUICounter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B100000B0000000000000001 /* Debug */,
+				B100000B0000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		711B46072F8BCFD100C3818C /* XCLocalSwiftPackageReference "../../../ReactorKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../ReactorKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		711B45172F8A64EB00C3818C /* ReactorKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReactorKit;
+		};
+		711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReactorKitSwiftUI;
+		};
+		711B46082F8BCFD100C3818C /* ReactorKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReactorKit;
+		};
+		711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ReactorKitSwiftUI;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B10000090000000000000001 /* Project object */;
+}
