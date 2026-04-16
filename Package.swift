@@ -1,18 +1,21 @@
 // swift-tools-version:6.0
 
+import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
   name: "ReactorKit",
   platforms: [
-    .macOS(.v10_13), .iOS(.v12), .tvOS(.v12), .watchOS(.v4),
+    .macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6),
   ],
   products: [
     .library(name: "ReactorKit", targets: ["ReactorKit"]),
+    .library(name: "ReactorKitSwiftUI", targets: ["ReactorKitSwiftUI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
     .package(url: "https://github.com/ReactorKit/WeakMapTable.git", .upToNextMajor(from: "1.1.0")),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.0.0"..<"602.0.0"),
   ],
   targets: [
     .target(
@@ -27,6 +30,28 @@ let package = Package(
       name: "ReactorKitRuntime",
       dependencies: []
     ),
+    .target(
+      name: "ReactorKitSwiftUI",
+      dependencies: [
+        "ReactorKit",
+        "ReactorKitObservation",
+        "RxSwift",
+      ]
+    ),
+    .target(
+      name: "ReactorKitObservation",
+      dependencies: [
+        "ReactorKitMacros"
+      ]
+    ),
+    .macro(
+      name: "ReactorKitMacros",
+      dependencies: [
+        .product(name: "SwiftSyntax", package: "swift-syntax"),
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+      ]
+    ),
     .testTarget(
       name: "ReactorKitTests",
       dependencies: [
@@ -34,5 +59,27 @@ let package = Package(
         .product(name: "RxTest", package: "RxSwift"),
       ]
     ),
-  ]
+    .testTarget(
+      name: "ReactorKitSwiftUITests",
+      dependencies: [
+        "ReactorKitSwiftUI",
+        "ReactorKit",
+        "ReactorKitObservation",
+        .product(name: "RxTest", package: "RxSwift"),
+      ]
+    ),
+    .testTarget(
+      name: "ReactorKitMacroTests",
+      dependencies: [
+        "ReactorKitMacros",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ]
+    ),
+    .testTarget(
+      name: "ReactorKitObservationTests",
+      dependencies: [
+        "ReactorKitObservation",
+      ]
+    ),
+  ],
 )

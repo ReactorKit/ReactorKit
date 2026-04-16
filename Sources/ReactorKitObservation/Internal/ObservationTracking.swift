@@ -1,0 +1,112 @@
+//
+//  ObservationTracking.swift
+//  ReactorKitObservation
+//
+//  Created by Kanghoon Oh on 4/11/26.
+//
+
+import Foundation
+
+/// Executes `apply`, records all BackportRegistrar.access() calls made during execution,
+/// then installs a one-shot observer that calls `onChange` when any tracked property changes.
+public func _withStateTracking<T>(
+  _ apply: () -> T,
+  onChange: @escaping @Sendable () -> Void
+) -> T {
+  let (result, accessList) = _generateAccessList(apply)
+  if let accessList {
+    accessList.installTracking(onChange: onChange)
+  }
+  return result
+}
+
+// MARK: - _AccessList
+
+/// Collects property accesses recorded during a `withStateTracking` scope.
+struct _AccessList: Sendable {
+
+  struct Entry: @unchecked Sendable {
+    var context: BackportRegistrar.Context
+    var keyPaths: Set<AnyKeyPath>
+  }
+
+  var entries = [ObjectIdentifier: Entry]()
+
+  mutating func addAccess(
+    keyPath: AnyKeyPath,
+    context: BackportRegistrar.Context
+  ) {
+    entries[context.id, default: Entry(context: context, keyPaths: [])].keyPaths.insert(keyPath)
+  }
+
+  mutating func merge(_ other: _AccessList) {
+    for (id, otherEntry) in other.entries {
+      if var existing = entries[id] {
+        existing.keyPaths.formUnion(otherEntry.keyPaths)
+        entries[id] = existing
+      } else {
+        entries[id] = otherEntry
+      }
+    }
+  }
+
+  func installTracking(onChange: @escaping @Sendable () -> Void) {
+    guard !entries.isEmpty else { return }
+
+    // Shared state for one-shot cancellation.
+    // Registrations are stored incrementally so that a concurrent willSet
+    // during the loop can still cancel all previously registered observers.
+    let shared = _ManagedCriticalState(_TrackingState())
+
+    for (_, entry) in entries {
+      let id = entry.context.register(for: entry.keyPaths) { [shared] _ in
+        let shouldFire: Bool = shared.withCriticalRegion { state in
+          if state.fired { return false }
+          state.fired = true
+          return true
+        }
+        guard shouldFire else { return }
+
+        // Cancel all registrations (including this one).
+        let regs = shared.withCriticalRegion { $0.registrations }
+        for (ctx, regID) in regs {
+          ctx.cancel(regID)
+        }
+
+        onChange()
+      }
+      // Store each registration immediately so concurrent willSet can cancel it.
+      shared.withCriticalRegion { $0.registrations.append((entry.context, id)) }
+    }
+  }
+}
+
+// MARK: - Private helpers
+
+private func _generateAccessList<T>(_ apply: () -> T) -> (T, _AccessList?) {
+  var accessList: _AccessList?
+  let result: T = withUnsafeMutablePointer(to: &accessList) { pointer in
+    let previous = _ThreadLocal.value
+    _ThreadLocal.value = UnsafeMutableRawPointer(pointer)
+    defer {
+      if let previous {
+        // Nested: merge our access list into the parent.
+        if let inner = pointer.pointee {
+          let parentPointer = previous.assumingMemoryBound(to: _AccessList?.self)
+          if parentPointer.pointee == nil {
+            parentPointer.pointee = _AccessList()
+          }
+          parentPointer.pointee?.merge(inner)
+        }
+      }
+      _ThreadLocal.value = previous
+    }
+    return apply()
+  }
+  return (result, accessList)
+}
+
+private struct _TrackingState: @unchecked Sendable {
+  var fired = false
+  var registrations = [(BackportRegistrar.Context, Int)]()
+}
