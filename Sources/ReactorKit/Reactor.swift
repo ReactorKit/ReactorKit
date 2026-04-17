@@ -23,6 +23,8 @@ public protocol Reactor: AnyObject {
   /// A State represents the current state of a view.
   associatedtype State
 
+  typealias Scheduler = ImmediateSchedulerType
+
   /// The action from the view. Bind user inputs to this subject.
   var action: ActionSubject<Action> { get }
 
@@ -34,6 +36,19 @@ public protocol Reactor: AnyObject {
 
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
+
+  /// A scheduler for reducing and observing the state stream. Defaults to `MainScheduler.instance`.
+  ///
+  /// Applied at the effect boundary — each `mutate(_:)` output is rescheduled
+  /// through this scheduler before reaching `transform(mutation:)`, `reduce(_:_:)`,
+  /// `transform(state:)`, and state subscribers. This guarantees reduce and state
+  /// delivery happen on the scheduler even when `mutate(_:)` returns an observable
+  /// that emits on a background thread (e.g. a network response).
+  ///
+  /// `transform(action:)` runs on the action's emission thread, not this
+  /// scheduler. Override with a serial scheduler (e.g. `SerialDispatchQueueScheduler`)
+  /// to move reduction off the main thread.
+  var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
   /// called once before the state stream is created.
@@ -102,6 +117,10 @@ extension Reactor {
     streams.state
   }
 
+  public var scheduler: Scheduler {
+    MainScheduler.instance
+  }
+
   fileprivate var disposeBag: DisposeBag {
     MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
@@ -113,7 +132,9 @@ extension Reactor {
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let self = self else { return .empty() }
-        return self.mutate(action: action).catch { _ in .empty() }
+        return self.mutate(action: action)
+          .catch { _ in .empty() }
+          .observe(on: self.scheduler)
       }
     let transformedMutation = transform(mutation: mutation)
     let state = transformedMutation

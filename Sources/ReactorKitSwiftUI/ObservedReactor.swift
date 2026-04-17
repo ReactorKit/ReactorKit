@@ -142,11 +142,15 @@ public final class ObservedReactor<R: Reactor> where R.State: ObservableState {
   /// Creates an observed reactor, subscribing to the reactor's state
   /// stream and routing every emission through the `state` setter so
   /// observation notifications fire on the main actor.
+  ///
+  /// Contract: `R.scheduler` must be main-thread-isolated (the default
+  /// `MainScheduler.instance` satisfies this). Overriding it to a
+  /// background scheduler while using `ObservedReactor` violates the
+  /// `@MainActor` contract and will trap in `assumeIsolated` below.
   public init(reactor: R) {
     self.reactor = reactor
     self._state = reactor.initialState
     reactor.state
-      .observe(on: MainScheduler.instance)
       .subscribe(onNext: { [weak self] state in
         MainActor.assumeIsolated {
           self?.state = state
@@ -249,7 +253,6 @@ extension ObservedReactor {
     _ transformToPulse: @escaping @Sendable (R.State) throws -> Pulse<Value>
   ) -> AsyncStream<Value> {
     let observable = reactor.pulse(transformToPulse)
-      .observe(on: MainScheduler.instance)
     return AsyncStream { continuation in
       let disposable = observable
         .subscribe(
