@@ -46,16 +46,25 @@ final class ObservedReactorTests: XCTestCase {
     let reactor = ObservedReactor(reactor: testReactor)
 
     let expectation = expectation(description: "state updated")
+    let disposeBag = DisposeBag()
+
+    // Observe the reactor's replay(1) state stream directly. Skipping the
+    // initial replayed value and hopping onto MainScheduler guarantees the
+    // assertion runs after ObservedReactor's own (earlier) subscriber has
+    // written `_state`, so no fixed delay is needed.
+    testReactor.state
+      .skip(1)
+      .take(1)
+      .observe(on: MainScheduler.instance)
+      .subscribe(onNext: { _ in
+        MainActor.assumeIsolated {
+          XCTAssertEqual(reactor.state.count, 1)
+          expectation.fulfill()
+        }
+      })
+      .disposed(by: disposeBag)
 
     reactor.send(TestReactor.Action.increment)
-
-    // State updates happen asynchronously via RxSwift subscribe on MainScheduler.
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      MainActor.assumeIsolated {
-        XCTAssertEqual(reactor.state.count, 1)
-        expectation.fulfill()
-      }
-    }
 
     wait(for: [expectation], timeout: 3.0)
   }
