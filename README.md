@@ -43,7 +43,6 @@ You may want to see the [Examples](#examples) section first if you'd like to see
   - [ObservableState](#observablestate)
   - [ObservedReactor](#observedreactor)
   - [ReactorObserving](#reactorobserving)
-  - [Pulse in SwiftUI](#pulse-in-swiftui)
   - [Bindings](#bindings)
     - [@ReactorBindable](#reactorbindable)
     - [binding(get:send:)](#bindinggetsend)
@@ -518,24 +517,6 @@ struct ProfileView: View {
   var body: some View {
     Text(reactor.username)
     Button("Follow") { reactor.send(.follow) }
-  }
-}
-```
-
-### Pulse in SwiftUI
-
-Use `pulse(_:)` to receive one-shot events as an `AsyncStream`. Unlike state observation, pulse emits even when the same value is assigned again.
-
-```swift
-var body: some View {
-  ReactorObserving {
-    Text(reactor.username)
-  }
-  .task {
-    for await message in reactor.pulse(\.$alertMessage) {
-      guard let message else { continue }
-      // show alert
-    }
   }
 }
 ```
