@@ -34,28 +34,35 @@ import MachO
 ///     the cache and are O(1).
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 @MainActor
-public enum _SwiftUIRenderPathDetector {
+public struct _SwiftUIRenderPathDetector {
 
-  public static func isInRenderPath() -> Bool {
+  public init() {}
+
+  public mutating func isInRenderPath() -> Bool {
     let addresses = Thread.callStackReturnAddresses
+    // NB: stack hashValue can collide, but the consequence is a one-off
+    // spurious/suppressed DEBUG warning — not a correctness bug. Matching
+    // swift-perception's same trade-off; keep Int key for cheap lookup.
     let key = addresses.hashValue
     if let cached = stackHashCache[key] { return cached }
     let result = addresses.reversed().contains { address in
       let value = UInt(bitPattern: address.pointerValue)
-      return attributeGraphRanges.contains { $0.contains(value) }
+      return Self.attributeGraphRanges.contains { $0.contains(value) }
     }
     stackHashCache[key] = result
     return result
   }
 
   /// Per-call-site cache of the render-path verdict, keyed by the
-  /// hash of the return-address stack. SwiftUI hammers the same call
-  /// sites, so nearly every query hits the cache.
-  private static var stackHashCache = [Int: Bool]()
+  /// hash of the return-address stack. Instance-scoped so the cache
+  /// lifetime matches the owning `ObservedReactor` — dismissed
+  /// screens free their entries instead of accumulating process-wide.
+  private var stackHashCache = [Int: Bool]()
 
   /// Virtual-address ranges of every segment in the `AttributeGraph`
   /// dylib, adjusted for ASLR slide. Populated lazily on first
-  /// access; empty when `AttributeGraph` isn't loaded.
+  /// access; empty when `AttributeGraph` isn't loaded. Process-wide
+  /// constant post-load, so kept `static` and shared across detectors.
   private static let attributeGraphRanges: [Range<UInt>] = collectAttributeGraphRanges()
 
   private static func collectAttributeGraphRanges() -> [Range<UInt>] {

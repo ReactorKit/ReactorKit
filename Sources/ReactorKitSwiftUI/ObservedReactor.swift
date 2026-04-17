@@ -44,6 +44,14 @@ public final class ObservedReactor<R: Reactor> where R.State: ObservableState {
   /// Backing storage for `state`.
   private var _state: R.State
 
+  /// Instance-scoped render-path detector. Cache lifetime tracks this
+  /// `ObservedReactor`, so dismissed screens free their entries instead
+  /// of accumulating process-wide. `#if DEBUG` because the detector is
+  /// only consulted by the DEBUG-only missing-scope check below.
+  #if DEBUG
+  private var _renderPathDetector = _SwiftUIRenderPathDetector()
+  #endif
+
   /// DEBUG-only missing-scope check. Called from every read path (the
   /// `state` getter, both dynamic-member subscripts, closure-based
   /// `binding(get:send:)` helpers, and `ReactorBindable`'s projection
@@ -69,7 +77,7 @@ public final class ObservedReactor<R: Reactor> where R.State: ObservableState {
     guard
       ReactorObservingConfiguration.isTrackingCheckEnabled,
       !_ReactorLocals.isInReactorObserving,
-      _SwiftUIRenderPathDetector.isInRenderPath()
+      _renderPathDetector.isInRenderPath()
     else { return }
     _runtimeWarning(
       "ObservedReactor<\(R.self)> state was accessed from a SwiftUI view but is "
