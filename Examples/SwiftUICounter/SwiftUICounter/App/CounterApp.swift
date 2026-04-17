@@ -11,19 +11,28 @@ import ReactorKitSwiftUI
 
 @main
 struct CounterApp: App {
+  @State private var reactor = ObservedReactor(reactor: CounterViewReactor())
+
   var body: some Scene {
     WindowGroup {
       TabView {
-        CounterView(
-          reactor: ObservedReactor(reactor: CounterViewReactor())
-        )
-        .tabItem { Label("ReactorKit", systemImage: "atom") }
+        CounterView(reactor: reactor)
+          .tabItem { Label("ReactorKit", systemImage: "atom") }
 
         if #available(iOS 17.0, *) {
-          VanillaCounterView(model: VanillaCounterModel())
+          VanillaTab()
             .tabItem { Label("Vanilla", systemImage: "swift") }
         }
       }
     }
+  }
+}
+
+@available(iOS 17.0, *)
+private struct VanillaTab: View {
+  @State private var model = VanillaCounterModel()
+
+  var body: some View {
+    VanillaCounterView(model: model)
   }
 }

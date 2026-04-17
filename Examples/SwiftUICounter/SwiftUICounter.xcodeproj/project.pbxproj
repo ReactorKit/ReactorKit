@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		711B45182F8A64EB00C3818C /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 711B45172F8A64EB00C3818C /* ReactorKit */; };
 		711B451C2F8A64EB00C3818C /* ReactorKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */; };
-		711B46092F8BCFD100C3818C /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 711B46082F8BCFD100C3818C /* ReactorKit */; };
-		711B460B2F8BCFD100C3818C /* ReactorKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,8 +29,6 @@
 			files = (
 				711B45182F8A64EB00C3818C /* ReactorKit in Frameworks */,
 				711B451C2F8A64EB00C3818C /* ReactorKitSwiftUI in Frameworks */,
-				711B46092F8BCFD100C3818C /* ReactorKit in Frameworks */,
-				711B460B2F8BCFD100C3818C /* ReactorKitSwiftUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,8 +94,6 @@
 			packageProductDependencies = (
 				711B45172F8A64EB00C3818C /* ReactorKit */,
 				711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */,
-				711B46082F8BCFD100C3818C /* ReactorKit */,
-				711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */,
 			);
 			productName = SwiftUICounter;
 			productReference = B10000020000000000000001 /* SwiftUICounter.app */;
@@ -274,14 +268,6 @@
 			productName = ReactorKit;
 		};
 		711B451B2F8A64EB00C3818C /* ReactorKitSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ReactorKitSwiftUI;
-		};
-		711B46082F8BCFD100C3818C /* ReactorKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ReactorKit;
-		};
-		711B460A2F8BCFD100C3818C /* ReactorKitSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ReactorKitSwiftUI;
 		};

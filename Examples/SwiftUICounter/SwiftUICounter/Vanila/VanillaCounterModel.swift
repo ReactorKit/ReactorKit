@@ -20,24 +20,34 @@ final class VanillaCounterModel {
   var alertMessage: String?
 
   func increase() {
+    guard !isLoading else { return }
     isLoading = true
     Task {
-      try? await Task.sleep(for: .milliseconds(300))
-      count += 1
+      do {
+        try await Task.sleep(for: .milliseconds(300))
+        count += 1
+        alertMessage = "Count: \(count)"
+        showAlert = true
+      } catch {
+        // Task cancelled — skip state update.
+      }
       isLoading = false
-      alertMessage = "Count: \(count)"
-      showAlert = true
     }
   }
 
   func decrease() {
+    guard !isLoading else { return }
     isLoading = true
     Task {
-      try? await Task.sleep(for: .milliseconds(300))
-      count -= 1
+      do {
+        try await Task.sleep(for: .milliseconds(300))
+        count -= 1
+        alertMessage = "Count: \(count)"
+        showAlert = true
+      } catch {
+        // Task cancelled — skip state update.
+      }
       isLoading = false
-      alertMessage = "Count: \(count)"
-      showAlert = true
     }
   }
 

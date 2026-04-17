@@ -44,6 +44,7 @@ final class CounterViewReactor: Reactor {
       return .just(.binding(bindingAction))
 
     case .increase:
+      guard !currentState.isLoading else { return .empty() }
       return Observable.concat([
         .just(.setLoading(true)),
         Observable.just(.increaseValue)
@@ -51,6 +52,7 @@ final class CounterViewReactor: Reactor {
       ])
 
     case .decrease:
+      guard !currentState.isLoading else { return .empty() }
       return Observable.concat([
         .just(.setLoading(true)),
         Observable.just(.decreaseValue)
