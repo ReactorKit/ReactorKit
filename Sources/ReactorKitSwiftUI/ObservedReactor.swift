@@ -199,7 +199,7 @@ extension ObservedReactor
   /// value, the macro setter's equality skip dedupes; when `reduce`
   /// transforms the value, the UI shows the raw value for one tick
   /// then snaps to the transformed one.
-  public subscript<Value>(
+  public subscript<Value: Sendable>(
     dynamicMember keyPath: WritableKeyPath<R.State, Value>
   ) -> Value {
     get {
@@ -271,6 +271,12 @@ extension ObservedReactor {
 // useful when the property write should translate into something other
 // than the default `Action.binding(.set(keyPath, newValue))` — e.g., a
 // transform or a domain-specific action.
+//
+// Also the designated escape hatch for binding non-`Sendable` state
+// properties: unlike `$reactor.foo` (which requires `Value: Sendable`
+// because `BindingAction.set` does), these helpers impose no such
+// constraint — the write routes through a user-supplied action instead
+// of a generic `BindingAction`.
 //
 // Reads from `_state` directly so the macro-generated getter records
 // the access on the state struct's registrar instead of taking a

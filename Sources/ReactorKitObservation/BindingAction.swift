@@ -41,6 +41,14 @@ public protocol BindableAction {
 /// the assignment. Construct via ``set(_:_:)``, apply via ``apply(to:)``.
 /// Two actions compare equal when they target the same keyPath *and* were
 /// both constructed via the `Equatable` overload with equal values.
+/// `@unchecked Sendable`: `PartialKeyPath<Root>` and `WritableKeyPath<Root, Value>`
+/// are not themselves `Sendable` on current Swift stdlibs, but key paths are
+/// immutable value-semantics (backing storage is COW and read-only after
+/// creation) and safe to share across threads. Factories constrain
+/// `Value: Sendable` so captured values and the equality comparator payload
+/// are legitimately Sendable; `BindableAction.State: Sendable` closes the
+/// loop at the protocol level. The `@unchecked` exists solely because
+/// stdlib hasn't marked `*KeyPath` as `Sendable` yet.
 public struct BindingAction<Root>: @unchecked Sendable {
 
   /// The keyPath being written.
@@ -51,8 +59,10 @@ public struct BindingAction<Root>: @unchecked Sendable {
 
   /// Type-erased value capture, used only by the equality comparator.
   /// `nil` when the action was created via the non-Equatable overload.
+  /// Typed as `(any Sendable)?` so only Sendable payloads can be stored —
+  /// enforced by the `Value: Sendable` factory constraints.
   @usableFromInline
-  let _value: Any?
+  let _value: (any Sendable)?
 
   /// Compares this action's captured value to `other._value`. Returns `false`
   /// safely when the other action carried a non-matching type or no value.
@@ -63,7 +73,7 @@ public struct BindingAction<Root>: @unchecked Sendable {
   init(
     keyPath: PartialKeyPath<Root>,
     apply: @escaping (inout Root) -> Void,
-    value: Any?,
+    value: (any Sendable)?,
     valueIsEqualTo: @escaping (Any?) -> Bool
   ) {
     self.keyPath = keyPath
@@ -77,7 +87,7 @@ public struct BindingAction<Root>: @unchecked Sendable {
   /// Non-`Equatable` overload — two actions built this way are never equal,
   /// regardless of keyPath or value.
   @_disfavoredOverload
-  public static func set<Value>(
+  public static func set<Value: Sendable>(
     _ keyPath: WritableKeyPath<Root, Value>,
     _ value: Value
   ) -> Self {
@@ -93,7 +103,7 @@ public struct BindingAction<Root>: @unchecked Sendable {
   ///
   /// `Equatable` overload — captures a comparator so two such actions can be
   /// compared for structural equality.
-  public static func set<Value: Equatable>(
+  public static func set<Value: Equatable & Sendable>(
     _ keyPath: WritableKeyPath<Root, Value>,
     _ value: Value
   ) -> Self {
