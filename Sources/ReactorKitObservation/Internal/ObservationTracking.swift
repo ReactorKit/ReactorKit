@@ -53,11 +53,13 @@ struct _AccessList: Sendable {
   func installTracking(onChange: @escaping @Sendable () -> Void) {
     guard !entries.isEmpty else { return }
 
-    // Shared state for one-shot cancellation.
-    // Registrations are stored incrementally so that a concurrent willSet
-    // during the loop can still cancel all previously registered observers.
+    // Register all observers first, then install the registration map
+    // atomically. A `willSet` that fires during Phase 1 will flip `fired`,
+    // and Phase 2 cancels every registered observer to prevent leaks.
     let shared = _ManagedCriticalState(_TrackingState())
 
+    // Phase 1: register observers. Callbacks may fire concurrently.
+    var registered = [(BackportRegistrar.Context, Int)]()
     for (_, entry) in entries {
       let id = entry.context.register(for: entry.keyPaths) { [shared] _ in
         let shouldFire: Bool = shared.withCriticalRegion { state in
@@ -67,7 +69,6 @@ struct _AccessList: Sendable {
         }
         guard shouldFire else { return }
 
-        // Cancel all registrations (including this one).
         let regs = shared.withCriticalRegion { $0.registrations }
         for (ctx, regID) in regs {
           ctx.cancel(regID)
@@ -75,8 +76,20 @@ struct _AccessList: Sendable {
 
         onChange()
       }
-      // Store each registration immediately so concurrent willSet can cancel it.
-      shared.withCriticalRegion { $0.registrations.append((entry.context, id)) }
+      registered.append((entry.context, id))
+    }
+
+    // Phase 2: atomic install. If a willSet already fired during Phase 1,
+    // cancel every observer here so none leak past the one-shot boundary.
+    let alreadyFired = shared.withCriticalRegion { state -> Bool in
+      if state.fired { return true }
+      state.registrations = registered
+      return false
+    }
+    if alreadyFired {
+      for (ctx, id) in registered {
+        ctx.cancel(id)
+      }
     }
   }
 }
