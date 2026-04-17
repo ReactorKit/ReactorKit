@@ -1,7 +1,7 @@
 <img alt="ReactorKit" src="https://cloud.githubusercontent.com/assets/931655/25277625/6aa05998-26da-11e7-9b85-e48bec938a6e.png" style="max-width: 100%">
 
 <p align="center">
-  <img alt="Swift" src="https://img.shields.io/badge/Swift-5.0-orange.svg">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-6.0-orange.svg">
   <a href="https://cocoapods.org/pods/ReactorKit" target="_blank">
     <img alt="CocoaPods" src="http://img.shields.io/cocoapods/v/ReactorKit.svg">
   </a>
@@ -39,6 +39,16 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     - [View testing](#view-testing)
     - [Reactor testing](#reactor-testing)
   - [Pulse](#pulse)
+- [SwiftUI](#swiftui)
+  - [ObservableState](#observablestate)
+  - [ObservedReactor](#observedreactor)
+  - [ReactorObserving](#reactorobserving)
+  - [Pulse in SwiftUI](#pulse-in-swiftui)
+  - [Bindings](#bindings)
+    - [@ReactorBindable](#reactorbindable)
+    - [binding(get:send:)](#bindinggetsend)
+  - [ObservableStateIgnored](#observablestateignored)
+  - [Testing in SwiftUI](#testing-in-swiftui)
 - [Examples](#examples)
 - [Dependencies](#dependencies)
 - [Requirements](#requirements)
@@ -422,9 +432,183 @@ reactor.action.onNext(.alert("tokijh")) // showAlert() is called with `tokijh`
 reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 ```
 
+## SwiftUI
+
+ReactorKit supports SwiftUI through the `ReactorKitSwiftUI` module. You can use your existing reactors in SwiftUI views with one addition: annotate your `State` with `@ObservableState`.
+
+### ObservableState
+
+Add the `@ObservableState` macro to your reactor's `State` struct. This enables per-property observation — SwiftUI re-renders only when the properties a view actually reads have changed.
+
+```swift
+import ReactorKitObservation
+
+final class ProfileViewReactor: Reactor {
+  enum Action {
+    case follow
+  }
+
+  enum Mutation {
+    case setFollowing(Bool)
+  }
+
+  @ObservableState
+  struct State {
+    var username: String = ""
+    var isFollowing: Bool = false
+  }
+
+  let initialState = State()
+}
+```
+
+### ObservedReactor
+
+Wrap your reactor in `ObservedReactor` to make it observable by SwiftUI. Access state properties directly via dynamic member lookup.
+
+```swift
+import ReactorKitSwiftUI
+
+struct ProfileView: View {
+  let reactor: ObservedReactor<ProfileViewReactor>
+
+  var body: some View {
+    ReactorObserving {
+      Text(reactor.username)
+      Button("Follow") { reactor.send(.follow) }
+    }
+  }
+}
+```
+
+### ReactorObserving
+
+`ReactorObserving` enables observation tracking on iOS 13–16. On iOS 17+, SwiftUI natively tracks `Observable` property access, so `ReactorObserving` becomes a transparent passthrough.
+
+```swift
+// iOS 17+: ReactorObserving is optional
+struct ProfileView: View {
+  let reactor: ObservedReactor<ProfileViewReactor>
+
+  var body: some View {
+    Text(reactor.username)
+    Button("Follow") { reactor.send(.follow) }
+  }
+}
+```
+
+### Pulse in SwiftUI
+
+Use `pulse(_:)` to receive one-shot events as an `AsyncStream`. Unlike state observation, pulse emits even when the same value is assigned again.
+
+```swift
+var body: some View {
+  ReactorObserving {
+    Text(reactor.username)
+  }
+  .task {
+    for await message in reactor.pulse(\.$alertMessage) {
+      guard let message else { continue }
+      // show alert
+    }
+  }
+}
+```
+
+### Bindings
+
+#### @ReactorBindable
+
+For two-way bindings, conform your `Action` to `BindableAction` and use `@ReactorBindable`:
+
+```swift
+// Reactor
+enum Action: BindableAction {
+  case binding(BindingAction<State>)
+  // other actions...
+}
+
+// In reduce:
+case .binding(let action):
+  action.apply(to: &state)
+```
+
+```swift
+// View
+struct ProfileView: View {
+  @ReactorBindable var reactor: ObservedReactor<ProfileViewReactor>
+
+  var body: some View {
+    ReactorObserving {
+      TextField("Name", text: $reactor.name)
+      Toggle("Enabled", isOn: $reactor.isEnabled)
+    }
+  }
+}
+```
+
+#### binding(get:send:)
+
+For bindings that map to custom actions (not `BindableAction`), use `binding(get:send:)`:
+
+```swift
+// Closure form
+TextField("Name", text: reactor.binding(
+  get: \.name,
+  send: { .setName($0) }
+))
+
+// Constant action form
+Toggle("Enabled", isOn: reactor.binding(
+  get: \.isEnabled,
+  send: .toggleEnabled
+))
+```
+
+> **Note**: `binding(get:send:)` produces closure-based bindings. SwiftUI may re-evaluate child views on every parent body evaluation even when the bound value hasn't changed. Prefer `@ReactorBindable` when using `BindableAction` — it produces location-based bindings that let SwiftUI skip unnecessary re-renders.
+
+### ObservableStateIgnored
+
+Properties with property wrappers (other than `@Pulse`) must be explicitly excluded from observation tracking with `@ObservableStateIgnored`:
+
+```swift
+@ObservableState
+struct State {
+  var count: Int = 0
+  @ObservableStateIgnored
+  @MyCustomWrapper var customValue: String = ""
+}
+```
+
+`@Pulse` is handled automatically — no `@ObservableStateIgnored` needed.
+
+### Testing in SwiftUI
+
+ReactorKit's built-in stub works with `ObservedReactor`. Use it in SwiftUI Previews:
+
+```swift
+#Preview {
+  let reactor = ProfileViewReactor()
+  reactor.isStubEnabled = true
+  reactor.stub.state.value = .init(username: "devxoul")
+  return ProfileView(reactor: ObservedReactor(reactor: reactor))
+}
+```
+
+### SwiftUI Installation
+
+SwiftUI support requires Swift Package Manager (CocoaPods is not supported due to macro limitations).
+
+**Package.swift**
+
+```swift
+.target(name: "MyApp", dependencies: ["ReactorKit", "ReactorKitSwiftUI"])
+```
+
 ## Examples
 
-- [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit
+- [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit (UIKit)
+- [SwiftUI Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/SwiftUICounter): A SwiftUI example using ObservedReactor and ReactorObserving
 - [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides a GitHub repository search
 - [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
 - [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
@@ -437,15 +621,15 @@ reactor.action.onNext(.doSomeAction)    // showAlert() is not called
 
 ## Dependencies
 
-- [RxSwift](https://github.com/ReactiveX/RxSwift) >= 5.0
+- [RxSwift](https://github.com/ReactiveX/RxSwift) ~> 6.0
 
 ## Requirements
 
-- Swift 5
-- iOS 8
-- macOS 10.11
-- tvOS 9.0
-- watchOS 2.0
+- Swift 6.0+
+- iOS 13.0+
+- macOS 10.15+
+- tvOS 13.0+
+- watchOS 6.0+
 
 ## Installation
 

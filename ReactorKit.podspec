@@ -7,14 +7,21 @@ Pod::Spec.new do |s|
   s.author           = { "Suyeol Jeon" => "devxoul@gmail.com" }
   s.source           = { :git => "https://github.com/ReactorKit/ReactorKit.git",
                          :tag => s.version.to_s }
-  s.source_files = "Sources/**/*.{swift,h,m}"
+  s.swift_version = "6.0"
+
+  s.ios.deployment_target = "13.0"
+  s.osx.deployment_target = "10.15"
+  s.tvos.deployment_target = "13.0"
+  s.watchos.deployment_target = "6.0"
+
+  s.source_files = "Sources/ReactorKit/**/*.{swift,h,m}",
+                    "Sources/ReactorKitRuntime/**/*.{swift,h,m}"
   s.frameworks   = "Foundation"
-  s.swift_version = "5.0"
   s.dependency "RxSwift", "~> 6.0"
   s.dependency "WeakMapTable", "~> 1.1"
 
-  s.ios.deployment_target = "12.0"
-  s.osx.deployment_target = "10.13"
-  s.tvos.deployment_target = "12.0"
-  s.watchos.deployment_target = "4.0"
+  # NOTE: ReactorKitSwiftUI / ReactorKitObservation are SPM-only.
+  # They depend on Swift macros which CocoaPods does not support.
+  # Use Swift Package Manager for SwiftUI integration:
+  #   .product(name: "ReactorKitSwiftUI", package: "ReactorKit")
 end

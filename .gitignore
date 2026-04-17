@@ -1,12 +1,26 @@
+# macOS
 .DS_Store
+
+# Generated docs
 sourcekitten-output.json
 docs/
-/.build
-/.swiftpm
-/Packages
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.pins
+Package.resolved
+
+# Xcode
 /*.xcodeproj
 **/xcuserdata
 **/xcshareddata
+DerivedData/
+
+# Dependencies
 Pods/
 Carthage/
+
+# Examples
 Examples/Examples.xcworkspace
