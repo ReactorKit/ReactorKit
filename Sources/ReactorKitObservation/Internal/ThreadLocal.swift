@@ -13,12 +13,16 @@ enum _ThreadLocal {
 
   private static let key: pthread_key_t = {
     var key = pthread_key_t()
-    pthread_key_create(&key, nil)
+    let result = pthread_key_create(&key, nil)
+    precondition(result == 0, "pthread_key_create failed: \(result)")
     return key
   }()
 
   static var value: UnsafeMutableRawPointer? {
     get { pthread_getspecific(key) }
-    set { pthread_setspecific(key, newValue) }
+    set {
+      let result = pthread_setspecific(key, newValue)
+      precondition(result == 0, "pthread_setspecific failed: \(result)")
+    }
   }
 }
