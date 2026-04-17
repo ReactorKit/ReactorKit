@@ -8,7 +8,7 @@
 extension Reactor {
   /// Returns an observable sequence that emits the value of the pulse only when its valueUpdatedCount changes.
   ///
-  /// - seealso: [Pulse document](https://github.com/ReactorKit/ReactorKit/blob/master/Documentation/Contents/Pulse.md)
+  /// - seealso: [Pulse document](https://github.com/ReactorKit/ReactorKit/blob/main/Documentation/Contents/Pulse.md)
   /// - seealso: [The official document introduction](https://github.com/ReactorKit/ReactorKit#pulse)
   ///
   /// - parameter transformToPulse: A transform function to apply to the current state of the reactor

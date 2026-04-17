@@ -412,7 +412,7 @@ oldMessagePulse.value == messagePulse.value // true
 ```
 
 Use when you want to receive an event only if the new value is assigned, even if it is the same value.
-like `alertMessage` (See follows or [PulseTests.swift](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift))
+like `alertMessage` (See follows or [PulseTests.swift](https://github.com/ReactorKit/ReactorKit/blob/main/Tests/ReactorKitTests/PulseTests.swift))
 
 ```swift
 // Reactor
@@ -632,9 +632,9 @@ SwiftUI support requires Swift Package Manager (CocoaPods is not supported due t
 
 ## Examples
 
-- [Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/Counter): The most simple and basic example of ReactorKit (UIKit)
-- [SwiftUI Counter](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/SwiftUICounter): A SwiftUI example using ObservedReactor and ReactorObserving
-- [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/master/Examples/GitHubSearch): A simple application which provides a GitHub repository search
+- [Counter](https://github.com/ReactorKit/ReactorKit/tree/main/Examples/Counter): The most simple and basic example of ReactorKit (UIKit)
+- [SwiftUI Counter](https://github.com/ReactorKit/ReactorKit/tree/main/Examples/SwiftUICounter): A SwiftUI example using ObservedReactor and ReactorObserving
+- [GitHub Search](https://github.com/ReactorKit/ReactorKit/tree/main/Examples/GitHubSearch): A simple application which provides a GitHub repository search
 - [RxTodo](https://github.com/devxoul/RxTodo): iOS Todo Application using ReactorKit
 - [Cleverbot](https://github.com/devxoul/Cleverbot): iOS Messaging Application using Cleverbot and ReactorKit
 - [Drrrible](https://github.com/devxoul/Drrrible): Dribbble for iOS using ReactorKit ([App Store](https://itunes.apple.com/us/app/drrrible/id1229592223?mt=8))
@@ -754,4 +754,4 @@ Any discussions and pull requests are welcomed 💖
 
 ## License
 
-ReactorKit is under MIT license. See the [LICENSE](https://github.com/ReactorKit/ReactorKit/blob/master/LICENSE) for more info.
+ReactorKit is under MIT license. See the [LICENSE](https://github.com/ReactorKit/ReactorKit/blob/main/LICENSE) for more info.

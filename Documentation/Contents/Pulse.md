@@ -186,7 +186,7 @@ The official document of ReactorKit provides additional explanations and example
 
 The most important part is `if the new value is assigned`. That is, the stream does not emit events unless a new value is assigned.
 
-Let's look at an additional [example](https://github.com/ReactorKit/ReactorKit/blob/master/Tests/ReactorKitTests/PulseTests.swift).
+Let's look at an additional [example](https://github.com/ReactorKit/ReactorKit/blob/main/Tests/ReactorKitTests/PulseTests.swift).
 
 ```swift
 import XCTest
