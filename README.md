@@ -371,6 +371,31 @@ func testIsLoading() {
 }
 ```
 
+### Scheduling
+
+Override the `scheduler` property to specify which scheduler runs reduction and state delivery. The default is `MainScheduler.instance`, which makes state subscription safe to bind directly to UI without an additional `observe(on:)` hop.
+
+The scheduler is applied at the **effect boundary** — each `mutate(_:)` output is rescheduled through `scheduler` before reaching `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers. This holds even when `mutate(_:)` returns an observable that emits on a background thread (e.g. a network response), so you do not need to add `.observe(on: MainScheduler.instance)` inside every async `mutate` return.
+
+Override with a serial scheduler when you need to move heavy reduction work off the main thread:
+
+```swift
+final class MyReactor: Reactor {
+  let scheduler: Scheduler = SerialDispatchQueueScheduler(qos: .default)
+
+  func reduce(state: State, mutation: Mutation) -> State {
+    // executed on the background serial queue
+    heavyAndImportantCalculation()
+    return state
+  }
+}
+```
+
+Notes:
+- The scheduler **must be serial**. Concurrent schedulers break the "single writer" invariant the reducer relies on.
+- `transform(action:)` runs on the action's emission thread, not `scheduler`. Downstream of `mutate(_:)` is the scheduled section.
+- When using `ObservedReactor` for SwiftUI, keep the default `MainScheduler.instance`. Overriding to a non-main scheduler violates `ObservedReactor`'s main-actor contract.
+
 ### Pulse
 
 `Pulse` has diff only when mutated
