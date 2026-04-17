@@ -23,15 +23,6 @@ import MachO
 /// entirely — the cached ranges stay empty, every query returns
 /// `false`, and the warning silently turns off. No crashes, no
 /// false positives.
-///
-/// Cost profile:
-///   - Initialization: one pass over loaded dylib images on first
-///     call, parsing `AttributeGraph`'s mach-o segments into a range
-///     set. Runs once per process, ~hundreds of microseconds.
-///   - Per call: `Thread.callStackReturnAddresses` (single syscall +
-///     frame pointer walk) + dictionary lookup in a cache keyed by
-///     the stack hash. Repeated queries from the same call site hit
-///     the cache and are O(1).
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 @MainActor
 public struct _SwiftUIRenderPathDetector {
@@ -40,9 +31,6 @@ public struct _SwiftUIRenderPathDetector {
 
   public mutating func isInRenderPath() -> Bool {
     let addresses = Thread.callStackReturnAddresses
-    // NB: stack hashValue can collide, but the consequence is a one-off
-    // spurious/suppressed DEBUG warning — not a correctness bug. Matching
-    // swift-perception's same trade-off; keep Int key for cheap lookup.
     let key = addresses.hashValue
     if let cached = stackHashCache[key] { return cached }
     let result = addresses.reversed().contains { address in
