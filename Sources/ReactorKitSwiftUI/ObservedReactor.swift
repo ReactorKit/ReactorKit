@@ -233,37 +233,6 @@ extension ObservedReactor
 extension ObservedReactor: Observation.Observable {}
 #endif
 
-// MARK: - Pulse
-
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-extension ObservedReactor {
-  /// Returns an `AsyncStream` that emits the value of a `Pulse` property whenever it is updated.
-  ///
-  /// Unlike observing state properties directly, pulse streams emit even when the same value
-  /// is assigned again. This is useful for one-shot events like alerts or toasts.
-  ///
-  /// ```swift
-  /// .task {
-  ///   for await message in reactor.pulse(\.$alertMessage) {
-  ///     showAlert = true
-  ///   }
-  /// }
-  /// ```
-  public func pulse<Value: Sendable>(
-    _ transformToPulse: @escaping @Sendable (R.State) throws -> Pulse<Value>
-  ) -> AsyncStream<Value> {
-    let observable = reactor.pulse(transformToPulse)
-    return AsyncStream { continuation in
-      let disposable = observable
-        .subscribe(
-          onNext: { value in continuation.yield(value) },
-          onDisposed: { continuation.finish() }
-        )
-      continuation.onTermination = { @Sendable _ in disposable.dispose() }
-    }
-  }
-}
-
 // MARK: - binding(get:send:) helpers
 //
 // Vends closure-based `Binding`s that dispatch a supplied action on
