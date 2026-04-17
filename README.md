@@ -595,7 +595,7 @@ ReactorKit's built-in stub works with `ObservedReactor`. Use it in SwiftUI Previ
 }
 ```
 
-### Installation
+### SwiftUI Installation
 
 SwiftUI support requires Swift Package Manager (CocoaPods is not supported due to macro limitations).
 
