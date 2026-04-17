@@ -10,12 +10,15 @@ let package = Package(
   ],
   products: [
     .library(name: "ReactorKit", targets: ["ReactorKit"]),
+    .library(name: "ReactorKitObservation", targets: ["ReactorKitObservation"]),
     .library(name: "ReactorKitSwiftUI", targets: ["ReactorKitSwiftUI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
     .package(url: "https://github.com/ReactorKit/WeakMapTable.git", .upToNextMajor(from: "1.1.0")),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.0.0"..<"700.0.0"),
+    // Lower bound 510 required: ObservableStateMacro uses
+    // `VariableDeclSyntax.bindingSpecifier`, renamed from `bindingKeyword` in 510.
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "510.0.0"..<"605.0.0"),
   ],
   targets: [
     .target(
