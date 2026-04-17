@@ -23,6 +23,7 @@ struct VanillaCounterView: View {
             Button { model.decrease() } label: {
               Image(systemName: "minus.circle.fill")
             }
+            .accessibilityLabel("Decrease")
             .disabled(model.isLoading)
 
             Spacer()
@@ -39,6 +40,7 @@ struct VanillaCounterView: View {
             Button { model.increase() } label: {
               Image(systemName: "plus.circle.fill")
             }
+            .accessibilityLabel("Increase")
             .disabled(model.isLoading)
           }
           .buttonStyle(.borderless)

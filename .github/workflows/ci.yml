@@ -26,7 +26,7 @@ jobs:
         run: swift test
 
   # iOS / tvOS: xcodebuild with ReactorKitSwiftUI scheme.
-  # Tests ReactorKitSwiftUITests (SwiftUI adapter + observation integration).
+  # Builds ReactorKitSwiftUI to verify compilation on simulator SDKs.
   # Macro expansion tests and observation unit tests run on macOS only.
   xcodebuild:
     name: ${{ matrix.platform }}
