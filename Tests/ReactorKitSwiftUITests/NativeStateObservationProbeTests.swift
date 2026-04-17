@@ -60,7 +60,7 @@ private final class ProbeReactor: Reactor {
   }
 }
 
-@available(macOS 14.0, *)
+@available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
 final class NativeStateObservationProbeTests: XCTestCase {
 
   func testDirectWithObservationTrackingSeesPerPropertyAccess() {

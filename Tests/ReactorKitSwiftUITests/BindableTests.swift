@@ -202,7 +202,7 @@ final class ObservedReactorBindableTests: XCTestCase {
 
   /// Native Observation per-property scoping (iOS 17+/macOS 14+). This is
   /// the test that matches what SwiftUI actually does in view bodies.
-  @available(macOS 14.0, *)
+  @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
   func testNativePerPropertyScopingReaderNotInvalidatedByOtherProperty() {
     let testReactor = BindableTestReactor()
     let reactor = ObservedReactor(reactor: testReactor)
@@ -228,7 +228,7 @@ final class ObservedReactorBindableTests: XCTestCase {
     )
   }
 
-  @available(macOS 14.0, *)
+  @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
   func testNativePerPropertyScopingReaderInvalidatedByMatchingProperty() {
     let testReactor = BindableTestReactor()
     let reactor = ObservedReactor(reactor: testReactor)
