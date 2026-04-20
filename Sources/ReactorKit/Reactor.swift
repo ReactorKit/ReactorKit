@@ -6,6 +6,8 @@
 //  Copyright © 2017 Suyeol Jeon. All rights reserved.
 //
 
+import Foundation
+
 import RxSwift
 @preconcurrency import WeakMapTable
 
@@ -45,9 +47,21 @@ public protocol Reactor: AnyObject {
   /// delivery happen on the scheduler even when `mutate(_:)` returns an observable
   /// that emits on a background thread (e.g. a network response).
   ///
-  /// `transform(action:)` runs on the action's emission thread, not this
-  /// scheduler. Override with a serial scheduler (e.g. `SerialDispatchQueueScheduler`)
-  /// to move reduction off the main thread.
+  /// **Action dispatch contract**: callers of `action.onNext(_:)` are responsible
+  /// for being on a thread compatible with `scheduler`. The action upstream is
+  /// not rescheduled, so sync dispatch semantics from a compatible thread are
+  /// preserved. In DEBUG builds an `os_log` fault is emitted when an action is
+  /// dispatched from a non-main thread while `scheduler` is the default
+  /// `MainScheduler` (custom schedulers are not checked — most do not expose
+  /// their queue context).
+  ///
+  /// `transform(action:)` runs on the caller's thread by design — this is the
+  /// surface for stream-shaping operators (debounce, throttle, merge with other
+  /// sources) where natural emission timing matters.
+  ///
+  /// Override with a serial scheduler (e.g. `SerialDispatchQueueScheduler`) to
+  /// move reduction off the main thread. The scheduler **must be serial**;
+  /// concurrent schedulers break the single-writer invariant of `reduce`.
   var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
@@ -127,15 +141,19 @@ extension Reactor {
 
   private func createReactorStreams() -> ReactorStreams<Action, State> {
     let actionSubject = ActionSubject<Action>()
-    let action = actionSubject.asObservable()
+    let baseAction = actionSubject.asObservable()
+    #if DEBUG
+    let action = baseAction.do(onNext: { [weak self] _ in self?._checkActionDispatchContext() })
+    #else
+    let action = baseAction
+    #endif
     let transformedAction = transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let self = self else { return .empty() }
-        return self.mutate(action: action)
-          .catch { _ in .empty() }
-          .observe(on: self.scheduler)
+        return self.mutate(action: action).catch { _ in .empty() }
       }
+      .observe(on: scheduler)
     let transformedMutation = transform(mutation: mutation)
     let state = transformedMutation
       .scan(initialState) { [weak self] state, mutation -> State in
@@ -152,6 +170,21 @@ extension Reactor {
     transformedState.connect().disposed(by: disposeBag)
     return ReactorStreams(action: actionSubject, state: transformedState)
   }
+
+  #if DEBUG
+  /// DEBUG-only check that the action dispatch context is compatible with
+  /// `scheduler`. Currently checks the default `MainScheduler` case only;
+  /// custom schedulers do not expose enough queue context for a generic check.
+  /// See the `scheduler` property documentation for the dispatch contract.
+  fileprivate func _checkActionDispatchContext() {
+    guard scheduler is MainScheduler, !Thread.isMainThread else { return }
+    _runtimeWarning(
+      "\(type(of: self)).action received an action from a non-main thread, "
+        + "but `scheduler` is MainScheduler. Dispatch the action from the main "
+        + "thread, or override `scheduler` to match your dispatch context."
+    )
+  }
+  #endif
 
   public func transform(action: Observable<Action>) -> Observable<Action> {
     action

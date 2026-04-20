@@ -171,4 +171,94 @@ final class ReactorSchedulerTests: XCTestCase {
       XCTAssertFalse(thread.isMainThread)
     }
   }
+
+  /// Verifies the DEBUG action-dispatch contract check does not block or crash
+  /// the pipeline when an action is dispatched from a non-main thread under the
+  /// default `MainScheduler`. The `os_log` fault emission itself is observable
+  /// in Xcode's console; this test only guarantees the check is non-fatal and
+  /// preserves correctness so the warning surfaces a real misuse rather than a
+  /// regression.
+  func testActionDispatchContractCheckIsNonFatal() {
+    final class SimpleReactor: Reactor, @unchecked Sendable {
+      typealias Action = Void
+      typealias Mutation = Void
+
+      struct State {
+        var count = 0
+      }
+
+      let initialState = State()
+
+      func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        newState.count += 1
+        return newState
+      }
+    }
+
+    let reactor = SimpleReactor()
+    let disposeBag = DisposeBag()
+    let expectation = XCTestExpectation()
+
+    reactor.state
+      .skip(1) // initial state
+      .subscribe(onNext: { state in
+        if state.count == 1 {
+          expectation.fulfill()
+        }
+      })
+      .disposed(by: disposeBag)
+
+    DispatchQueue.global().async {
+      reactor.action.onNext(Void())
+    }
+
+    XCTWaiter().wait(for: [expectation], timeout: 5)
+    XCTAssertEqual(reactor.currentState.count, 1)
+  }
+
+  /// Verifies the DEBUG check does not emit when a custom (non-MainScheduler)
+  /// scheduler is in use, even if the action is dispatched from a non-main
+  /// thread. There is no negative assertion against `os_log` (capture is
+  /// platform-dependent); this test pins behavior by exercising the early
+  /// `guard scheduler is MainScheduler` exit and confirming correctness.
+  func testActionDispatchContractCheckSkippedForCustomScheduler() {
+    final class SimpleReactor: Reactor, @unchecked Sendable {
+      typealias Action = Void
+      typealias Mutation = Void
+
+      struct State {
+        var count = 0
+      }
+
+      let initialState = State()
+      let scheduler: ImmediateSchedulerType = SerialDispatchQueueScheduler(qos: .default)
+
+      func reduce(state: State, mutation: Mutation) -> State {
+        var newState = state
+        newState.count += 1
+        return newState
+      }
+    }
+
+    let reactor = SimpleReactor()
+    let disposeBag = DisposeBag()
+    let expectation = XCTestExpectation()
+
+    reactor.state
+      .skip(1)
+      .subscribe(onNext: { state in
+        if state.count == 1 {
+          expectation.fulfill()
+        }
+      })
+      .disposed(by: disposeBag)
+
+    DispatchQueue.global().async {
+      reactor.action.onNext(Void())
+    }
+
+    XCTWaiter().wait(for: [expectation], timeout: 5)
+    XCTAssertEqual(reactor.currentState.count, 1)
+  }
 }
