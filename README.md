@@ -392,7 +392,8 @@ final class MyReactor: Reactor {
 
 Notes:
 - The scheduler **must be serial**. Concurrent schedulers break the "single writer" invariant the reducer relies on.
-- `transform(action:)` runs on the action's emission thread, not `scheduler`. Downstream of `mutate(_:)` is the scheduled section.
+- **Action dispatch contract**: callers of `action.onNext(_:)` must be on a thread compatible with `scheduler` (default: main). The action upstream is not rescheduled, so sync dispatch from a compatible thread is preserved. In DEBUG builds an `os_log` fault is emitted when an action is dispatched from a non-main thread while `scheduler` is the default `MainScheduler` — custom schedulers are not checked.
+- `transform(action:)` runs on the caller's thread by design — this is the surface for stream-shaping operators (debounce, throttle, merge with other sources) where natural emission timing matters. The scheduled section starts downstream of `mutate(_:)`.
 - When using `ObservedReactor` for SwiftUI, keep the default `MainScheduler.instance`. Overriding to a non-main scheduler violates `ObservedReactor`'s main-actor contract.
 
 ### Pulse
