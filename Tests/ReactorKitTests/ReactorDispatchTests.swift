@@ -49,11 +49,16 @@ final class ReactorDispatchTests: XCTestCase {
       }
     }
 
-    XCTWaiter().wait(for: [expectation], timeout: 10)
+    let waitResult = XCTWaiter().wait(for: [expectation], timeout: 10)
+    XCTAssertEqual(waitResult, .completed)
 
-    XCTAssertGreaterThan(states.value.count, 0)
-    for state in states.value {
-      XCTAssertTrue(state === states.value.first)
+    lock.lock()
+    let captured = states.value
+    lock.unlock()
+
+    XCTAssertEqual(captured.count, 100)
+    for state in captured {
+      XCTAssertTrue(state === captured.first)
     }
   }
 
@@ -98,7 +103,8 @@ final class ReactorDispatchTests: XCTestCase {
       reactor.action.onNext(Void())
     }
 
-    XCTWaiter().wait(for: [expectation], timeout: 5)
+    let waitResult = XCTWaiter().wait(for: [expectation], timeout: 5)
+    XCTAssertEqual(waitResult, .completed)
     XCTAssertEqual(reactor.currentState.count, 1)
   }
 }

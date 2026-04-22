@@ -38,6 +38,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     - [What to test](#what-to-test)
     - [View testing](#view-testing)
     - [Reactor testing](#reactor-testing)
+  - [Threading](#threading)
   - [Pulse](#pulse)
 - [SwiftUI](#swiftui)
   - [ObservableState](#observablestate)
@@ -374,7 +375,7 @@ func testIsLoading() {
 
 ReactorKit does not reschedule the pipeline on your behalf. `transform(action:)`, `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers all run on whatever thread the upstream emits on.
 
-**Action dispatch contract**: callers of `action.onNext(_:)` are expected to dispatch from the main thread. This keeps action entry into the pipeline serialized. In DEBUG builds an `os_log` fault is emitted when an action arrives off the main thread.
+**Action dispatch contract**: callers of `action.onNext(_:)` are expected to dispatch from the main thread. This keeps action entry into the pipeline serialized. The same rule applies to any external stream merged inside `transform(action:)` — apply `.observe(on: MainScheduler.instance)` to it before merging. In DEBUG builds an `os_log` fault is emitted when an action reaches `mutate(_:)` off the main thread.
 
 If `mutate(_:)` returns an observable that emits from a background thread (e.g. a network response), apply `.observe(on:)` explicitly to hop back onto a thread compatible with your consumers:
 

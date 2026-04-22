@@ -29,9 +29,11 @@ public protocol Reactor: AnyObject {
   ///
   /// **Action dispatch contract**: callers of `action.onNext(_:)` are
   /// expected to dispatch from the main thread. This guarantees actions
-  /// are serialized into the pipeline from a single thread. In DEBUG
-  /// builds an `os_log` fault is emitted when an action arrives off the
-  /// main thread.
+  /// are serialized into the pipeline from a single thread. The same
+  /// rule applies to any external stream merged inside
+  /// `transform(action:)` — apply `.observe(on: MainScheduler.instance)`
+  /// to it before the merge. In DEBUG builds an `os_log` fault is
+  /// emitted when an action reaches `mutate(_:)` off the main thread.
   ///
   /// **Threading**: the pipeline does not reschedule. `transform(action:)`,
   /// `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`,
@@ -123,13 +125,15 @@ extension Reactor {
 
   private func createReactorStreams() -> ReactorStreams<Action, State> {
     let actionSubject = ActionSubject<Action>()
-    let baseAction = actionSubject.asObservable()
+    let action = actionSubject.asObservable()
+    let baseTransformedAction = transform(action: action)
     #if DEBUG
-    let action = baseAction.do(onNext: { [weak self] _ in self?._checkActionDispatchContext() })
+    let transformedAction = baseTransformedAction.do(onNext: { [weak self] _ in
+      self?._checkActionDispatchContext()
+    })
     #else
-    let action = baseAction
+    let transformedAction = baseTransformedAction
     #endif
-    let transformedAction = transform(action: action)
     let mutation = transformedAction
       .flatMap { [weak self] action -> Observable<Mutation> in
         guard let self = self else { return .empty() }
@@ -153,14 +157,17 @@ extension Reactor {
   }
 
   #if DEBUG
-  /// DEBUG-only check that actions are dispatched from the main thread.
-  /// The contract exists to serialize action entry into the pipeline —
-  /// see the `action` property documentation.
+  /// DEBUG-only check that actions reach `mutate(_:)` from the main thread.
+  /// Attached after `transform(action:)` so external streams merged inside
+  /// `transform(action:)` are also covered. The contract exists to
+  /// serialize action entry into the pipeline — see the `action` property
+  /// documentation.
   fileprivate func _checkActionDispatchContext() {
     guard !Thread.isMainThread else { return }
     _runtimeWarning(
-      "\(type(of: self)).action received an action from a non-main thread. "
-        + "Dispatch actions from the main thread to keep action entry serialized."
+      "\(type(of: self)) received an action from a non-main thread. "
+        + "Dispatch from the main thread (or hop merged streams in "
+        + "transform(action:) onto main) to keep action entry serialized."
     )
   }
   #endif
