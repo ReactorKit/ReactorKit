@@ -25,9 +25,20 @@ public protocol Reactor: AnyObject {
   /// A State represents the current state of a view.
   associatedtype State
 
-  typealias Scheduler = ImmediateSchedulerType
-
   /// The action from the view. Bind user inputs to this subject.
+  ///
+  /// **Action dispatch contract**: callers of `action.onNext(_:)` are
+  /// expected to dispatch from the main thread. This guarantees actions
+  /// are serialized into the pipeline from a single thread. In DEBUG
+  /// builds an `os_log` fault is emitted when an action arrives off the
+  /// main thread.
+  ///
+  /// **Threading**: the pipeline does not reschedule. `transform(action:)`,
+  /// `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`,
+  /// `transform(state:)`, and state subscribers all run on whatever
+  /// thread the upstream emits on. If `mutate(_:)` returns an observable
+  /// that emits from a background thread, apply `.observe(on:)`
+  /// explicitly to hop back onto the thread your consumers expect.
   var action: ActionSubject<Action> { get }
 
   /// The initial state.
@@ -38,31 +49,6 @@ public protocol Reactor: AnyObject {
 
   /// The state stream. Use this observable to observe the state changes.
   var state: Observable<State> { get }
-
-  /// A scheduler for reducing and observing the state stream. Defaults to `MainScheduler.instance`.
-  ///
-  /// Applied at the effect boundary — each `mutate(_:)` output is rescheduled
-  /// through this scheduler before reaching `transform(mutation:)`, `reduce(_:_:)`,
-  /// `transform(state:)`, and state subscribers. This guarantees reduce and state
-  /// delivery happen on the scheduler even when `mutate(_:)` returns an observable
-  /// that emits on a background thread (e.g. a network response).
-  ///
-  /// **Action dispatch contract**: callers of `action.onNext(_:)` are responsible
-  /// for being on a thread compatible with `scheduler`. The action upstream is
-  /// not rescheduled, so sync dispatch semantics from a compatible thread are
-  /// preserved. In DEBUG builds an `os_log` fault is emitted when an action is
-  /// dispatched from a non-main thread while `scheduler` is the default
-  /// `MainScheduler` (custom schedulers are not checked — most do not expose
-  /// their queue context).
-  ///
-  /// `transform(action:)` runs on the caller's thread by design — this is the
-  /// surface for stream-shaping operators (debounce, throttle, merge with other
-  /// sources) where natural emission timing matters.
-  ///
-  /// Override with a serial scheduler (e.g. `SerialDispatchQueueScheduler`) to
-  /// move reduction off the main thread. The scheduler **must be serial**;
-  /// concurrent schedulers break the single-writer invariant of `reduce`.
-  var scheduler: Scheduler { get }
 
   /// Transforms the action. Use this function to combine with other observables. This method is
   /// called once before the state stream is created.
@@ -131,10 +117,6 @@ extension Reactor {
     streams.state
   }
 
-  public var scheduler: Scheduler {
-    MainScheduler.instance
-  }
-
   fileprivate var disposeBag: DisposeBag {
     MapTables.disposeBag.value(forKey: self, default: DisposeBag())
   }
@@ -153,7 +135,6 @@ extension Reactor {
         guard let self = self else { return .empty() }
         return self.mutate(action: action).catch { _ in .empty() }
       }
-      .observe(on: scheduler)
     let transformedMutation = transform(mutation: mutation)
     let state = transformedMutation
       .scan(initialState) { [weak self] state, mutation -> State in
@@ -172,16 +153,14 @@ extension Reactor {
   }
 
   #if DEBUG
-  /// DEBUG-only check that the action dispatch context is compatible with
-  /// `scheduler`. Currently checks the default `MainScheduler` case only;
-  /// custom schedulers do not expose enough queue context for a generic check.
-  /// See the `scheduler` property documentation for the dispatch contract.
+  /// DEBUG-only check that actions are dispatched from the main thread.
+  /// The contract exists to serialize action entry into the pipeline —
+  /// see the `action` property documentation.
   fileprivate func _checkActionDispatchContext() {
-    guard scheduler is MainScheduler, !Thread.isMainThread else { return }
+    guard !Thread.isMainThread else { return }
     _runtimeWarning(
-      "\(type(of: self)).action received an action from a non-main thread, "
-        + "but `scheduler` is MainScheduler. Dispatch the action from the main "
-        + "thread, or override `scheduler` to match your dispatch context."
+      "\(type(of: self)).action received an action from a non-main thread. "
+        + "Dispatch actions from the main thread to keep action entry serialized."
     )
   }
   #endif
