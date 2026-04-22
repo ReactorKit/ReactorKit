@@ -38,6 +38,7 @@ You may want to see the [Examples](#examples) section first if you'd like to see
     - [What to test](#what-to-test)
     - [View testing](#view-testing)
     - [Reactor testing](#reactor-testing)
+  - [Threading](#threading)
   - [Pulse](#pulse)
 - [SwiftUI](#swiftui)
   - [ObservableState](#observablestate)
@@ -370,31 +371,30 @@ func testIsLoading() {
 }
 ```
 
-### Scheduling
+### Threading
 
-Override the `scheduler` property to specify which scheduler runs reduction and state delivery. The default is `MainScheduler.instance`, which makes state subscription safe to bind directly to UI without an additional `observe(on:)` hop.
+ReactorKit does not reschedule the pipeline on your behalf. `transform(action:)`, `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers all run on whatever thread the upstream emits on.
 
-The scheduler is applied at the **effect boundary** — each `mutate(_:)` output is rescheduled through `scheduler` before reaching `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers. This holds even when `mutate(_:)` returns an observable that emits on a background thread (e.g. a network response), so you do not need to add `.observe(on: MainScheduler.instance)` inside every async `mutate` return.
+**Action dispatch contract**: callers of `action.onNext(_:)` are expected to dispatch from the main thread. This keeps action entry into the pipeline serialized. The same rule applies to any external stream merged inside `transform(action:)` — apply `.observe(on: MainScheduler.instance)` to it before merging. In DEBUG builds an `os_log` fault is emitted when an action reaches `mutate(_:)` off the main thread.
 
-Override with a serial scheduler when you need to move heavy reduction work off the main thread:
+If `mutate(_:)` returns an observable that emits from a background thread (e.g. a network response), apply `.observe(on:)` explicitly to hop back onto a thread compatible with your consumers:
 
 ```swift
-final class MyReactor: Reactor {
-  let scheduler: Scheduler = SerialDispatchQueueScheduler(qos: .default)
-
-  func reduce(state: State, mutation: Mutation) -> State {
-    // executed on the background serial queue
-    heavyAndImportantCalculation()
-    return state
+func mutate(action: Action) -> Observable<Mutation> {
+  switch action {
+  case .load:
+    return api.fetch()
+      .map(Mutation.setItems)
+      .observe(on: MainScheduler.instance)
   }
 }
 ```
 
-Notes:
-- The scheduler **must be serial**. Concurrent schedulers break the "single writer" invariant the reducer relies on.
-- **Action dispatch contract**: callers of `action.onNext(_:)` must be on a thread compatible with `scheduler` (default: main). The action upstream is not rescheduled, so sync dispatch from a compatible thread is preserved. In DEBUG builds an `os_log` fault is emitted when an action is dispatched from a non-main thread while `scheduler` is the default `MainScheduler` — custom schedulers are not checked.
-- `transform(action:)` runs on the caller's thread by design — this is the surface for stream-shaping operators (debounce, throttle, merge with other sources) where natural emission timing matters. The scheduled section starts downstream of `mutate(_:)`.
-- When using `ObservedReactor` for SwiftUI, keep the default `MainScheduler.instance`. Overriding to a non-main scheduler violates `ObservedReactor`'s main-actor contract.
+The same applies when `transform(mutation:)` merges an external stream — the merged source bypasses the action-dispatch boundary, so make sure its emissions land on the same thread your other mutations do.
+
+`reduce(_:_:)` is expected to be single-writer. ReactorKit does not enforce this — if you fan mutations in from multiple threads, `currentState` can race. Keep mutation emissions on a single thread.
+
+`reactor.state` emits on whichever thread produced the final mutation. When binding directly to UI outside of `ObservedReactor`, add `.observe(on: MainScheduler.instance)` at the call site if any of your mutations may emit from a background thread. `ObservedReactor` already hops state onto the main thread before writing, so SwiftUI users are unaffected.
 
 ### Pulse
 

@@ -143,14 +143,17 @@ public final class ObservedReactor<R: Reactor> where R.State: ObservableState {
   /// stream and routing every emission through the `state` setter so
   /// observation notifications fire on the main actor.
   ///
-  /// Contract: `R.scheduler` must be main-thread-isolated (the default
-  /// `MainScheduler.instance` satisfies this). Overriding it to a
-  /// background scheduler while using `ObservedReactor` violates the
-  /// `@MainActor` contract and will trap in `assumeIsolated` below.
+  /// State emissions are hopped onto `MainScheduler.instance` before the
+  /// `assumeIsolated` call below. The Reactor pipeline does not reschedule
+  /// on its own, so `mutate(_:)` can return observables that emit from
+  /// background threads. Observing on main here guarantees the
+  /// `@MainActor` contract regardless of how the reactor's mutations
+  /// dispatch.
   public init(reactor: R) {
     self.reactor = reactor
     self._state = reactor.initialState
     reactor.state
+      .observe(on: MainScheduler.instance)
       .subscribe(onNext: { [weak self] state in
         MainActor.assumeIsolated {
           self?.state = state
