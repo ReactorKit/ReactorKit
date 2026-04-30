@@ -17,7 +17,7 @@ func mutate(action: Action) -> Observable<Mutation> {
         .catchErrorJustReturn([])
         .map { Mutation.setRepos($0) }
     } else {
-      return Observabe.just(Mutation.setRepos([])) // empty result
+      return Observable.just(Mutation.setRepos([])) // empty result
     }
   }
 }
