@@ -125,7 +125,12 @@ extension Reactor {
 
   private func createReactorStreams() -> ReactorStreams<Action, State> {
     let actionSubject = ActionSubject<Action>()
-    let action = actionSubject.asObservable()
+    // Trampoline serialization on the current thread. Internal reentrancy-safety
+    // mechanism — not a configurable scheduler. Actions dispatched from inside
+    // reduce or a state subscriber are queued and processed after the current
+    // emission completes. Thread placement remains the caller's responsibility
+    // (see action property docs).
+    let action = actionSubject.asObservable().observe(on: CurrentThreadScheduler.instance)
     let baseTransformedAction = transform(action: action)
     #if DEBUG
     let transformedAction = baseTransformedAction.do(onNext: { [weak self] _ in
