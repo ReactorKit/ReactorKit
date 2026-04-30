@@ -86,7 +86,7 @@ class ProfileViewController: UIViewController, ReactorView {
   var disposeBag = DisposeBag()
 }
 
-profileViewController.reactor = UserViewReactor() // inject reactor
+profileViewController.reactor = ProfileViewReactor() // inject reactor
 ```
 
 When the `reactor` property has changed, `bind(reactor:)` gets called. Implement this method to define the bindings of an action stream and a state stream.
