@@ -373,9 +373,31 @@ func testIsLoading() {
 
 ### Threading
 
-ReactorKit does not reschedule the pipeline on your behalf. `transform(action:)`, `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers all run on whatever thread the upstream emits on.
+ReactorKit does not move work between threads on your behalf. With one exception (the reentrancy trampoline described below), `transform(action:)`, `mutate(_:)`, `transform(mutation:)`, `reduce(_:_:)`, `transform(state:)`, and state subscribers all run on whatever thread the upstream emits on.
 
-**Action dispatch contract**: callers of `action.onNext(_:)` are expected to dispatch from the main thread. This keeps action entry into the pipeline serialized. The same rule applies to any external stream merged inside `transform(action:)` — apply `.observe(on: MainScheduler.instance)` to it before merging. In DEBUG builds an `os_log` fault is emitted when an action reaches `mutate(_:)` off the main thread.
+#### Responsibility split
+
+| Guarantee | Owner |
+|---|---|
+| Same-thread reentrant action serialization | ReactorKit (internal trampoline) |
+| Main-thread action dispatch | User (DEBUG warning emitted on violation) |
+| `mutate` background → main hop | User (`.observe(on: MainScheduler.instance)` inside `mutate`) |
+| UIKit transition serialization (e.g. dismiss → present) | User (`MainScheduler.asyncInstance` or `dismiss(completion:)`) |
+| SwiftUI main-thread state delivery | ReactorKit (`ObservedReactor.init`) |
+
+#### Why the trampoline exists
+
+The action upstream is observed on `CurrentThreadScheduler.instance`. When an action is dispatched from inside `reduce(_:_:)` or a state subscriber — i.e. while a previous emission is still on the stack — the new action is queued on the current thread and processed only after the in-flight emission completes. Without this trampoline, a reentrant action's `reduce` would run before the outer emission's state subscribers finished, which is a common source of reordering bugs (for example, a `dismiss` followed by a `present` from the dismiss handler can break routing if the second action interrupts the first emission).
+
+#### Why `Reactor.scheduler` is not exposed
+
+The trampoline is a reentrancy-safety mechanism, not a thread-placement policy. Thread-moving schedulers (`MainScheduler`, `SerialDispatchQueueScheduler`) belong inside `mutate(_:)` via explicit `.observe(on:)` so the hop is local to the effect that needs it. An earlier iteration (PR #256) exposed a `scheduler` property defaulting to `MainScheduler.instance`; this reintroduced races between `mutate(_:)` and `currentState` writes and broke the synchronous `action.onNext → reduce → currentState` contract that `currentState` readers depend on. Keeping thread placement at the call site preserves that contract and prevents the framework from silently reordering caller-controlled work.
+
+#### Action dispatch contract
+
+Callers of `action.onNext(_:)` are expected to dispatch from the main thread. This keeps action entry into the pipeline serialized. The same rule applies to any external stream merged inside `transform(action:)` — apply `.observe(on: MainScheduler.instance)` to it before merging. In DEBUG builds an `os_log` fault is emitted when an action reaches `mutate(_:)` off the main thread.
+
+#### Recipes
 
 If `mutate(_:)` returns an observable that emits from a background thread (e.g. a network response), apply `.observe(on:)` explicitly to hop back onto a thread compatible with your consumers:
 
@@ -391,6 +413,19 @@ func mutate(action: Action) -> Observable<Mutation> {
 ```
 
 The same applies when `transform(mutation:)` merges an external stream — the merged source bypasses the action-dispatch boundary, so make sure its emissions land on the same thread your other mutations do.
+
+For UIKit transitions where one action must complete before the next runs (e.g. `dismiss` → `present`), use `MainScheduler.asyncInstance` so the next action is scheduled on the next runloop turn instead of nesting inside the current one:
+
+```swift
+reactor.state.map(\.shouldDismiss)
+  .filter { $0 }
+  .observe(on: MainScheduler.asyncInstance)
+  .subscribe(onNext: { [weak self] _ in
+    self?.dismiss(animated: true)
+    self?.reactor?.action.onNext(.presentNext)
+  })
+  .disposed(by: disposeBag)
+```
 
 `reduce(_:_:)` is expected to be single-writer. ReactorKit does not enforce this — if you fan mutations in from multiple threads, `currentState` can race. Keep mutation emissions on a single thread.
 
