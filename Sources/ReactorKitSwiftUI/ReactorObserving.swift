@@ -89,10 +89,10 @@ extension ReactorObserving: View where Content: View {
       // SwiftUI re-evaluates the surrounding body, restarting tracking.
       let _ = id
       // `MainActor.assumeIsolated` is safe here because:
-      // - ObservedReactor is @MainActor and its init hops the reactor
-      //   state stream onto MainScheduler before writing to `state`,
-      //   so the setter always runs on the main thread regardless of
-      //   where the Reactor pipeline emitted from.
+      // - ObservedReactor is @MainActor and its init routes every state
+      //   emission through `_runOnMain(_:)`, which guarantees `state.set`
+      //   runs on the main thread regardless of which thread the Reactor
+      //   pipeline emitted from.
       // - BackportRegistrar.willSet (which fires this callback) is
       //   called from that setter.
       // - Using async dispatch would defer the @State update, causing a
