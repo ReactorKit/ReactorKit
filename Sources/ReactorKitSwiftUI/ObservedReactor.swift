@@ -140,26 +140,81 @@ public final class ObservedReactor<R: Reactor> where R.State: ObservableState {
   private var disposeBag = DisposeBag()
 
   /// Creates an observed reactor, subscribing to the reactor's state
-  /// stream and routing every emission through the `state` setter so
+  /// stream and routing every emission through ``_runOnMain(_:)`` so
   /// observation notifications fire on the main actor.
-  ///
-  /// State emissions are hopped onto `MainScheduler.instance` before the
-  /// `assumeIsolated` call below. The Reactor pipeline does not reschedule
-  /// on its own, so `mutate(_:)` can return observables that emit from
-  /// background threads. Observing on main here guarantees the
-  /// `@MainActor` contract regardless of how the reactor's mutations
-  /// dispatch.
   public init(reactor: R) {
     self.reactor = reactor
     self._state = reactor.initialState
     reactor.state
-      .observe(on: MainScheduler.instance)
       .subscribe(onNext: { [weak self] state in
-        MainActor.assumeIsolated {
+        self?._runOnMain { [weak self] in
           self?.state = state
         }
       })
       .disposed(by: disposeBag)
+  }
+
+  /// Runs `block` on the main thread — synchronously when already on
+  /// main, otherwise via `DispatchQueue.main.async`.
+  ///
+  /// # Why not `.observe(on: MainScheduler.instance)`?
+  ///
+  /// `MainScheduler.instance` shares a process-wide `numberEnqueued`
+  /// counter. If `mutate(_:)` returns a chain that itself uses
+  /// `.observe(on: MainScheduler.instance)` (a common BG → main hop),
+  /// the counter is non-zero when the resulting state reaches our
+  /// subscriber. RxSwift then falls back from the synchronous fast-path
+  /// to `dispatch_async`, deferring `_state = newValue` to a later
+  /// runloop turn.
+  ///
+  /// That deferral races against native Observation: the macro setters
+  /// fire `Observation.ObservationRegistrar.willSet` synchronously
+  /// inside `reduce`, SwiftUI schedules a body re-eval, and the
+  /// re-evaluation runs **before** the deferred `_state = newValue`. The
+  /// body reads stale `_state` — UI sticks on the previous state.
+  ///
+  /// A direct `Thread.isMainThread` check is independent of any
+  /// scheduler counter, so the sync fast-path is always taken when the
+  /// upstream emits on main. `_state = newValue` then happens in the
+  /// same call stack as the macro's willSet, and any scheduled body
+  /// re-eval observes the fresh state.
+  ///
+  /// # Background-thread emissions
+  ///
+  /// The Reactor pipeline does not reschedule on its own, so `mutate(_:)`
+  /// can return observables that emit from background threads. The
+  /// `else` branch handles that with an async hop — at the cost of one
+  /// runloop tick of perceived UI lag.
+  ///
+  /// Note that the user-reported race described above only manifests
+  /// when the upstream emits **on main** (e.g. after a user-supplied
+  /// `.observe(on: MainScheduler.instance)` hop): the macro's native
+  /// `willSet` fires on main inside `reduce`, SwiftUI scheduled body
+  /// re-eval, and `_state = newValue` had to land before that re-eval.
+  /// True BG emissions are an Apple-discouraged pattern (SwiftUI
+  /// Observation expects mutations on main); in that case the macro's
+  /// willSet fires on the background thread the upstream emitted from,
+  /// and downstream SwiftUI behavior follows Apple's contract for
+  /// off-main mutations rather than anything this helper can guarantee.
+  ///
+  /// # Concurrency
+  ///
+  /// `nonisolated` because RxSwift's subscribe closure is not
+  /// actor-isolated. The `@MainActor` closure parameter (gated by
+  /// `Thread.isMainThread` / `DispatchQueue.main`) bridges into
+  /// main-actor-isolated work via `MainActor.assumeIsolated`. The
+  /// `else` branch's `assumeIsolated` is sound because
+  /// `DispatchQueue.main.async` enqueues onto the main queue, which is
+  /// the main actor's executor on Apple platforms — the runtime check
+  /// passes.
+  private nonisolated func _runOnMain(_ block: @escaping @MainActor () -> Void) {
+    if Thread.isMainThread {
+      MainActor.assumeIsolated(block)
+    } else {
+      DispatchQueue.main.async {
+        MainActor.assumeIsolated(block)
+      }
+    }
   }
 
   /// Sends an action to the reactor.
