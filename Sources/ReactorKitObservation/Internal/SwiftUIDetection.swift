@@ -64,28 +64,13 @@ public struct _SwiftUIRenderPathDetector {
       guard let headerPtr = _dyld_get_image_header(i) else { continue }
       let slide = _dyld_get_image_vmaddr_slide(i)
 
-      #if arch(x86_64) || arch(arm64)
-      typealias _mach_header = mach_header_64
-      typealias _segment_command = segment_command_64
-      let LC_SEGMENT_KIND = UInt32(LC_SEGMENT_64)
-      let header = headerPtr.withMemoryRebound(to: _mach_header.self, capacity: 1) { $0.pointee }
-      #else
-      typealias _mach_header = mach_header
-      typealias _segment_command = segment_command
-      let LC_SEGMENT_KIND = UInt32(LC_SEGMENT)
-      let header = headerPtr.pointee
-      #endif
-
-      var commandPtr = UnsafeRawPointer(headerPtr).advanced(by: MemoryLayout<_mach_header>.size)
+      let header = UnsafeRawPointer(headerPtr).load(as: NativeMachHeader.self)
+      var commandPtr = UnsafeRawPointer(headerPtr).advanced(by: MemoryLayout<NativeMachHeader>.size)
       for _ in 0..<header.ncmds {
         let cmd = commandPtr.load(as: load_command.self)
-        if cmd.cmd == LC_SEGMENT_KIND {
-          let segment = commandPtr.load(as: _segment_command.self)
-          if segment.vmsize > 0 {
-            let start = UInt(bitPattern: Int(segment.vmaddr) + slide)
-            let end = UInt(bitPattern: Int(segment.vmaddr + segment.vmsize) + slide)
-            ranges.append(start..<end)
-          }
+        if cmd.cmd == nativeSegmentLoadCommand,
+           let range = commandPtr.load(as: NativeSegmentCommand.self).addressRange(slide: slide) {
+          ranges.append(range)
         }
         commandPtr = commandPtr.advanced(by: Int(cmd.cmdsize))
       }
@@ -95,4 +80,33 @@ public struct _SwiftUIRenderPathDetector {
     return ranges
   }
 }
+
+#if canImport(MachO)
+#if arch(x86_64) || arch(arm64)
+private typealias NativeMachHeader = mach_header_64
+typealias NativeSegmentCommand = segment_command_64
+private let nativeSegmentLoadCommand = UInt32(LC_SEGMENT_64)
+#else
+private typealias NativeMachHeader = mach_header
+typealias NativeSegmentCommand = segment_command
+private let nativeSegmentLoadCommand = UInt32(LC_SEGMENT)
+#endif
+
+extension NativeSegmentCommand {
+  /// Runtime address range of this segment, or `nil` when it is empty
+  /// or would wrap past the top of the address space.
+  ///
+  /// Stays in `UInt` with wrapping arithmetic: `vmaddr` can exceed
+  /// `Int.max` (e.g. on arm64_32, where it is a 32-bit `UInt32`), so
+  /// converting it to `Int` traps. `UInt(vmaddr)` itself never traps
+  /// because the native segment fields are pointer-width.
+  func addressRange(slide: Int) -> Range<UInt>? {
+    guard vmsize > 0 else { return nil }
+    let start = UInt(vmaddr) &+ UInt(bitPattern: slide)
+    let (end, overflow) = start.addingReportingOverflow(UInt(vmsize))
+    guard !overflow else { return nil }
+    return start..<end
+  }
+}
+#endif
 #endif
